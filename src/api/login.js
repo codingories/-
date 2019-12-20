@@ -3,6 +3,7 @@ import axios from "axios";
 import qs from "qs";
 
 export function login(username, password) {
+  console.log("进入api中login的请求");
   let data = { account: username, password: password };
   return request({
     url: "/api/v1/login",
@@ -19,16 +20,17 @@ export function getInfo(token) {
   });
 }
 
-export function getRouter(roule) {
-  console.log(roule);
-  if (roule === "admin") {
+export function getRouter(role) {
+  console.log(role);
+  let data = { access_token: role };
+  if (role === "admin") {
     return axios.get(
       " https://www.easy-mock.com/mock/5ca8799b4f62671c250622a9/vlogin/user/getRouterAdmin"
     );
   } else {
-    return axios.get(
-      " https://www.easy-mock.com/mock/5ca8799b4f62671c250622a9/vlogin/user/getRouteReditor"
-    );
+    console.log("进入到请求获取路由列表");
+
+    return axios.get("/api/v1/admin-user/menus", { params: data });
   }
 }
 

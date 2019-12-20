@@ -29,6 +29,7 @@ service.interceptors.request.use(
   },
   error => {
     // Do something with request error
+    console.log("Do something with request error");
     console.log(error); // for debug
     Promise.reject(error);
   }
@@ -37,14 +38,15 @@ service.interceptors.request.use(
 // response 拦截器
 service.interceptors.response.use(
   response => {
+    console.log("进入拦截器中的response");
     /**
      * code为非20000是抛错 可结合自己业务进行修改
      */
     const res = response.data;
-    if (res.code !== 20000) {
+    if (res.code !== 200) {
       Message({
         message: res.message,
-        type: "error",
+        type: "错误,数据响应码200，请检查数据响应是否存在问题",
         duration: 5 * 1000
       });
 
@@ -70,6 +72,7 @@ service.interceptors.response.use(
     }
   },
   error => {
+    console.log("拦截器的error");
     console.log("err" + error); // for debug
     Message({
       message: error.message,

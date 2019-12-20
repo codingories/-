@@ -26,7 +26,7 @@ module.exports = {
     app: "./src/main.js"
   },
   devServer: {
-    port: port,
+    port: 8888,
     open: true,
     overlay: {
       warnings: false,

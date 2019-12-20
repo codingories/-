@@ -12,7 +12,7 @@ const user = {
 
   mutations: {
     SET_TOKEN: (state, token) => {
-      state.token = token;
+      state.access_token = token;
     },
     SET_NAME: (state, name) => {
       state.name = name;
@@ -38,19 +38,20 @@ const user = {
         login(username, userInfo.password).then(
           response => {
             console.log("============");
-            // console.log(response);
-            // const data = response.data;
+            console.log(response);
+            const data = response.data;
             // console.log("data", data);
-            // setToken(data.access_token);
-            // commit("access_token", data.token);
+            setToken(data.access_token);
+            commit("SET_TOKEN", data.access_token);
             resolve();
           },
           fail => {
-            console.log("fail");
+            console.log("----fail-----");
             console.log(fail);
             reject(fail);
           }
         );
+        console.log(username, userInfo.password + "结束");
         // .catch(error => {
         //   console.log("erroreerrr");
         //   console.log(error);
@@ -61,6 +62,10 @@ const user = {
 
     // 获取用户信息
     GetInfo({ commit, state }) {
+      console.log("{ commit, state }在GetInfo里");
+      console.log({ commit, state });
+      console.log(state.token);
+      console.log(state.access_token);
       return new Promise((resolve, reject) => {
         getInfo(state.token)
           .then(response => {

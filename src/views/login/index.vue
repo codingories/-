@@ -118,10 +118,12 @@ export default {
           this.$store
             .dispatch("Login", this.loginForm)
             .then(() => {
+              console.log("进入handleLogin的then");
               this.loading = false;
               this.$router.push({ path: this.redirect || "/" });
             })
             .catch(() => {
+              console.log("进入handleLogin的catch");
               this.loading = false;
             });
         } else {
