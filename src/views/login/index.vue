@@ -8,7 +8,7 @@
       auto-complete="on"
       label-position="left"
     >
-      <h3 class="title">动态路由登录案例</h3>
+      <h3 class="title">青浦崧淀中学考勤管理系统</h3>
       <el-form-item prop="username">
         <span class="svg-container">
           <svg-icon icon-class="user" />
@@ -18,7 +18,7 @@
           name="username"
           type="text"
           auto-complete="on"
-          placeholder="username"
+          placeholder="请输入账号"
         />
       </el-form-item>
       <el-form-item prop="password">
@@ -30,7 +30,7 @@
           v-model="loginForm.password"
           name="password"
           auto-complete="on"
-          placeholder="password"
+          placeholder="请输入密码"
           @keyup.enter.native="handleLogin"
         />
         <span class="show-pwd" @click="showPwd">
@@ -45,16 +45,6 @@
           @click.native.prevent="handleLogin"
         >Sign in</el-button>
       </el-form-item>
-      <div class="tips">
-        <span style="margin-right:20px;">username: admin</span>
-        <span style="margin-right:23px;">password: 随意</span>
-        <br />
-        <span style="margin-right:23px;">admin的与editor渲染的路由不一样,数据来源于 easy-mock</span>
-      </div>
-      <div class="tips">
-        <span style="margin-right:23px;">username: editor</span>
-        <span style="margin-right:23px;">password: 随意</span>
-      </div>
     </el-form>
   </div>
 </template>
@@ -81,8 +71,8 @@ export default {
     };
     return {
       loginForm: {
-        username: "admin",
-        password: "admin2019"
+        username: "",
+        password: ""
       },
       loginRules: {
         username: [

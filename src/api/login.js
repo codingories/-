@@ -35,9 +35,11 @@ export function getRouter(role) {
   }
 }
 
-export function logout() {
-  return request({
-    url: "/user/logout",
-    method: "post"
-  });
+export function logout(data) {
+  let obj = {
+    url: "/api/v1/logout",
+    method: "post",
+    access_token: data
+  };
+  return request(obj);
 }
