@@ -12,13 +12,18 @@ var data = false; // 本次demo用变量凑合一下,项目里面应该放到vue
 router.beforeEach((to, from, next) => {
   NProgress.start();
   if (getToken()) {
-    console.log("getToken()");
+    console.log("getToken()-----");
     // 判断cookice是否存在 不存在即为未登录
+    console.log(getToken());
     if (to.path !== "/login") {
       if (data) {
+        console.log("getToken()下的data");
+        console.log(data);
         // 获取了动态路由 data一定true,就无需再次请求 直接放行
         next();
       } else {
+        console.log("getToken()下的data else");
+        console.log(data);
         // data为false,一定没有获取动态路由,就跳转到获取动态路由的方法
         gotoRouter(to, next);
       }
@@ -49,7 +54,9 @@ router.afterEach(() => {
 });
 
 function gotoRouter(to, next) {
-  getRouter(store.getters.token) // 获取动态路由的方法
+  console.log("gotoRouter");
+  console.log(store.getters.access_token);
+  getRouter(store.getters.access_token) // 获取动态路由的方法
     .then(res => {
       console.log(res);
       console.log("解析后端动态路由", res.data.data);
@@ -64,7 +71,7 @@ function gotoRouter(to, next) {
       data = true; // 记录路由获取状态
       store.dispatch("setRouterList", asyncRouter); // 存储到vuex
       console.log("GetInfo进入");
-      store.dispatch("GetInfo");
+      // store.dispatch("GetInfo");
       next({ ...to, replace: true }); // hack方法 确保addRoutes已完成
     })
     .catch(e => {

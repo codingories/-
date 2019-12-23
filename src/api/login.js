@@ -21,6 +21,7 @@ export function getInfo(token) {
 }
 
 export function getRouter(role) {
+  console.log("=====role======");
   console.log(role);
   let data = { access_token: role };
   if (role === "admin") {

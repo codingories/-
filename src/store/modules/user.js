@@ -3,7 +3,7 @@ import { getToken, setToken, removeToken } from "@/utils/auth";
 import { StaticRouterMap } from "../../router/index";
 const user = {
   state: {
-    token: getToken(),
+    access_token: getToken(),
     name: "",
     avatar: "",
     roles: [],
@@ -12,7 +12,9 @@ const user = {
 
   mutations: {
     SET_TOKEN: (state, token) => {
+      console.log("SET_TOKEN", token);
       state.access_token = token;
+      console.log("已经设置SET_TOKEN");
     },
     SET_NAME: (state, name) => {
       state.name = name;
@@ -40,7 +42,8 @@ const user = {
             console.log("============");
             console.log(response);
             const data = response.data;
-            // console.log("data", data);
+            console.log("actions下的Login");
+            console.log("data->", data);
             setToken(data.access_token);
             commit("SET_TOKEN", data.access_token);
             resolve();
