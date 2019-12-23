@@ -11,7 +11,7 @@ export function addRouter(routerlist) {
     let e_new = {
       path: e.uri,
       name: e.title,
-      component: _import(e.title)
+      component: _import(e.uri)
     };
     if (e.children) {
       e_new = Object.assign({}, e_new, { children: addRouter(e.children) });
