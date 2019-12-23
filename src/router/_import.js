@@ -54,6 +54,7 @@ const map = {
   // 部门管理
   "/depart-manage": () => import("@/views/layout/Layout"),
   "/department/market": () => import("@/views/department/market"),
+  "/department/teach": () => import("@/views/department/teach"),
   // 后台设置
   "/backstage": () => import("@/views/layout/Layout"),
   "/backstage/role-management": () =>

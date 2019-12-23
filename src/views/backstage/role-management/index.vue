@@ -272,7 +272,7 @@ export default {
       },
       authorizeTable: [],
       value: true,
-      access_token: store.getters.token,
+      access_token: store.getters.access_token,
       getRolesLoading: false,
       RawGroupData: [],
       roleTable: [],

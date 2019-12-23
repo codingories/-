@@ -1,5 +1,103 @@
-<template >
-  <div style="padding:30px;">
-    <h2>用户管理</h2>
+<template>
+  <div class="app-container">
+    <div class="app-container">
+      <h2>用户管理</h2>
+      <el-table :data="usersInfoTable" style="width: 100%">
+        <el-table-column
+          :prop="item.prop"
+          :label="item.label"
+          v-for="(item, i) in userTableTitle"
+          v-bind:key="i"
+        ></el-table-column>
+      </el-table>
+    </div>
   </div>
 </template>
+
+<script>
+import { getUsers } from "@/api/UserManagement.js";
+
+import store from "@/store";
+export default {
+  data() {
+    return {
+      userTableTitle: [
+        { label: "用户名", prop: "username" },
+        { label: "姓名", prop: "name" },
+        { label: "工号", prop: "workno" },
+        { label: "email", prop: "email" },
+        { label: "手机", prop: "mobile" },
+        { label: "微信", prop: "wechat" },
+        { label: "角色", prop: "role" },
+        { label: "部门/组室", prop: "dept" },
+        { label: "考勤组", prop: "attendance_group" },
+        { label: "是否在职", prop: "leave" }
+      ],
+      access_token: store.getters.access_token,
+      getUsersLoading: false,
+      usersInfoTable: []
+    };
+  },
+  watch: {},
+
+  computed: {
+    tableHeader: function() {
+      return this.getTableHeader(this.tableYear, this.tableMonth);
+    }
+  },
+
+  created() {
+    this.fetchUsersData();
+  },
+
+  methods: {
+    fetchUsersData() {
+      let access_token = this.access_token;
+      let access_token_obj = { access_token: this.access_token };
+      this.getUsersLoading = true;
+
+      let list = [
+        "username",
+        "name",
+        "workno",
+        "email",
+        "mobile",
+        "wechat",
+        "role",
+        "dept",
+        "attendance_group",
+        "leave"
+      ];
+
+      getUsers(access_token_obj).then(success => {
+        console.log(success.data.list);
+        for (let i of success.data.list) {
+          console.log(i);
+          let obj = {
+            username: "",
+            name: "",
+            workno: "",
+            email: "",
+            mobile: "",
+            wechat: "",
+            role: "",
+            dept: "",
+            attendance_group: "",
+            leave: ""
+          };
+          for (let j of list) {
+            obj[j] = i[j];
+            if (i["leave"] === 0) {
+              obj["leave"] = "在职";
+            } else {
+              obj["leave"] = "离职";
+            }
+          }
+          this.usersInfoTable.push(obj);
+        }
+        this.getUsersLoading = false;
+      });
+    }
+  }
+};
+</script>
