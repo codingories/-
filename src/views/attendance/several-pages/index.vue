@@ -1,14 +1,18 @@
 <template>
   <div class="app-container">
     <div class="app-container">
-      <h2>流程汇总</h2>
+      <h2>多日页面调整</h2>
       <el-button type="primary">刷新</el-button>
       <el-button type="success">筛选</el-button>
       <el-button type="info">新增</el-button>
       <el-button type="warning">导出</el-button>
       <el-table :data="tableData" style="width: 100%">
         <el-table-column prop="ID" label="ID" width="180"></el-table-column>
-        <el-table-column prop="label" label="标识" width="180"></el-table-column>
+        <el-table-column
+          prop="label"
+          label="标识"
+          width="180"
+        ></el-table-column>
         <el-table-column prop="name" label="名称"></el-table-column>
         <el-table-column prop="permission" label="权限"></el-table-column>
         <el-table-column prop="createTime" label="创建时间"></el-table-column>
@@ -202,4 +206,3 @@ export default {
   }
 };
 </script>
-

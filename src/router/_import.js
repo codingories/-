@@ -45,12 +45,13 @@ const map = {
   "/user-repairs": () => import("@/views/repair-records/user-repairs"),
   // 考勤设置
   "/attendance": () => import("@/views/layout/Layout"),
-  "/attendance-rules": () => import("@/views/attendance/attendance-rules"),
-  "/attendance-groups": () => import("@/views/attendance/attendance-groups"),
-  "/attendance-rules-items": () =>
-    import("@/views/attendance/attendance-rules-items"),
-  "/attendance-statistics": () =>
-    import("@/views/attendance/attendance-statistics"),
+  "/total-attendance": () => import("@/views/attendance/total-attendance"),
+  "/several-pages": () => import("@/views/attendance/several-pages"),
+  "/everyday-attendance": () =>
+    import("@/views/attendance/everyday-attendance"),
+  "/single-day": () => import("@/views/attendance/single-day"),
+  "/attendance-rule": () => import("@/views/attendance/attendance-rule"),
+  "/attendance-manage": () => import("@/views/attendance/attendance-manage"),
   // 部门管理
   "/depart-manage": () => import("@/views/layout/Layout"),
   "/department/market": () => import("@/views/department/market"),

@@ -17,53 +17,23 @@
       <el-table-column prop="address" label="备注" />
       <el-table-column prop="address" label="操作" width="230">
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="primary"
-            @click="addMenus(scope.$index, scope.row)"
-            >增加</el-button
-          >
-          <el-button
-            size="mini"
-            type="success"
-            @click="EditMenu(scope.$index, scope.row)"
-            >编辑</el-button
-          >
-          <el-button
-            size="mini"
-            type="danger"
-            @click="DeleteMenu(scope.$index, scope.row)"
-            >删除</el-button
-          >
+          <el-button size="mini" type="primary" @click="addMenus(scope.$index, scope.row)">增加</el-button>
+          <el-button size="mini" type="success" @click="EditMenu(scope.$index, scope.row)">编辑</el-button>
+          <el-button size="mini" type="danger" @click="DeleteMenu(scope.$index, scope.row)">删除</el-button>
         </template>
       </el-table-column>
       <el-table-column prop="address" label="调整顺序">
         <template slot-scope="scope" width="150">
-          <el-button
-            size="mini"
-            type="primary"
-            circle
-            @click="handleUp(scope.$index, scope.row)"
-          >
+          <el-button size="mini" type="primary" circle @click="handleUp(scope.$index, scope.row)">
             <i class="el-icon-arrow-up" />
           </el-button>
-          <el-button
-            size="mini"
-            type="success"
-            circle
-            @click="handleDown(scope.$index, scope.row)"
-          >
+          <el-button size="mini" type="success" circle @click="handleDown(scope.$index, scope.row)">
             <i class="el-icon-arrow-down" />
           </el-button>
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog
-      title="增加菜单"
-      :visible.sync="dialogVisible"
-      width="80%"
-      :before-close="handleClose"
-    >
+    <el-dialog title="增加菜单" :visible.sync="dialogVisible" width="80%" :before-close="handleClose">
       <el-table :data="editTable" style="width: 100%">
         <el-table-column prop="menuName" label="菜单名称" width="180">
           <template slot-scope="scope">
@@ -85,9 +55,7 @@
                 :value="item.value"
               >
                 <span style="float: left">{{ item.label }}</span>
-                <span
-                  style="float: right; color: #8492a6; font-size: 13px; line-height:34px"
-                >
+                <span style="float: right; color: #8492a6; font-size: 13px; line-height:34px">
                   <svg class="icon">
                     <use :xlink:href="'#' + item.icon" />
                   </svg>
@@ -108,12 +76,7 @@
         <el-button type="primary" @click="confirmAdd">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog
-      title="修改菜单"
-      :visible.sync="EditVisible"
-      width="30%"
-      :before-close="handleClose"
-    >
+    <el-dialog title="修改菜单" :visible.sync="EditVisible" width="30%" :before-close="handleClose">
       <el-form ref="form" :model="editMenuList" label-width="80px">
         <el-form-item label="菜单名称">
           <el-input v-model="editMenuList.menuName" />
@@ -475,12 +438,18 @@ export default {
         .then(_ => {
           const obj = {
             access_token: this.access_token,
-            id: row.id
+            id: parseInt(row.id)
           };
           console.log(obj);
-          delMenu(obj).then(res => {
-            location.reload();
-          });
+          delMenu(obj).then(
+            res => {
+              location.reload();
+            },
+            fail => {
+              console.log(fail);
+              this.$alert(fail);
+            }
+          );
         })
         .catch(_ => {});
     }

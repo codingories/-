@@ -1,21 +1,52 @@
 <template>
   <div class="app-container">
-    <div class="app-container">
-      <h2>流程汇总</h2>
-      <el-button type="primary">刷新</el-button>
-      <el-button type="success">筛选</el-button>
-      <el-button type="info">新增</el-button>
-      <el-button type="warning">导出</el-button>
-      <el-table :data="tableData" style="width: 100%">
-        <el-table-column prop="ID" label="ID" width="180"></el-table-column>
-        <el-table-column prop="label" label="标识" width="180"></el-table-column>
-        <el-table-column prop="name" label="名称"></el-table-column>
-        <el-table-column prop="permission" label="权限"></el-table-column>
-        <el-table-column prop="createTime" label="创建时间"></el-table-column>
-        <el-table-column prop="refreshTime" label="更新时间"></el-table-column>
-        <el-table-column prop="operation" label="操作"></el-table-column>
-      </el-table>
-    </div>
+    <h2>当前是考勤组管理页面</h2>
+    <!-- <h2>{{RawGroupData}}</h2> -->
+    <h3>考勤组展示</h3>
+    <el-table :data="tableData" style="width: 100%">
+      <el-table-column prop="ID" label="序号" width="180"></el-table-column>
+      <el-table-column
+        prop="ruleName"
+        label="主规则名"
+        width="180"
+      ></el-table-column>
+      <el-table-column prop="content" label="内容"></el-table-column>
+    </el-table>
+    <h3>选择考勤组</h3>
+    <el-dropdown trigger="click">
+      <el-button type="primary">
+        选择考勤组
+        <i class="el-icon-arrow-down el-icon--right"></i>
+      </el-button>
+      <el-dropdown-menu slot="dropdown">
+        <el-dropdown-item @click.native="chooseAttendance(2)"
+          >在编</el-dropdown-item
+        >
+        <el-dropdown-item @click.native="chooseAttendance(3)"
+          >非编</el-dropdown-item
+        >
+      </el-dropdown-menu>
+    </el-dropdown>
+    <!-- <h2>{{multipleSelection}}</h2> -->
+    <!-- <h4>{{addAttendance}}</h4> -->
+    <el-table
+      :data="addAttendance"
+      style="width: 100%"
+      @selection-change="handleSelectionChange"
+    >
+      <el-table-column
+        type="selection"
+        prop="id"
+        label="序号"
+        width="180"
+      ></el-table-column>
+      <el-table-column prop="id" label="序号" width="180"></el-table-column>
+      <el-table-column prop="name" label="姓名" width="180"></el-table-column>
+      <el-table-column
+        prop="attendance_group_id"
+        label="考勤组"
+      ></el-table-column>
+    </el-table>
   </div>
 </template>
 
@@ -64,13 +95,13 @@ export default {
         let tempKeys0 = Object.keys(this.RawGroupData);
         console.log(tempKeys0);
         let dateMap = {
-          1: "星期六",
-          2: "星期日",
-          3: "星期一",
-          4: "星期二",
-          5: "星期三",
-          6: "星期四",
-          7: "星期五"
+          6: "星期六",
+          7: "星期日",
+          1: "星期一",
+          2: "星期二",
+          3: "星期三",
+          4: "星期四",
+          5: "星期五"
         };
         let finalList = [];
         let index = 1;
@@ -202,4 +233,3 @@ export default {
   }
 };
 </script>
-

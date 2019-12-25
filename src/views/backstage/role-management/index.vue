@@ -1,6 +1,8 @@
 <template>
   <div class="app-container">
     <h2>角色管理</h2>
+    <!-- <h2>{{toData}}</h2>
+    <h2>{{fromData}}</h2>-->
     <el-table
       ref="multipleTable"
       :data="roleTable"
@@ -26,22 +28,12 @@
           <!--<div class="authorizeUser" @click="assignment(scope.$index, scope.row)">-->
           <!--&nbsp{{ scope.row.assignUser }}-->
           <!--</div>-->
-          <el-button
-            type="primary"
-            size="small"
-            @click="assignment(scope.$index, scope.row)"
-            >分配</el-button
-          >
+          <el-button type="primary" size="small" @click="assignment(scope.$index, scope.row)">分配</el-button>
         </template>
       </el-table-column>
       <el-table-column prop="operation" label="操作">
         <template slot-scope="scope">
-          <el-button
-            type="warning"
-            size="mini"
-            @click="authorize(scope.$index, scope.row)"
-            >授权</el-button
-          >
+          <el-button type="warning" size="mini" @click="authorize(scope.$index, scope.row)">授权</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -66,25 +58,18 @@
           :props="defaultProps"
         />
       </div>
-      <el-button type="success" @click="cancelDiag('authorizeTableVisible')"
-        >取消</el-button
-      >
+      <el-button type="success" @click="cancelDiag('authorizeTableVisible')">取消</el-button>
       <el-button type="primary" @click="confirmAuthorizeTable">确认</el-button>
     </el-dialog>
 
-    <el-dialog
-      title="分配用户"
-      :visible.sync="alignUserShow"
-      width="60%"
-      :before-close="handleClose"
-    >
+    <el-dialog title="分配用户" :visible.sync="alignUserShow" width="60%" :before-close="handleClose">
       <!--<el-transfer v-model="transfer" :data="transferData"></el-transfer>-->
 
       <tree-transfer
         :title="treeTransferTitle"
         :from_data="fromData"
         :to_data="toData"
-        :default-props="{ label: 'label' }"
+        :default-props="{ label: 'name' }"
         :mode="mode"
         height="540px"
         filter
@@ -92,52 +77,25 @@
         @addBtn="add"
         @removeBtn="remove"
       />
-      <!--<div class="treeContainer">-->
-      <!--<el-tree-->
-      <!--ref="alignTree"-->
-      <!--:data="alignUserTable"-->
-      <!--show-checkbox-->
-      <!--default-expand-all-->
-      <!--node-key="id"-->
-      <!--highlight-current-->
-      <!--:props="defaultProps"-->
-      <!--/>-->
-      <!--</div>-->
-      <el-button type="success" @click="cancelDiag('alignUserShow')"
-        >取消</el-button
-      >
+      <el-button type="success" @click="cancelDiag('alignUserShow')">取消</el-button>
       <el-button type="primary" @click="confirmAlignUserTable">确认</el-button>
     </el-dialog>
-    <el-dialog
-      title="编辑角色"
-      :visible.sync="editRolesShow"
-      width="30%"
-      :before-close="handleClose"
-    >
+    <el-dialog title="编辑角色" :visible.sync="editRolesShow" width="30%" :before-close="handleClose">
       <el-form ref="form" :model="editForm" label-width="80px">
         <el-form-item label="角色名">
           <el-input v-model="editForm.roleName" />
         </el-form-item>
       </el-form>
-      <el-button type="success" @click="cancelDiag('editRolesShow')"
-        >取消</el-button
-      >
+      <el-button type="success" @click="cancelDiag('editRolesShow')">取消</el-button>
       <el-button type="primary" @click="confirmEditRoles">确认</el-button>
     </el-dialog>
-    <el-dialog
-      title="新增角色"
-      :visible.sync="addRolesShow"
-      width="30%"
-      :before-close="handleClose"
-    >
+    <el-dialog title="新增角色" :visible.sync="addRolesShow" width="30%" :before-close="handleClose">
       <el-form ref="form" :model="editForm" label-width="80px">
         <el-form-item label="角色名">
           <el-input v-model="editForm.roleName" />
         </el-form-item>
       </el-form>
-      <el-button type="success" @click="cancelDiag('addRolesShow')"
-        >取消</el-button
-      >
+      <el-button type="success" @click="cancelDiag('addRolesShow')">取消</el-button>
       <el-button type="primary" @click="confirmAddRoles">确认</el-button>
     </el-dialog>
   </div>
@@ -336,24 +294,6 @@ export default {
           // this.$alert('有用户了，无法进行激活操作')
         }
       });
-
-      // const obj = {
-      //   access_token: this.access_token,
-      //   id: id,
-      //   is_active: isactive ? 1 : 0
-      // }
-      // // console.log(obj)
-      // console.log('----')
-      // console.log(frozenRole(obj))
-      // frozenRole(obj).then(success => {
-      //   console.log(success)
-      // }).catch((err) => {
-      //   console.log('---==进入roles错误==---')
-      //   console.log(err)
-      // })
-      // then(success=>{
-      //   console.log(success)
-      // })
     },
     handleSelection(val) {
       this.checkedList = val;
@@ -545,10 +485,52 @@ export default {
     // 分配用户模块
     assignment(index, row) {
       // console.log(index, row)
+      console.log(index, row.id);
       this.alignIndex = index;
       this.alignRow = row;
       this.getAllUsers();
       this.alignUserShow = true;
+
+      const tempobj = {
+        access_token: this.access_token,
+        id: parseInt(row.id),
+        type: "users"
+      };
+
+      getRoleInfo(tempobj).then(res => {
+        // console.log(res);
+        // console.log();
+        console.log("getroleinfo");
+        console.log(res.data.user_list);
+        for (let i of res.data.user_list) {
+          this.toData.push(i);
+        }
+
+        // this.toData.push(res.data.user_list[0]);
+        console.log(res.data.user_list[0]);
+        console.log("this.fromData.pop(res.data.user_list[0])");
+        console.log(this.fromData);
+
+        // console.log(this.fromData.pop(res.data.user_list[0]));
+      });
+
+      //   getRoleInfo(tempoobj).then(res => {
+      //   console.log(res.data.user_list);
+      //   console.log(!res.data.user_list);
+
+      //   if (res.data.user_list.length === 0) {
+      //     const obj = {
+      //       access_token: this.access_token,
+      //       id: id,
+      //       is_active: isactive ? 1 : 0
+      //     };
+      //     frozenRole(obj).then(success => {
+      //       console.log(success);
+      //     });
+      //   } else {
+      //     // this.$alert('有用户了，无法进行激活操作')
+      //   }
+      // });
     },
     getAllUsers() {
       const obj = {
@@ -556,8 +538,8 @@ export default {
       };
       getUsers(obj).then(res => {
         const ccc = JSON.stringify(res.data).replace(
-          /\"label\":null/g,
-          '"label":"其他"'
+          /\"name\":null/g,
+          '"name":"其他"'
         );
         const ddd = ccc.replace(/\"id\":null/g, '"id":999');
         const eee = JSON.parse(ddd.replace(/\"pid\":null/g, '"pid":999'));
