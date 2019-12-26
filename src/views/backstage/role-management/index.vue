@@ -1,8 +1,6 @@
 <template>
   <div class="app-container">
     <h2>角色管理</h2>
-    <!-- <h2>{{toData}}</h2>
-    <h2>{{fromData}}</h2>-->
     <el-table
       ref="multipleTable"
       :data="roleTable"
@@ -25,15 +23,22 @@
       </el-table-column>
       <el-table-column prop="assignUser" label="分配用户">
         <template slot-scope="scope">
-          <!--<div class="authorizeUser" @click="assignment(scope.$index, scope.row)">-->
-          <!--&nbsp{{ scope.row.assignUser }}-->
-          <!--</div>-->
-          <el-button type="primary" size="small" @click="assignment(scope.$index, scope.row)">分配</el-button>
+          <el-button
+            type="primary"
+            size="small"
+            @click="assignment(scope.$index, scope.row)"
+            >分配</el-button
+          >
         </template>
       </el-table-column>
       <el-table-column prop="operation" label="操作">
         <template slot-scope="scope">
-          <el-button type="warning" size="mini" @click="authorize(scope.$index, scope.row)">授权</el-button>
+          <el-button
+            type="warning"
+            size="mini"
+            @click="authorize(scope.$index, scope.row)"
+            >授权</el-button
+          >
         </template>
       </el-table-column>
     </el-table>
@@ -45,12 +50,13 @@
       title="菜单列表"
       :visible.sync="authorizeTableVisible"
       width="30%"
-      :before-close="handleClose"
+      :before-close="handleCloseMenus"
     >
       <div class="treeContainer">
         <el-tree
           ref="tree"
           :data="authorizeTable"
+          :default-checked-keys="defaultCheckedKeys"
           show-checkbox
           default-expand-all
           node-key="id"
@@ -58,11 +64,20 @@
           :props="defaultProps"
         />
       </div>
-      <el-button type="success" @click="cancelDiag('authorizeTableVisible')">取消</el-button>
+      <el-button
+        type="success"
+        @click="cancelDiagMenus('authorizeTableVisible')"
+        >取消</el-button
+      >
       <el-button type="primary" @click="confirmAuthorizeTable">确认</el-button>
     </el-dialog>
 
-    <el-dialog title="分配用户" :visible.sync="alignUserShow" width="60%" :before-close="handleClose">
+    <el-dialog
+      title="分配用户"
+      :visible.sync="alignUserShow"
+      width="60%"
+      :before-close="handleClose"
+    >
       <!--<el-transfer v-model="transfer" :data="transferData"></el-transfer>-->
 
       <tree-transfer
@@ -77,25 +92,41 @@
         @addBtn="add"
         @removeBtn="remove"
       />
-      <el-button type="success" @click="cancelDiag('alignUserShow')">取消</el-button>
+      <el-button type="success" @click="cancelDiag('alignUserShow')"
+        >取消</el-button
+      >
       <el-button type="primary" @click="confirmAlignUserTable">确认</el-button>
     </el-dialog>
-    <el-dialog title="编辑角色" :visible.sync="editRolesShow" width="30%" :before-close="handleClose">
+    <el-dialog
+      title="编辑角色"
+      :visible.sync="editRolesShow"
+      width="30%"
+      :before-close="handleClose"
+    >
       <el-form ref="form" :model="editForm" label-width="80px">
         <el-form-item label="角色名">
           <el-input v-model="editForm.roleName" />
         </el-form-item>
       </el-form>
-      <el-button type="success" @click="cancelDiag('editRolesShow')">取消</el-button>
+      <el-button type="success" @click="cancelDiag('editRolesShow')"
+        >取消</el-button
+      >
       <el-button type="primary" @click="confirmEditRoles">确认</el-button>
     </el-dialog>
-    <el-dialog title="新增角色" :visible.sync="addRolesShow" width="30%" :before-close="handleClose">
+    <el-dialog
+      title="新增角色"
+      :visible.sync="addRolesShow"
+      width="30%"
+      :before-close="handleClose"
+    >
       <el-form ref="form" :model="editForm" label-width="80px">
         <el-form-item label="角色名">
           <el-input v-model="editForm.roleName" />
         </el-form-item>
       </el-form>
-      <el-button type="success" @click="cancelDiag('addRolesShow')">取消</el-button>
+      <el-button type="success" @click="cancelDiag('addRolesShow')"
+        >取消</el-button
+      >
       <el-button type="primary" @click="confirmAddRoles">确认</el-button>
     </el-dialog>
   </div>
@@ -130,6 +161,7 @@ export default {
     };
 
     return {
+      defaultCheckedKeys: [],
       treeTransferTitle: ["全选", "全选"],
       mode: "transfer", // transfer addressList
       fromData: [],
@@ -140,88 +172,7 @@ export default {
       editForm: { roleName: "" },
       addRolesShow: false,
       editRolesShow: false,
-      alignUserTable: [
-        {
-          id: 1,
-          title: "工程部",
-          children: [
-            {
-              id: 4,
-              title: "周杰伦"
-            },
-            {
-              id: 5,
-              title: "江泽民"
-            },
-            {
-              id: 6,
-              title: "邓小平"
-            }
-          ]
-        },
-        {
-          id: 11,
-          title: "教研部",
-          children: [
-            {
-              id: 7,
-              title: "奥巴马"
-            },
-            {
-              id: 8,
-              title: "习近平"
-            },
-            {
-              id: 9,
-              title: "周星驰"
-            }
-          ]
-        },
-        {
-          id: 10,
-          title: "售后部",
-          children: [
-            {
-              id: 11,
-              title: "姚明"
-            },
-            {
-              id: 12,
-              title: "刘翔"
-            },
-            {
-              id: 13,
-              title: "孙悟空"
-            },
-            {
-              id: 14,
-              title: "漩涡鸣人"
-            },
-            {
-              id: 15,
-              title: "路飞"
-            }
-          ]
-        },
-        {
-          id: 31,
-          title: "客服部",
-          children: [
-            {
-              id: 24,
-              title: "迪丽热巴"
-            },
-            {
-              id: 25,
-              title: "莫妮卡"
-            },
-            {
-              id: 27,
-              title: "米歇尔"
-            }
-          ]
-        }
-      ],
+      alignUserTable: [],
       alignUserShow: false,
       authorizeTableVisible: false,
       defaultProps: {
@@ -295,6 +246,7 @@ export default {
         }
       });
     },
+
     handleSelection(val) {
       this.checkedList = val;
     },
@@ -444,6 +396,16 @@ export default {
     cancelDiag(attr) {
       this.$confirm("确认取消？")
         .then(_ => {
+          // this.defaultCheckedKeys = [];
+          this[attr] = false;
+        })
+        .catch(_ => {});
+    },
+    cancelDiagMenus(attr) {
+      this.$confirm("确认取消？")
+        .then(_ => {
+          // this.defaultCheckedKeys = [];
+          this.$refs.tree.setCheckedKeys([]);
           this[attr] = false;
         })
         .catch(_ => {});
@@ -451,11 +413,22 @@ export default {
     handleClose(done) {
       this.$confirm("确认关闭？")
         .then(_ => {
+          // this.defaultCheckedKeys = [];
+          done();
+        })
+        .catch(_ => {});
+    },
+    handleCloseMenus(done) {
+      this.$confirm("确认关闭？")
+        .then(_ => {
+          // this.defaultCheckedKeys = [];
+          this.$refs.tree.setCheckedKeys([]);
           done();
         })
         .catch(_ => {});
     },
     getAuthorizeTable() {
+      // 获取授权列表
       const access_token = this.access_token;
       const access_token_obj = { access_token: this.access_token };
       getTotalMenuList(access_token_obj).then(res => {
@@ -463,9 +436,29 @@ export default {
       });
     },
     authorize(index, row) {
+      // 授权
       this.authorizeTableVisible = true;
       this.rowId = row.id;
       this.rowName = row.name;
+      const tempobjmenus = {
+        access_token: this.access_token,
+        id: parseInt(row.id),
+        type: "menus"
+      };
+      console.log("---------------===天气不错");
+      getRoleInfo(tempobjmenus).then(res => {
+        console.log(res.data.menu_list);
+        // let ids = res.data.menu_list.map(v => v.id);
+        // console.log(ids);
+        let templist = [];
+        for (let i of res.data.menu_list) {
+          // console.log(i.children.map(v => v.id));
+          let j = i.children.map(v => v.id);
+          Array.prototype.push.apply(templist, j);
+        }
+        console.log(templist);
+        this.defaultCheckedKeys = templist;
+      });
     },
     fetchRoleData() {
       const access_token = this.access_token;
@@ -485,6 +478,7 @@ export default {
     // 分配用户模块
     assignment(index, row) {
       // console.log(index, row)
+
       console.log(index, row.id);
       this.alignIndex = index;
       this.alignRow = row;
@@ -498,39 +492,26 @@ export default {
       };
 
       getRoleInfo(tempobj).then(res => {
-        // console.log(res);
-        // console.log();
-        console.log("getroleinfo");
-        console.log(res.data.user_list);
-        for (let i of res.data.user_list) {
-          this.toData.push(i);
-        }
+        const ccc = JSON.stringify(res.data.user_list).replace(
+          /\"name\":null/g,
+          '"name":"其他"'
+        );
+        const ddd = ccc.replace(/\"id\":null/g, '"id":999');
+        const eee = JSON.parse(ddd.replace(/\"pid\":null/g, '"pid":999'));
 
+        this.toData = eee;
         // this.toData.push(res.data.user_list[0]);
         console.log(res.data.user_list[0]);
         console.log("this.fromData.pop(res.data.user_list[0])");
         console.log(this.fromData);
-
+        console.log(this.toData);
+        // this.fromData = [];
+        // let a = this.fromData;
+        // console.log(a);
+        this.fromData = this.filterObj(this.fromData, this.toData);
+        // this.fromData = setTimeout(this.filterObj(a, this.toData), 100);
         // console.log(this.fromData.pop(res.data.user_list[0]));
       });
-
-      //   getRoleInfo(tempoobj).then(res => {
-      //   console.log(res.data.user_list);
-      //   console.log(!res.data.user_list);
-
-      //   if (res.data.user_list.length === 0) {
-      //     const obj = {
-      //       access_token: this.access_token,
-      //       id: id,
-      //       is_active: isactive ? 1 : 0
-      //     };
-      //     frozenRole(obj).then(success => {
-      //       console.log(success);
-      //     });
-      //   } else {
-      //     // this.$alert('有用户了，无法进行激活操作')
-      //   }
-      // });
     },
     getAllUsers() {
       const obj = {
@@ -543,8 +524,50 @@ export default {
         );
         const ddd = ccc.replace(/\"id\":null/g, '"id":999');
         const eee = JSON.parse(ddd.replace(/\"pid\":null/g, '"pid":999'));
+
         this.fromData = eee;
       });
+    },
+    filterObj(c, d) {
+      let numberList = [];
+      let indexList = [];
+      for (let i = 0; i < c.length; i++) {
+        for (let j = 0; j < d.length; j++) {
+          if (c[i].id === d[j].id) {
+            let obj = {};
+            console.log(i, j, c[i].id, d[j].id);
+            indexList.push(i);
+            numberList.push(obj);
+          }
+        }
+      }
+
+      let tempnamelist = {};
+      for (let i of d) {
+        for (let j of i.children) {
+          let name = j.name;
+          tempnamelist[name] = null;
+        }
+      }
+      console.log(tempnamelist);
+
+      let ids = [];
+      for (let i = 0; i < d.length; i++) {
+        for (let j = 0; j < d[i].children.length; j++) {
+          ids.push(d[i].children[j].id);
+        }
+      }
+
+      // let e = c[1].children;
+      // let filterE = e.filter(i => {
+      //   return i.name in numberList;
+      // });
+      for (let i of indexList) {
+        c[i].children = c[i].children.filter(i => {
+          return !(i.name in tempnamelist);
+        });
+      }
+      return c;
     },
     confirmAlignUserTable() {
       this.$confirm("确认提交？")
@@ -569,6 +592,8 @@ export default {
               this.alignUserShow = false;
               this.fromData = [];
               this.toData = [];
+              // this.defaultCheckedKeys = [];
+              this.$refs.tree.setCheckedKeys([]);
             });
           }
 
