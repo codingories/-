@@ -5,11 +5,7 @@
     <h3>考勤组展示</h3>
     <el-table :data="tableData" style="width: 100%">
       <el-table-column prop="ID" label="序号" width="180"></el-table-column>
-      <el-table-column
-        prop="ruleName"
-        label="主规则名"
-        width="180"
-      ></el-table-column>
+      <el-table-column prop="ruleName" label="主规则名" width="180"></el-table-column>
       <el-table-column prop="content" label="内容"></el-table-column>
     </el-table>
     <h3>选择考勤组</h3>
@@ -19,33 +15,17 @@
         <i class="el-icon-arrow-down el-icon--right"></i>
       </el-button>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item @click.native="chooseAttendance(2)"
-          >在编</el-dropdown-item
-        >
-        <el-dropdown-item @click.native="chooseAttendance(3)"
-          >非编</el-dropdown-item
-        >
+        <el-dropdown-item @click.native="chooseAttendance(2)">在编</el-dropdown-item>
+        <el-dropdown-item @click.native="chooseAttendance(3)">非编</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
     <!-- <h2>{{multipleSelection}}</h2> -->
     <!-- <h4>{{addAttendance}}</h4> -->
-    <el-table
-      :data="addAttendance"
-      style="width: 100%"
-      @selection-change="handleSelectionChange"
-    >
-      <el-table-column
-        type="selection"
-        prop="id"
-        label="序号"
-        width="180"
-      ></el-table-column>
+    <el-table :data="addAttendance" style="width: 100%" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" prop="id" label="序号" width="180"></el-table-column>
       <el-table-column prop="id" label="序号" width="180"></el-table-column>
       <el-table-column prop="name" label="姓名" width="180"></el-table-column>
-      <el-table-column
-        prop="attendance_group_id"
-        label="考勤组"
-      ></el-table-column>
+      <el-table-column prop="attendance_group_id" label="考勤组"></el-table-column>
     </el-table>
   </div>
 </template>
@@ -59,7 +39,6 @@ import store from "@/store";
 export default {
   data() {
     return {
-      access_token: store.getters.access_token,
       getGroupsLoading: false,
       RawGroupData: [],
       tableData: [],

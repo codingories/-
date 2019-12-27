@@ -1,27 +1,19 @@
 <template>
   <div class="app-container">
-    <!--<datePicker-->
-    <!--:options="calendarArr"-->
-    <!--class="calendar"-->
-    <!--@handleClickDay="handleClickDay"-->
-    <!--@handlePrevMonth="handlePrevMonth"-->
-    <!--@handleNextMonth="handleNextMonth"-->
-    <!--/>-->
     <el-calendar>
-      <!--v-model= "elDate"-->
-
       <template slot="dateCell" slot-scope="{ date, data }">
-        <div
-          :class="data.isSelected ? 'is-selected' : ''"
-          @click="clickDate(date, data)"
-        >
-          {{
-            data.day
-              .split("-")
-              .slice(1)
-              .join("-")
-          }}
-          {{ data.isSelected ? "✔️" : "" }}
+        <div @click="clickDate(date, data)" class="sideday">
+          <div :class="data.isSelected ? 'is-selected' : ''">
+            <span :class="findRestWork(date) === '休' ? 'rest' : 'work'">
+              {{
+              findRestWork(date)
+              }}
+            </span>
+            <span>
+              <span class="daysStyle">{{ findDay(data.day) }}</span>
+              <span>{{ findCnDay(data.day) }}</span>
+            </span>
+          </div>
         </div>
       </template>
     </el-calendar>
@@ -32,35 +24,28 @@
         v-model="dayList[index].ifWorkDay"
         active-text="工作日"
         inactive-text="休息日"
+        :change="switchChange(dayList[index].ifWorkDay)"
       />
     </div>
 
     <el-table :data="tableData" style="width: 100%">
       <el-table-column label="序号" width="180">
         <template slot-scope="scope">
-          <!-- <i class="el-icon-time"></i> -->
           <span style="margin-left: 10px">{{ scope.row.ID }}</span>
         </template>
       </el-table-column>
-      <!--<el-table-column label="考勤组" width="180">-->
-      <!--<template slot-scope="scope">-->
-      <!--<div slot="reference" class="name-wrapper">-->
-      <!--<el-tag size="medium">{{ scope.row.group }}</el-tag>-->
-      <!--</div>-->
-      <!--</template>-->
-      <!--</el-table-column>-->
-      <el-table-column label="是否考勤">
-        <!-- <template slot-scope="scope">
-          <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-          <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-        </template>-->
-        <template slot-scope="scope">
-          <el-switch v-model="scope.row.check" active-text inactive-text />
-        </template>
-      </el-table-column>
+
       <el-table-column label="考勤参照日">
         <template slot-scope="scope">
           <span>{{ scope.row.reference }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="是否考勤">
+        <template slot-scope="scope">
+          <span>{{ scope.row.reference }}</span>
+        </template>
+        <template slot-scope="scope">
+          <el-switch v-model="scope.row.check" active-text inactive-text />
         </template>
       </el-table-column>
     </el-table>
@@ -68,16 +53,15 @@
 </template>
 
 <script>
-// import datePicker from "../../components/date-picker";
-// import datePicker from "../../components/date-picker";
-
+import solarLunar from "solarLunar";
+import store from "@/store";
+import { setAttendance } from "@/api/singleday.js";
 export default {
-  // name: "DatePicker",
-  // components: {
-  //   datePicker
-  // },
   data() {
     return {
+      choosenDay: "",
+      reference_date: "",
+      access_token: store.getters.access_token,
       elDate: new Date(),
       value: true,
       calendarArr: {
@@ -111,11 +95,67 @@ export default {
       dayList: []
     };
   },
+  computed: {},
   methods: {
+    switchChange(day) {
+      // let obj = {
+      //   access_token: this.access_token,
+      //   date: this.choosenDay,
+      //   is_attendance: day === true ? "1" : "0",
+      //   reference_date: this.reference_date
+      // };
+      // setAttendance(obj).then(res => {
+      //   console.log(res);
+      // });
+    },
+    findRestWork(date) {
+      var days = date.getDay();
+      switch (days) {
+        case 1:
+          days = "班";
+          break;
+        case 2:
+          days = "班";
+          break;
+        case 3:
+          days = "班";
+          break;
+        case 4:
+          days = "班";
+          break;
+        case 5:
+          days = "班";
+          break;
+        case 6:
+          days = "休";
+          break;
+        case 0:
+          days = "休";
+          break;
+      }
+      return days;
+    },
+    findDay(day) {
+      let y = day.split("-")[0];
+      let m = day.split("-")[1];
+      let d = day.split("-")[2];
+      let cnd = solarLunar.solar2lunar(y, m, d).dayCn;
+      return d;
+    },
+    findCnDay(day) {
+      let y = day.split("-")[0];
+      let m = day.split("-")[1];
+      let d = day.split("-")[2];
+      let cnd = solarLunar.solar2lunar(y, m, d).dayCn;
+      return cnd;
+    },
     clickDate(date, data) {
-      console.log(date, data);
-      const weekday = date.getDay();
-
+      // const weekday = date.getDay();
+      console.log(date);
+      console.log(date.getDay());
+      this.choosenDay = data.day;
+      let weekday = date.getDay();
+      this.reference_date = date.getDay();
       const weekDayDict = {
         1: "周一",
         2: "周二",
@@ -125,7 +165,6 @@ export default {
         6: "周六",
         0: "周日"
       };
-
       const dateStr =
         data.day.split("-").slice(0, 1)[0] +
         "年" +
@@ -135,28 +174,15 @@ export default {
         "日" +
         weekDayDict[weekday] +
         ":";
-      // date.getYear() +
-      // "年" +
-      // month +
-      // "月" +
-      // data.day +
-      // "日" +
-      // weekDayDict[date.weekday] +
-
-      console.log(dateStr);
 
       const tempObj = { day: dateStr };
-      if (data.weekday === 6 || data.weekday === 0) {
+      if (weekday === 6 || weekday === 0) {
         tempObj.ifWorkDay = false;
       } else {
         tempObj.ifWorkDay = true;
       }
       this.dayList = [];
       this.dayList.push(tempObj);
-      // for(let i=0;i<this.dayList.length;i++){
-      //   if(this.dayList[i]!==tempObj)
-      // }
-      // console.log(dateStr);
       var obj = {};
       this.dayList = this.dayList.reduce(function(item, next) {
         obj[next.day] ? "" : (obj[next.day] = true && item.push(next)); // obj[next.day] = true 这句话会让obj变为 {2019-11-1:ture}
@@ -194,10 +220,7 @@ export default {
       }
       this.dayList = [];
       this.dayList.push(tempObj);
-      // for(let i=0;i<this.dayList.length;i++){
-      //   if(this.dayList[i]!==tempObj)
-      // }
-      // console.log(dateStr);
+
       var obj = {};
       this.dayList = this.dayList.reduce(function(item, next) {
         obj[next.day] ? "" : (obj[next.day] = true && item.push(next)); // obj[next.day] = true 这句话会让obj变为 {2019-11-1:ture}
@@ -218,7 +241,6 @@ export default {
 
 <style scoped>
 .switchDay {
-  /* border: 1px solid red; */
   display: flex;
   align-items: baseline;
 }
@@ -235,5 +257,36 @@ export default {
 .innerStyle {
   height: 100%;
   width: 100%;
+}
+.sideday {
+  text-align: center;
+  height: 100%;
+  vertical-align: middle;
+  line-height: 33px;
+}
+.daysStyle {
+  font-size: 24px;
+}
+.el-calendar-day {
+}
+.rest {
+  display: block;
+  height: 24px;
+  width: 25px;
+  line-height: 22px;
+  margin-top: -8px;
+  margin-left: -8px;
+  background-color: rgb(37, 134, 215);
+  color: white;
+}
+.work {
+  display: block;
+  height: 24px;
+  width: 25px;
+  line-height: 22px;
+  margin-top: -8px;
+  margin-left: -8px;
+  background-color: rgb(57, 186, 59);
+  color: white;
 }
 </style>

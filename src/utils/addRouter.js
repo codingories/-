@@ -6,6 +6,8 @@ import _import from "../router/_import"; // 获取组件的方法
  * @returns
  */
 export function addRouter(routerlist) {
+  console.log("addRouteraddRouteraddRouter");
+  console.log(routerlist);
   const router = [];
   routerlist.forEach(e => {
     let e_new = {
@@ -31,5 +33,8 @@ export function addRouter(routerlist) {
     }
     router.push(e_new);
   });
+  console.log("routerrouterrouter");
+  console.log(router);
+
   return router;
 }

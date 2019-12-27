@@ -312,7 +312,8 @@ export default {
     getTableMenus() {
       const obj = { access_token: this.access_token };
       getMenus(obj).then(res => {
-        // console.log(res.data)
+        console.log("getTableMenusgetTableMenusgetTableMenus");
+        console.log(res.data);
         this.menuTable = res.data;
         for (const i of this.menuTable) {
           const str = i.id + "-0";

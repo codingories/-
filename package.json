@@ -14,13 +14,14 @@
     "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.yml"
   },
   "dependencies": {
-    "file-saver": "^2.0.2",
-    "el-tree-transfer": "^2.2.4",
     "axios": "0.18.0",
+    "el-tree-transfer": "^2.2.4",
     "element-ui": "2.13.0",
+    "file-saver": "^2.0.2",
     "js-cookie": "2.2.0",
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
+    "solarlunar": "^2.0.7",
     "vue": "2.5.17",
     "vue-router": "3.0.1",
     "vuex": "3.0.1",

@@ -10,7 +10,7 @@
       <el-table-column prop="choose" label="选择" type="selection" />
       <el-table-column prop="id" label="序号" width="180" />
       <el-table-column prop="name" label="角色名" width="180" />
-      <el-table-column prop="roleDescription" label="角色描述" />
+      <el-table-column prop="remark" label="角色描述" />
       <el-table-column prop="isActive" label="是否激活">
         <template slot-scope="scope">
           <el-switch
@@ -23,22 +23,12 @@
       </el-table-column>
       <el-table-column prop="assignUser" label="分配用户">
         <template slot-scope="scope">
-          <el-button
-            type="primary"
-            size="small"
-            @click="assignment(scope.$index, scope.row)"
-            >分配</el-button
-          >
+          <el-button type="primary" size="small" @click="assignment(scope.$index, scope.row)">分配</el-button>
         </template>
       </el-table-column>
       <el-table-column prop="operation" label="操作">
         <template slot-scope="scope">
-          <el-button
-            type="warning"
-            size="mini"
-            @click="authorize(scope.$index, scope.row)"
-            >授权</el-button
-          >
+          <el-button type="warning" size="mini" @click="authorize(scope.$index, scope.row)">授权</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -64,22 +54,13 @@
           :props="defaultProps"
         />
       </div>
-      <el-button
-        type="success"
-        @click="cancelDiagMenus('authorizeTableVisible')"
-        >取消</el-button
-      >
+      <el-button type="success" @click="cancelDiagMenus('authorizeTableVisible')">取消</el-button>
       <el-button type="primary" @click="confirmAuthorizeTable">确认</el-button>
     </el-dialog>
 
-    <el-dialog
-      title="分配用户"
-      :visible.sync="alignUserShow"
-      width="60%"
-      :before-close="handleClose"
-    >
+    <el-dialog title="分配用户" :visible.sync="alignUserShow" width="60%" :before-close="handleClose">
       <!--<el-transfer v-model="transfer" :data="transferData"></el-transfer>-->
-
+      <h3>当前角色:{{role}}</h3>
       <tree-transfer
         :title="treeTransferTitle"
         :from_data="fromData"
@@ -92,41 +73,31 @@
         @addBtn="add"
         @removeBtn="remove"
       />
-      <el-button type="success" @click="cancelDiag('alignUserShow')"
-        >取消</el-button
-      >
+      <el-button type="success" @click="cancelDiag('alignUserShow')">取消</el-button>
       <el-button type="primary" @click="confirmAlignUserTable">确认</el-button>
     </el-dialog>
-    <el-dialog
-      title="编辑角色"
-      :visible.sync="editRolesShow"
-      width="30%"
-      :before-close="handleClose"
-    >
+    <el-dialog title="编辑角色" :visible.sync="editRolesShow" width="30%" :before-close="handleClose">
       <el-form ref="form" :model="editForm" label-width="80px">
         <el-form-item label="角色名">
           <el-input v-model="editForm.roleName" />
         </el-form-item>
+        <el-form-item label="描述">
+          <el-input v-model="editForm.remark" />
+        </el-form-item>
       </el-form>
-      <el-button type="success" @click="cancelDiag('editRolesShow')"
-        >取消</el-button
-      >
+      <el-button type="success" @click="cancelDiag('editRolesShow')">取消</el-button>
       <el-button type="primary" @click="confirmEditRoles">确认</el-button>
     </el-dialog>
-    <el-dialog
-      title="新增角色"
-      :visible.sync="addRolesShow"
-      width="30%"
-      :before-close="handleClose"
-    >
+    <el-dialog title="新增角色" :visible.sync="addRolesShow" width="30%" :before-close="handleClose">
       <el-form ref="form" :model="editForm" label-width="80px">
         <el-form-item label="角色名">
           <el-input v-model="editForm.roleName" />
         </el-form-item>
+        <el-form-item label="描述">
+          <el-input v-model="editForm.remark" />
+        </el-form-item>
       </el-form>
-      <el-button type="success" @click="cancelDiag('addRolesShow')"
-        >取消</el-button
-      >
+      <el-button type="success" @click="cancelDiag('addRolesShow')">取消</el-button>
       <el-button type="primary" @click="confirmAddRoles">确认</el-button>
     </el-dialog>
   </div>
@@ -166,10 +137,10 @@ export default {
       mode: "transfer", // transfer addressList
       fromData: [],
       toData: [],
-
+      role: "",
       transferData: generateData(),
       transfer: [1, 4],
-      editForm: { roleName: "" },
+      editForm: { roleName: "", remark: "" },
       addRolesShow: false,
       editRolesShow: false,
       alignUserTable: [],
@@ -251,16 +222,16 @@ export default {
       this.checkedList = val;
     },
     addRoles() {
+      this.editForm.roleName = "";
+      this.editForm.remark = "";
       const obj = {
         access_token: this.access_token,
         name: "",
+        remark: "",
         menus: [25, 27]
       };
       this.addRolesObj = obj;
       this.addRolesShow = true;
-      // authorizeRoles(obj).then(){
-      //
-      // }
     },
     confirmAddRoles() {
       this.$confirm("确认提交？")
@@ -270,6 +241,7 @@ export default {
             return;
           }
           this.addRolesObj.name = this.editForm.roleName;
+          this.addRolesObj.remark = this.editForm.remark;
           const tempId =
             this.roleTable.slice(
               this.roleTable.length - 1,
@@ -281,9 +253,10 @@ export default {
             isActive: "false"
           };
           authorizeRoles(this.addRolesObj).then(res => {
-            this.$alert("编辑成功!");
-            this.roleTable.push(obj);
-            this.editForm.roleName = "";
+            this.$alert("增加成功!");
+            location.reload();
+            // this.roleTable.push(obj);
+            // this.editForm.roleName = "";
           });
         })
         .catch(_ => {});
@@ -301,10 +274,16 @@ export default {
           .then(() => {})
           .catch(() => {});
       } else {
+        console.log(this.checkedList[0]);
+        // editForm: { roleName: "", remark: "" },
+        this.editForm.roleName = this.checkedList[0].name;
+        this.editForm.remark = this.checkedList[0].remark;
+
         const obj = {
           access_token: this.access_token,
           id: this.checkedList[0].id,
           name: this.checkedList[0].name,
+          remark: this.checkedList[0].remark,
           menus: [25, 27]
         };
         this.sendRolesObj = obj;
@@ -319,13 +298,14 @@ export default {
             return;
           }
           this.sendRolesObj.name = this.editForm.roleName;
+          this.sendRolesObj.remark = this.editForm.remark;
           const obj = this.sendRolesObj;
           this.checkedList[0].name = this.editForm.roleName;
           authorizeRoles(obj).then(res => {
             this.$alert("编辑成功!");
+            location.reload();
           });
           console.log("==-=-=-=编辑");
-          // this.$set(this.roleTable, this.checkedList[0].id - 1, this.checkedList[0])
         })
         .catch(_ => {});
       this.editRolesShow = false;
@@ -385,6 +365,7 @@ export default {
             name: this.rowName,
             menus: menus
           };
+          console.log(obj);
           authorizeRoles(obj).then(res => {
             console.log(obj);
             this.$alert("授权成功!");
@@ -432,6 +413,8 @@ export default {
       const access_token = this.access_token;
       const access_token_obj = { access_token: this.access_token };
       getTotalMenuList(access_token_obj).then(res => {
+        console.log("获取授权列表");
+        console.log(res.data);
         this.authorizeTable = res.data;
       });
     },
@@ -466,20 +449,24 @@ export default {
       this.getRolesLoading = true;
       getRoles(access_token_obj).then(res => {
         this.getRolesLoading = false;
+        console.log("res.data的data");
+        console.log(res.data);
         for (const i of res.data) {
           const obj = {};
           obj.id = i.id;
           obj.name = i.name;
           obj.isActive = i.is_active === 1;
+          obj.remark = i.remark;
           this.roleTable.push(obj);
         }
       });
     },
     // 分配用户模块
     assignment(index, row) {
-      // console.log(index, row)
-
+      console.log(index, row);
+      this.role = row.name;
       console.log(index, row.id);
+
       this.alignIndex = index;
       this.alignRow = row;
       this.getAllUsers();
