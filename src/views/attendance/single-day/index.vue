@@ -28,7 +28,7 @@
       />
     </div>
 
-    <el-table :data="tableData" style="width: 100%">
+    <el-table :data="tableData" style="width: 100%" v-show="ifrest">
       <el-table-column label="序号" width="180">
         <template slot-scope="scope">
           <span style="margin-left: 10px">{{ scope.row.ID }}</span>
@@ -37,7 +37,13 @@
 
       <el-table-column label="考勤参照日">
         <template slot-scope="scope">
-          <span>{{ scope.row.reference }}</span>
+          <el-radio v-model="dayInfo" label="1">周一</el-radio>
+          <el-radio v-model="dayInfo" label="2">周二</el-radio>
+          <el-radio v-model="dayInfo" label="3">周三</el-radio>
+          <el-radio v-model="dayInfo" label="4">周四</el-radio>
+          <el-radio v-model="dayInfo" label="5">周五</el-radio>
+          <el-radio v-model="dayInfo" label="6">周六</el-radio>
+          <el-radio v-model="dayInfo" label="0">周日</el-radio>
         </template>
       </el-table-column>
       <el-table-column label="是否考勤">
@@ -45,7 +51,7 @@
           <span>{{ scope.row.reference }}</span>
         </template>
         <template slot-scope="scope">
-          <el-switch v-model="scope.row.check" active-text inactive-text />
+          <el-switch v-model="ifAttendance" active-text="是" inactive-text="否" />
         </template>
       </el-table-column>
     </el-table>
@@ -59,6 +65,9 @@ import { setAttendance } from "@/api/singleday.js";
 export default {
   data() {
     return {
+      ifAttendance: true,
+      ifrest: false,
+      dayInfo: "1",
       choosenDay: "",
       reference_date: "",
       access_token: store.getters.access_token,
@@ -98,15 +107,7 @@ export default {
   computed: {},
   methods: {
     switchChange(day) {
-      // let obj = {
-      //   access_token: this.access_token,
-      //   date: this.choosenDay,
-      //   is_attendance: day === true ? "1" : "0",
-      //   reference_date: this.reference_date
-      // };
-      // setAttendance(obj).then(res => {
-      //   console.log(res);
-      // });
+      this.ifrest = day;
     },
     findRestWork(date) {
       var days = date.getDay();
@@ -150,11 +151,9 @@ export default {
       return cnd;
     },
     clickDate(date, data) {
-      // const weekday = date.getDay();
-      console.log(date);
-      console.log(date.getDay());
       this.choosenDay = data.day;
       let weekday = date.getDay();
+      this.dayInfo = date.getDay().toString();
       this.reference_date = date.getDay();
       const weekDayDict = {
         1: "周一",
@@ -165,6 +164,17 @@ export default {
         6: "周六",
         0: "周日"
       };
+      let restDict = {
+        1: true,
+        2: true,
+        3: true,
+        4: true,
+        5: true,
+        6: false,
+        0: false
+      };
+      this.ifrest = restDict[weekday];
+      this.ifAttendance = restDict[weekday];
       const dateStr =
         data.day.split("-").slice(0, 1)[0] +
         "年" +
