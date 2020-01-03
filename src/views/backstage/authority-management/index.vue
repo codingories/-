@@ -50,97 +50,97 @@ export default {
       let access_token = this.access_token;
       let access_token_obj = { access_token: this.access_token };
       this.getGroupsLoading = true;
-      getGroups(access_token_obj).then(success => {
-        // console.log(success);
-        this.RawGroupData = success.data;
-        console.log("this.RawGroupData,this.RawGroupData");
-        console.log(this.RawGroupData);
-        console.log(typeof this.RawGroupData);
-        // this.RawRuleData = success.data[0];
-        let tempKeys0 = Object.keys(this.RawGroupData);
-        console.log(tempKeys0);
-        let dateMap = {
-          1: "星期六",
-          2: "星期日",
-          3: "星期一",
-          4: "星期二",
-          5: "星期三",
-          6: "星期四",
-          7: "星期五"
-        };
-        let finalList = [];
-        let index = 1;
-        let AddAttendanceObjList = [];
-        for (let i of tempKeys0) {
-          let finalObj = { ID: "", ruleName: "", content: "" };
-          let str = "";
-          finalObj.ruleName = this.RawGroupData[i].rule.name;
-          console.log(this.RawGroupData[i].users);
-          // console.log(
-          //   Object.prototype.toString.call(this.RawGroupData[i].users)
-          // );
+      // getGroups(access_token_obj).then(success => {
+      //   // console.log(success);
+      //   this.RawGroupData = success.data;
+      //   console.log("this.RawGroupData,this.RawGroupData");
+      //   console.log(this.RawGroupData);
+      //   console.log(typeof this.RawGroupData);
+      //   // this.RawRuleData = success.data[0];
+      //   let tempKeys0 = Object.keys(this.RawGroupData);
+      //   console.log(tempKeys0);
+      //   let dateMap = {
+      //     1: "星期六",
+      //     2: "星期日",
+      //     3: "星期一",
+      //     4: "星期二",
+      //     5: "星期三",
+      //     6: "星期四",
+      //     7: "星期五"
+      //   };
+      //   let finalList = [];
+      //   let index = 1;
+      //   let AddAttendanceObjList = [];
+      //   for (let i of tempKeys0) {
+      //     let finalObj = { ID: "", ruleName: "", content: "" };
+      //     let str = "";
+      //     finalObj.ruleName = this.RawGroupData[i].rule.name;
+      //     console.log(this.RawGroupData[i].users);
+      //     // console.log(
+      //     //   Object.prototype.toString.call(this.RawGroupData[i].users)
+      //     // );
 
-          let nameMap = { "2": "在编", "3": "非编" };
-          if (this.RawGroupData[i].users !== null) {
-            for (let k of this.RawGroupData[i].users) {
-              let AddAttendanceObj = {};
-              AddAttendanceObj.id = k.workno; // id改成
-              AddAttendanceObj.name = k.name;
-              AddAttendanceObj.attendance_group_id =
-                nameMap[k.attendance_group_id];
-              AddAttendanceObjList.push(AddAttendanceObj);
-            }
-            this.addAttendance = AddAttendanceObjList;
-          }
+      //     let nameMap = { "2": "在编", "3": "非编" };
+      //     if (this.RawGroupData[i].users !== null) {
+      //       for (let k of this.RawGroupData[i].users) {
+      //         let AddAttendanceObj = {};
+      //         AddAttendanceObj.id = k.workno; // id改成
+      //         AddAttendanceObj.name = k.name;
+      //         AddAttendanceObj.attendance_group_id =
+      //           nameMap[k.attendance_group_id];
+      //         AddAttendanceObjList.push(AddAttendanceObj);
+      //       }
+      //       this.addAttendance = AddAttendanceObjList;
+      //     }
 
-          let tempKeys1 = Object.keys(this.RawGroupData[i].rule.items);
-          let tempObj1 = {};
-          let tempObj2 = {};
-          for (let j of tempKeys1) {
-            console.log("-------");
-            // console.log(this.RawGroupData[i].rule.items[j].day);
-            // console.log(this.RawGroupData[i].rule.items[j].end_time);
-            // console.log(this.RawGroupData[i].rule.items[j].start_time);
-            let tempStrKey = "";
-            tempStrKey +=
-              this.RawGroupData[i].rule.items[j].start_time +
-              "-" +
-              this.RawGroupData[i].rule.items[j].end_time;
-            tempObj1[
-              dateMap[this.RawGroupData[i].rule.items[j].day]
-            ] = tempStrKey;
-            tempObj2[tempStrKey] = "";
+      //     let tempKeys1 = Object.keys(this.RawGroupData[i].rule.items);
+      //     let tempObj1 = {};
+      //     let tempObj2 = {};
+      //     for (let j of tempKeys1) {
+      //       console.log("-------");
+      //       // console.log(this.RawGroupData[i].rule.items[j].day);
+      //       // console.log(this.RawGroupData[i].rule.items[j].end_time);
+      //       // console.log(this.RawGroupData[i].rule.items[j].start_time);
+      //       let tempStrKey = "";
+      //       tempStrKey +=
+      //         this.RawGroupData[i].rule.items[j].start_time +
+      //         "-" +
+      //         this.RawGroupData[i].rule.items[j].end_time;
+      //       tempObj1[
+      //         dateMap[this.RawGroupData[i].rule.items[j].day]
+      //       ] = tempStrKey;
+      //       tempObj2[tempStrKey] = "";
 
-            // let tempKeys2 = Object.keys(this.RawGroupData[i].rule.items[j]);
-            // for (let k of tempKeys2) {
-            //   console.log(k);
-            // }
-          }
-          for (let i of Object.keys(tempObj2)) {
-            for (let j of Object.keys(tempObj1)) {
-              if (tempObj1[j] === i) {
-                tempObj2[i] += j + ",";
-              }
-            }
-          }
-          for (let k in tempObj2) {
-            let value = tempObj2[k];
-            tempObj2[value] = k;
-            delete tempObj2[k];
-          }
-          let tempObj3 = Object.keys(tempObj2);
-          for (let i of tempObj3) {
-            str += i + tempObj2[i] + ";";
-          }
-          finalObj.content = str;
-          finalObj.ID = index;
-          finalList.push(finalObj);
+      //       // let tempKeys2 = Object.keys(this.RawGroupData[i].rule.items[j]);
+      //       // for (let k of tempKeys2) {
+      //       //   console.log(k);
+      //       // }
+      //     }
+      //     for (let i of Object.keys(tempObj2)) {
+      //       for (let j of Object.keys(tempObj1)) {
+      //         if (tempObj1[j] === i) {
+      //           tempObj2[i] += j + ",";
+      //         }
+      //       }
+      //     }
+      //     for (let k in tempObj2) {
+      //       let value = tempObj2[k];
+      //       tempObj2[value] = k;
+      //       delete tempObj2[k];
+      //     }
+      //     let tempObj3 = Object.keys(tempObj2);
+      //     for (let i of tempObj3) {
+      //       str += i + tempObj2[i] + ";";
+      //     }
+      //     finalObj.content = str;
+      //     finalObj.ID = index;
+      //     finalList.push(finalObj);
 
-          index++;
-          console.log(finalObj);
-        }
-        this.tableData = finalList;
-      });
+      //     index++;
+      //     console.log(finalObj);
+      //   }
+      //   this.tableData = finalList;
+      // });
 
       this.getGroupsLoading = false;
     },

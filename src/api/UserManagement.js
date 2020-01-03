@@ -9,6 +9,15 @@ export function getUsers(params) {
   });
 }
 
+export function getRoles(params) {
+  return request({
+    // /api/v1/admin-role/index
+    url: "/api/v1/admin-role/index",
+    method: "get",
+    params
+  });
+}
+
 export function getDpet(params) {
   return request({
     url: "/api/v1/dept/getList",

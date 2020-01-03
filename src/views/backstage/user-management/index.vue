@@ -2,6 +2,7 @@
   <div class="app-container">
     <div class="app-container">
       <h2>用户管理</h2>
+      <!-- <h2>{{rolemap}}</h2> -->
       <el-table
         :data="usersInfoTable"
         style="width: 100%"
@@ -90,12 +91,13 @@
 </template>
 
 <script>
-import { getUsers, getDpet } from "@/api/UserManagement.js";
+import { getUsers, getDpet, getRoles } from "@/api/UserManagement.js";
 
 import store from "@/store";
 export default {
   data() {
     return {
+      rolemap: {},
       deptList: [],
       userid: "",
       username: "",
@@ -176,9 +178,22 @@ export default {
 
   created() {
     this.fetchUsersData();
+    this.getRolesList();
   },
 
   methods: {
+    getRolesList() {
+      let access_token = this.access_token;
+      let obj = { access_token };
+      getRoles(obj).then(success => {
+        console.log(success.data);
+        for (let i of success.data) {
+          console.log(i.id, i.name);
+          this.$set(this.rolemap, i.name, i.id);
+        }
+      });
+      console.log(this.rolemap);
+    },
     validatorRepeatPassword(rule, value, callback) {
       if (value === "") {
         callback(new Error("请重复输入密码"));
@@ -256,10 +271,13 @@ export default {
         // this.ruleForm.dept_id = this.checkedList[0].mobile;
         this.userid = this.checkedList[0].id;
         this.username = this.checkedList[0].username;
-        this.role_id = this.checkedList[0].role;
+
+        this.role_id = this.checkedList[0].role.map(v => this.rolemap[v]);
         this.dept_id = this.checkedList[0].dept_id;
         this.position = this.checkedList[0].position;
         this.attendance_group_id = this.checkedList[0].attendance_group_id;
+
+        console.log(this.role_id);
 
         console.log(
           this.userid,
