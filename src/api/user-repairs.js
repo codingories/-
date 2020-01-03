@@ -37,3 +37,32 @@ export const AddRepairOne = ({
     data
   });
 };
+
+export const PostRepairFeedback = ({ repair_id, access_token, remark }) => {
+  const data = new window.FormData();
+  data.append("repair_id", repair_id);
+  data.append("access_token", access_token);
+  data.append("remark", remark);
+
+  return request({
+    method: "post",
+    url: `/api/v1/repair/update`,
+    headers: {
+      "Content-Type": "multipart/form-data"
+    },
+    params: {
+      repair_id,
+      access_token,
+      remark
+    }
+    // params: {
+    //   repair_id,
+    //   access_token,
+    //   title,
+    //   content,
+    //   is_urgent,
+    //   classroom_id,
+    //   remark
+    // }
+  });
+};

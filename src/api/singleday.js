@@ -10,3 +10,11 @@ export function setAttendance(params) {
     data: qs.stringify(params)
   });
 }
+
+export function getDateList(params) {
+  return request({
+    url: "/api/v1/attendance_adjust/getDateList",
+    method: "get",
+    params
+  });
+}

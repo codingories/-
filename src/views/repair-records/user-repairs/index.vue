@@ -18,11 +18,11 @@
               <el-popover
                 placement="right"
                 title
-                trigger="click"
+                trigger="hover"
                 v-for="(item,index) in scope.row.repair_pic"
                 :key="index"
               >
-                <span slot="reference">图片-{{index}};</span>
+                <span slot="reference">图片{{index}};</span>
                 <img :src="item" :alt="index" style="max-height: 500px;max-width: 500px" />
               </el-popover>
             </span>
@@ -32,8 +32,15 @@
         <el-table-column prop="repair_man" label="维修人" />
         <el-table-column prop="repair_result" label="维修结果" />
         <el-table-column prop="repair_situation" label="维修后使用情况" />
-        <el-table-column prop="repair_feedback" label="维修后反馈" />
+        <!-- <el-table-column prop="repair_feedback" label="维修后反馈" /> -->
         <el-table-column prop="repair_status" label="状态" />
+        <el-table-column prop="repair_deal" label="操作">
+          <template slot-scope="scope">
+            <span style="margin-left: 10px">
+              <el-button @click="dealresult(scope.row)" type="primary" size="small">编辑</el-button>
+            </span>
+          </template>
+        </el-table-column>
       </el-table>
 
       <el-dialog
@@ -55,9 +62,7 @@
           <el-form-item label="问题描述" prop="repairdetail">
             <el-input v-model="addrepairform.repairdetail" placeholder="请填写问题描述" type="textarea"></el-input>
           </el-form-item>
-          <!-- <el-form-item label="确认密码" prop="confirmrepairdetail" class="setInline">
-            <el-input v-model="addrepairform.confirmrepairdetail" placeholder="请重复填写密码"></el-input>
-          </el-form-item>-->
+
           <el-form-item label="是否加急" prop="if_urgent">
             <el-radio v-model="addrepairform.if_urgent" label="1">是</el-radio>
             <el-radio v-model="addrepairform.if_urgent" label="2">否</el-radio>
@@ -91,23 +96,59 @@
       </el-dialog>
 
       <el-button type="warning" @click="addrepair">新增</el-button>
-      <el-button type="primary">编辑</el-button>
-      <el-button type="success">确认</el-button>
+      <!-- <el-button type="primary">编辑</el-button>
+      <el-button type="success">确认</el-button>-->
+      <div class="block">
+        <span class="demonstration"></span>
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[10, 20, 100]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="totalTableNumber"
+        ></el-pagination>
+      </div>
+      <el-dialog
+        title="填写维修反馈"
+        :visible.sync="repairFeedbackShow"
+        width="700px"
+        :before-close="handleClose"
+      >
+        <el-form :model="feedbackform" ref="feedbackform" label-width="100px">
+          <el-form-item label="维修反馈" prop="feedback">
+            <el-input v-model="feedbackform.feedback" placeholder="请填写反馈" type="textarea"></el-input>
+          </el-form-item>
+        </el-form>
+        <el-button type="success" @click="cancelDiag('repairFeedbackShow')">取消</el-button>
+        <el-button type="primary" @click="confirmresult('repairFeedbackShow')">确认</el-button>
+      </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
-import { getRepairs, AddRepairOne } from "@/api/role-management.js";
+import {
+  getRepairs,
+  AddRepairOne,
+  PostRepairFeedback
+} from "@/api/user-repairs.js";
 
 import store from "@/store";
 export default {
   data() {
     return {
+      repair_id: "",
+      repairFeedbackShow: false,
+      tableData: [],
+      pageSize: 10,
+      currentPage: 1,
       fileList: [],
       access_token: store.getters.access_token,
       myApplicationTable: [],
       addrepairshow: false,
+      feedbackform: { feedback: "" },
       addrepairform: {
         location: "",
         classroom: "",
@@ -146,16 +187,97 @@ export default {
     };
   },
 
-  computed: {},
+  computed: {
+    totalTableNumber() {
+      return this.tableData.length;
+    }
+  },
   watch: {},
   created() {
     this.getRepairsList();
   },
   methods: {
+    cancelDiag(attr) {
+      this.$confirm("确认取消？")
+        .then(_ => {
+          this[attr] = false;
+        })
+        .catch(_ => {});
+    },
+    confirmresult(attr) {
+      this.$confirm("确认提交？")
+        .then(_ => {
+          let access_token = this.access_token;
+          let repair_id = this.repair_id;
+          let remark = this.feedbackform.feedback;
+          let data = {
+            repair_id,
+            access_token,
+            remark
+          };
+          PostRepairFeedback(data).then(
+            success => {
+              this.$alert("提交反馈成功!");
+              location.reload();
+            },
+            fail => this.$alert("提交反馈失败，请检查!")
+          );
+
+          // let temp = this.addrepairform.result;
+          // let result;
+          // if (temp == "1") {
+          //   result = "1";
+          // } else if (temp == "2") {
+          //   result = "2";
+          // } else if (temp == "3") {
+          //   result = "3";
+          // } else {
+          //   result = "-9";
+          // }
+          // let data = {
+          //   repair_id,
+          //   access_token,
+          //   result
+          // };
+          // CompleteRepair(data).then(
+          //   res => {
+          //     this.$alert("维修完成,状态修改成功");
+          //     location.reload();
+          //   },
+          //   err => {
+          //     this.$alert("维修已完成，无需再次提交");
+          //   }
+          // );
+          this[attr] = false;
+        })
+        .catch(_ => {});
+    },
+    dealresult(rowdata) {
+      console.log(rowdata);
+
+      if (rowdata.repair_status === "已经处理") {
+        this.repair_id = rowdata.repair_id;
+        this.feedbackform.feedback = "";
+        this.repairFeedbackShow = true;
+      } else {
+        this.$alert("维修人员处理中，暂时无法提交使用反馈!");
+      }
+    },
+    handleSizeChange(val) {
+      this.pageSize = val;
+      this.myApplicationTable = this.tableData.slice(
+        (this.currentPage - 1) * this.pageSize,
+        this.currentPage * this.pageSize
+      );
+    },
+    handleCurrentChange(val) {
+      this.currentPage = val;
+      this.myApplicationTable = this.tableData.slice(
+        (val - 1) * this.pageSize,
+        val * this.pageSize
+      );
+    },
     handleChange(file, fileList) {
-      console.log("handlechange");
-      // this.fileList = fileList.slice(-3);
-      console.log(file, fileList);
       this.addrepairform.fileList = fileList;
     },
     beforeUpload(file) {
@@ -191,7 +313,7 @@ export default {
       getRepairs(obj).then(res => {
         console.log(res.data.list);
         let result_map = { 0: "退回", 1: "未处理", 2: "修复", 3: "无法修复" };
-        let status_map = { 1: "未处理", 2: "处理中", 0: "已经处理" };
+        let status_map = { 1: "未处理", 2: "处理中", 3: "已经处理" };
         for (let i of res.data.list) {
           let obj = {
             report_time: "",
@@ -205,7 +327,8 @@ export default {
             repair_result: "",
             repair_situation: "",
             repair_feedback: "",
-            repair_status: ""
+            repair_status: "",
+            repair_id: ""
           };
           console.log(i);
           obj.report_time = i.apply_at;
@@ -220,7 +343,13 @@ export default {
           obj.repair_situation = i.remark;
           obj.repair_feedback = i.remark ? i.remark : "";
           obj.repair_status = status_map[i.status];
-          this.myApplicationTable.push(obj);
+          obj.repair_id = i.id;
+          this.tableData.push(obj);
+          if (this.tableData.length >= 10) {
+            this.myApplicationTable = this.tableData.slice(0, 10);
+          } else {
+            this.myApplicationTable = this.tableData;
+          }
         }
       });
     },

@@ -1,12 +1,12 @@
 <template>
   <div class="app-container">
-    <el-calendar>
+    <el-calendar v-model="elDate">
       <template slot="dateCell" slot-scope="{ date, data }">
         <div @click="clickDate(date, data)" class="sideday">
           <div :class="data.isSelected ? 'is-selected' : ''">
-            <span :class="findRestWork(date) === '休' ? 'rest' : 'work'">
+            <span :class="findRestWork(date,data) === '休' ? 'rest' : 'work'">
               {{
-              findRestWork(date)
+              findRestWork(date,data)
               }}
             </span>
             <span>
@@ -61,16 +61,17 @@
 <script>
 import solarLunar from "solarLunar";
 import store from "@/store";
-import { setAttendance } from "@/api/singleday.js";
+import { setAttendance, getDateList } from "@/api/singleday.js";
 export default {
   data() {
     return {
+      is_attendance_dic: {},
+      access_token: store.getters.access_token,
       ifAttendance: true,
       ifrest: false,
       dayInfo: "1",
       choosenDay: "",
       reference_date: "",
-      access_token: store.getters.access_token,
       elDate: new Date(),
       value: true,
       calendarArr: {
@@ -93,48 +94,112 @@ export default {
           reference:
             "星期一,星期二,星期三,星期四,07:45:00-16:20:00;星期五,07:45:00-15:30:00;"
         }
-        // {
-        //   ID: "2",
-        //   group: "非编",
-        //   check: true,
-        //   reference:
-        //     "星期一,星期二,星期三,星期四,07:45:00-16:20:00;星期五,07:45:00-15:30:00;"
-        // }
       ],
       dayList: []
+      // month: this.elDate.getMosnth()
     };
   },
-  computed: {},
+  watch: {
+    elDate(newvalue, oldvalue) {
+      console.log("123");
+      this.getDateInfo();
+    }
+  },
+  computed: {
+    // month() {
+    //   return this.elDate.getMonth();
+    // }
+  },
+  created() {
+    this.getDateInfo();
+  },
   methods: {
+    getDateInfo() {
+      let year = this.elDate.getFullYear();
+      let month = this.elDate.getMonth();
+      let obj0 = {
+        access_token: this.access_token,
+        year: year,
+        mouth: month + 1
+      };
+      let obj1 = {
+        access_token: this.access_token,
+        year: year,
+        mouth: month
+      };
+      let obj2 = {
+        access_token: this.access_token,
+        year: year,
+        mouth: month + 2
+      };
+      getDateList(obj0).then(res => {
+        for (let i of res.data) {
+          let date = i["date"];
+          let is_attendance = i["is_attendance"];
+          this.$set(this.is_attendance_dic, date, is_attendance);
+        }
+      });
+      getDateList(obj1).then(res => {
+        for (let i of res.data) {
+          let date = i["date"];
+          let is_attendance = i["is_attendance"];
+          this.$set(this.is_attendance_dic, date, is_attendance);
+        }
+      });
+      getDateList(obj2).then(res => {
+        for (let i of res.data) {
+          let date = i["date"];
+          let is_attendance = i["is_attendance"];
+          this.$set(this.is_attendance_dic, date, is_attendance);
+        }
+      });
+    },
     switchChange(day) {
       this.ifrest = day;
     },
-    findRestWork(date) {
-      var days = date.getDay();
-      switch (days) {
-        case 1:
-          days = "班";
-          break;
-        case 2:
-          days = "班";
-          break;
-        case 3:
-          days = "班";
-          break;
-        case 4:
-          days = "班";
-          break;
-        case 5:
-          days = "班";
-          break;
-        case 6:
-          days = "休";
-          break;
-        case 0:
-          days = "休";
-          break;
+    findRestWork(date, data) {
+      // console.log("--------");
+      // console.log(date, data);
+      // console.log("+++++++++++");
+      // console.log(data);
+      let days = "";
+      let day = data.day;
+      console.log(day);
+      // console.log(this.is_attendance_dic);
+      // console.log(this.is_attendance_dic[day]);
+      days = this.is_attendance_dic[day];
+      if (days === 0) {
+        return "休";
+      } else if (days === 1) {
+        return "班";
+      } else {
+        return "";
       }
-      return days;
+
+      // var days = date.getDay();
+      // switch (days) {
+      //   case 1:
+      //     days = "班";
+      //     break;
+      //   case 2:
+      //     days = "班";
+      //     break;
+      //   case 3:
+      //     days = "班";
+      //     break;
+      //   case 4:
+      //     days = "班";
+      //     break;
+      //   case 5:
+      //     days = "班";
+      //     break;
+      //   case 6:
+      //     days = "休";
+      //     break;
+      //   case 0:
+      //     days = "休";
+      //     break;
+      // }
     },
     findDay(day) {
       let y = day.split("-")[0];

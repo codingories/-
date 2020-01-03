@@ -1,9 +1,5 @@
 <template>
   <div class="dashboard-container">
-    <!-- <el-button type="primary" @click="changeStatus">编辑</el-button> -->
-    <!-- <el-button type="success" @click="confirmData">确认</el-button> -->
-    <!-- <el-input v-model="username" class="inputstyle" placeholder="用户名" size="medium" width="200px"></el-input> -->
-    <!-- <h2>{{infoData}}</h2> -->
     <el-row>
       <el-col
         v-for="(item, i) in topContent"
@@ -14,10 +10,7 @@
         :xs="1"
         class="item-marign-right"
       >
-        <div
-          class="top-item"
-          @click="fillFlowDetails(item.flowId, item.flowName)"
-        >
+        <div class="top-item" @click="fillFlowDetails(item.flowId, item.flowName)">
           <div>{{ item.flowName }}</div>
         </div>
       </el-col>
@@ -79,12 +72,7 @@
         </span>
       </el-dialog>
 
-      <el-dialog
-        title="添加流程"
-        :visible.sync="dialogVisible"
-        width="30%"
-        :before-close="handleClose"
-      >
+      <el-dialog title="添加流程" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
         <div v-for="(item, i) in addItemList" :key="i">
           <el-checkbox v-model="item.checked">{{ item.flowName }}</el-checkbox>
         </div>
@@ -95,7 +83,6 @@
         </span>
       </el-dialog>
     </el-row>
-    <!-- <h1>{{applyTable}}</h1> -->
     <div class="status">
       <div class="status-first">
         <div class="status-second">
@@ -170,12 +157,62 @@
         </div>
       </div>
     </div>
+    <el-dialog title="增加报修" :visible.sync="addrepairshow" width="700px" :before-close="handleClose">
+      <el-form :model="addrepairform" :rules="rules" ref="addrepairform" label-width="100px">
+        <el-form-item label="报修地点" prop="location" class="setInline">
+          <el-input v-model="addrepairform.location" placeholder="请填写报修地点"></el-input>
+        </el-form-item>
+        <el-form-item label="报修教室" prop="classroom" class="setInline">
+          <el-input v-model="addrepairform.classroom" placeholder="请填写报修教室"></el-input>
+        </el-form-item>
+        <el-form-item label="标题" prop="title" class="setInline">
+          <el-input v-model="addrepairform.title" placeholder="请填写标题"></el-input>
+        </el-form-item>
+        <el-form-item label="问题描述" prop="repairdetail">
+          <el-input v-model="addrepairform.repairdetail" placeholder="请填写问题描述" type="textarea"></el-input>
+        </el-form-item>
+
+        <el-form-item label="是否加急" prop="if_urgent">
+          <el-radio v-model="addrepairform.if_urgent" label="1">是</el-radio>
+          <el-radio v-model="addrepairform.if_urgent" label="2">否</el-radio>
+        </el-form-item>
+        <el-form-item
+          label="上传图片"
+          prop="if_urgent"
+          class="setInline"
+          :on-change="handleChange"
+          :before-upload="beforeUpload"
+        >
+          <el-upload
+            multiple
+            class="upload-demo"
+            ref="upload"
+            action="https://jsonplaceholder.typicode.com/posts/"
+            :on-preview="handlePreview"
+            :on-remove="handleRemove"
+            :on-change="handleChange"
+            :file-list="fileList"
+            :auto-upload="false"
+          >
+            <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过2000kb</div>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+
+      <el-button type="success" @click="cancelDiag('addrepairshow')">取消</el-button>
+      <el-button type="primary" @click="confirmaddrepair('addrepairshow')">确认</el-button>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-import { getPersonalInfo, editUserInfo } from "@/api/personalCenter";
+import {
+  getPersonalInfo,
+  editUserInfo,
+  AddRepairOne
+} from "@/api/personalCenter";
 import {
   getUserFlows,
   getFlowTemplate,
@@ -189,6 +226,43 @@ export default {
   name: "Dashboard",
   data() {
     return {
+      fileList: [],
+      addrepairform: {
+        location: "",
+        classroom: "",
+        title: "",
+        dept: "",
+        repairdetail: "",
+        status: "",
+        if_urgent: "1",
+        fileList: ""
+      },
+      rules: {
+        status: [{ required: true, message: "选择状态", trigger: "change" }],
+        roles: [{ required: true, message: "选择角色", trigger: "change" }],
+        confirmrepairdetail: [
+          {
+            required: true,
+            trigger: "change",
+            validator: this.validatorRepeatrepairdetail
+          }
+        ],
+        repairdetail: [
+          {
+            required: true,
+            message: "请填写详细描述",
+            trigger: "change"
+          }
+        ],
+        location: [
+          { required: true, message: "请填写报修地点", trigger: "change" }
+        ],
+        classroom: [
+          { required: true, message: "请填写报修教室", trigger: "change" }
+        ],
+        title: [{ required: true, message: "请填写标题", trigger: "change" }]
+      },
+      addrepairshow: false,
       myApprovalTable: [],
       flow_id: "",
       flow_name: "",
@@ -200,7 +274,7 @@ export default {
       formList: [],
       processDialogVisible: false,
       dialogVisible: false,
-      topContent: [], // "待办事项", "通知提醒", "采购", "报损"
+      topContent: [{ flowName: "报修", flowId: 999 }], // "待办事项", "通知提醒", "采购", "报损"
       span: "3",
       isDisable: true,
       username: "",
@@ -235,6 +309,53 @@ export default {
   },
 
   methods: {
+    cancelDiag(attr) {
+      this.$confirm("确认取消？")
+        .then(_ => {
+          this[attr] = false;
+        })
+        .catch(_ => {});
+    },
+    confirmaddrepair(attr) {
+      this.$confirm("确认提交？")
+        .then(_ => {
+          let access_token = this.access_token;
+          let obj = {
+            access_token: access_token,
+            title: this.addrepairform.title,
+            content: this.addrepairform.repairdetail,
+            location: this.addrepairform.location,
+            is_urgent: this.addrepairform.if_urgent,
+            classroom_id: this.addrepairform.classroom,
+            apply_images: this.addrepairform.fileList
+          };
+
+          AddRepairOne(obj).then(
+            res => {
+              this.$alert("提交成功，已发布到报修汇总中，等待认领");
+              location.reload();
+            },
+            fail => {
+              this.$alert("提交失败！");
+            }
+          );
+
+          this[attr] = false;
+        })
+        .catch(_ => {});
+    },
+    beforeUpload(file) {
+      console.log(file);
+    },
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+    },
+    handlePreview(file) {
+      console.log(file);
+    },
+    handleChange(file, fileList) {
+      this.addrepairform.fileList = fileList;
+    },
     getApplies() {
       getEntries({ access_token: this.access_token }).then(res => {
         console.log("===getEntries===");
@@ -288,45 +409,29 @@ export default {
       window.location = uri;
     },
     fillFlowDetails(item, name) {
-      console.log(item, name);
-      console.log("---");
-      console.log(this.access_token);
-
-      this.flow_id = item;
-      this.flow_name = name;
-
-      console.log({
-        accessToken: this.access_token,
-        flow_id: item,
-        flow_name: name
-      });
-      console.log(item, this.form);
-      console.log(item.length, name.length);
-      console.log("===");
-      // if (item.length === 0 || name.length === 0) {
-      //   alert("错误");
-      // } else {
-      // }
-
-      getFlowTemplate({ accessToken: this.access_token, flow_id: item }).then(
-        success => {
-          this.formList = [];
-          this.form = {};
-          // console.log(success.data.template_forms)
-          for (const i of success.data.template_forms) {
-            const tempObj = {};
-            tempObj.field_name = i.field_name;
-            tempObj.field = i.field;
-            tempObj.field_type = i.field_type;
-            this.formList.push(tempObj);
+      if (name !== "报修") {
+        this.flow_id = item;
+        this.flow_name = name;
+        getFlowTemplate({ accessToken: this.access_token, flow_id: item }).then(
+          success => {
+            this.formList = [];
+            this.form = {};
+            for (const i of success.data.template_forms) {
+              const tempObj = {};
+              tempObj.field_name = i.field_name;
+              tempObj.field = i.field;
+              tempObj.field_type = i.field_type;
+              this.formList.push(tempObj);
+            }
+          },
+          fail => {
+            console.log(fail);
           }
-        },
-        fail => {
-          console.log(fail);
-        }
-      );
-
-      this.processDialogVisible = true;
+        );
+        this.processDialogVisible = true;
+      } else if (name === "报修") {
+        this.addrepairshow = true;
+      }
     },
 
     handleClose(done) {
@@ -385,6 +490,7 @@ export default {
       getUserFlows({ access_token: this.accessToken }).then(res => {
         this.infoData = res.data;
         for (const i of this.infoData.flows) {
+          console.log(i);
           const tempobj = {};
           tempobj.flowName = i.flow_name;
           tempobj.flowId = i.id;
@@ -492,5 +598,8 @@ export default {
 .myApplyDetail {
   display: flex;
   justify-content: space-between;
+}
+.setInline {
+  display: inline-block;
 }
 </style>

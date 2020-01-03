@@ -226,7 +226,7 @@ export default {
             repassword: this.ruleForm.confirmPassword
           };
           console.log(obj);
-          this[attr] = false;
+          // this[attr] = false;
         })
         .catch(_ => {});
     },
