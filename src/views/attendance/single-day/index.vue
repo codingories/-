@@ -1,5 +1,7 @@
 <template>
   <div class="app-container">
+    <h2>{{dayList}}</h2>
+    <h2>{{ifAttendance}}</h2>
     <el-calendar v-model="elDate">
       <template slot="dateCell" slot-scope="{ date, data }">
         <div @click="clickDate(date, data)" class="sideday">
@@ -24,11 +26,11 @@
         v-model="dayList[index].ifWorkDay"
         active-text="工作日"
         inactive-text="休息日"
-        :change="switchChange(dayList[index].ifWorkDay)"
+        :change="switchChange(dayList[index].ifWorkDay,dayList)"
       />
     </div>
 
-    <el-table :data="tableData" style="width: 100%" v-show="ifrest">
+    <!-- <el-table :data="tableData" style="width: 100%" v-show="ifrest">
       <el-table-column label="序号" width="180">
         <template slot-scope="scope">
           <span style="margin-left: 10px">{{ scope.row.ID }}</span>
@@ -54,7 +56,37 @@
           <el-switch v-model="ifAttendance" active-text="是" inactive-text="否" />
         </template>
       </el-table-column>
-    </el-table>
+    </el-table>-->
+    <el-dialog
+      title="选择考勤参考日"
+      :visible.sync="rulesdayshow"
+      width="700px"
+      :before-close="handleClose"
+    >
+      <!-- <el-form :model="addrepairform" ref="addrepairform" label-width="100px">
+        <el-form-item label="选择结果" prop="result">
+          <el-radio v-model="addrepairform.result" label="1">未修复</el-radio>
+          <el-radio v-model="addrepairform.result" label="2">修复</el-radio>
+          <el-radio v-model="addrepairform.result" label="3">无法修复</el-radio>
+          <el-radio v-model="addrepairform.result" label="4">退回</el-radio>
+        </el-form-item>
+      </el-form>-->
+      <el-button type="success" @click="cancelDiag('rulesdayshow')">取消</el-button>
+      <el-button type="primary" @click="confirmresult('rulesdayshow')">确认</el-button>
+    </el-dialog>
+    <el-dialog
+      title="是否关闭考勤"
+      :visible.sync="ifshutattendance"
+      width="30%"
+      :before-close="handleshutattendance"
+    >
+      <span>是否确认关闭考勤</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="cancelattendance">取 消</el-button>
+        <!-- ifshutattendance = false -->
+        <el-button type="primary" @click="confirmattendance">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -65,6 +97,12 @@ import { setAttendance, getDateList } from "@/api/singleday.js";
 export default {
   data() {
     return {
+      ifshutattendance: false,
+      rulesshowflag: {},
+      addrepairform: {
+        result: "1"
+      },
+      rulesdayshow: false,
       is_attendance_dic: {},
       access_token: store.getters.access_token,
       ifAttendance: true,
@@ -101,8 +139,44 @@ export default {
   },
   watch: {
     elDate(newvalue, oldvalue) {
-      console.log("123");
       this.getDateInfo();
+    },
+    rulesshowflag: {
+      // console.log("====");
+      // console.log(newvalue, oldvalue);
+      // // if (newvalue === true) {
+      // //   this.rulesdayshow = true;
+      // // }
+      handler(newValue, oldValue) {
+        // console.log(!oldValue.length);
+        if (!oldValue.length) {
+          return;
+        }
+        console.log(newValue[0]);
+        console.log("-----------");
+        console.log(oldValue[0]);
+
+        if (newValue[0].day !== oldValue[0].day) {
+          return;
+        } else {
+          if (newValue[0].ifWorkDay === true) {
+            this.rulesdayshow = true;
+          } else {
+            if (this.ifAttendance) {
+              // this.dayList[0].ifWorkDay = true;
+              // console.log(this.dayList[0].ifWorkDay);
+              this.ifshutattendance = true;
+              console.log("请先关闭考勤");
+              // $alert("请先关闭考勤");
+            } else {
+              return;
+            }
+          }
+        }
+        // console.log(newvalue);
+      },
+      deep: true,
+      immediate: false
     }
   },
   computed: {
@@ -114,6 +188,33 @@ export default {
     this.getDateInfo();
   },
   methods: {
+    confirmattendance() {
+      this.ifAttendance = false;
+      this.ifshutattendance = false;
+    },
+    cancelattendance() {
+      this.rulesdayshow = true;
+      this.dayList[0].ifWorkDay = true;
+      this.ifAttendance = true;
+      this.ifshutattendance = false;
+    },
+    handleshutattendance(done) {
+      this.$confirm("确认关闭？")
+        .then(_ => {
+          done();
+        })
+        .catch(_ => {});
+    },
+    handleClose(done) {
+      this.$confirm("确认关闭？")
+        .then(_ => {
+          console.log(123);
+          this.rulesdayshow = false;
+          console.log(this.rulesdayshow);
+          done();
+        })
+        .catch(_ => {});
+    },
     getDateInfo() {
       let year = this.elDate.getFullYear();
       let month = this.elDate.getMonth();
@@ -133,6 +234,7 @@ export default {
         mouth: month + 2
       };
       getDateList(obj0).then(res => {
+        console.log(res.data);
         for (let i of res.data) {
           let date = i["date"];
           let is_attendance = i["is_attendance"];
@@ -154,19 +256,29 @@ export default {
         }
       });
     },
-    switchChange(day) {
+    switchChange(day, index) {
+      // console.log(day, index);
+      // if (day === true) {
+      //   this.rulesdayshow = true;
+      // }
+      this.rulesshowflag = index;
       this.ifrest = day;
     },
+    confirmresult(attr) {
+      console.log(attr);
+      this.rulesdayshow = false;
+    },
+    cancelDiag(attr) {
+      this.$confirm("确认取消？")
+        .then(_ => {
+          this[attr] = false;
+          console.log(this.rulesdayshow);
+        })
+        .catch(_ => {});
+    },
     findRestWork(date, data) {
-      // console.log("--------");
-      // console.log(date, data);
-      // console.log("+++++++++++");
-      // console.log(data);
       let days = "";
       let day = data.day;
-      console.log(day);
-      // console.log(this.is_attendance_dic);
-      // console.log(this.is_attendance_dic[day]);
       days = this.is_attendance_dic[day];
       if (days === 0) {
         return "休";
@@ -175,31 +287,6 @@ export default {
       } else {
         return "";
       }
-
-      // var days = date.getDay();
-      // switch (days) {
-      //   case 1:
-      //     days = "班";
-      //     break;
-      //   case 2:
-      //     days = "班";
-      //     break;
-      //   case 3:
-      //     days = "班";
-      //     break;
-      //   case 4:
-      //     days = "班";
-      //     break;
-      //   case 5:
-      //     days = "班";
-      //     break;
-      //   case 6:
-      //     days = "休";
-      //     break;
-      //   case 0:
-      //     days = "休";
-      //     break;
-      // }
     },
     findDay(day) {
       let y = day.split("-")[0];

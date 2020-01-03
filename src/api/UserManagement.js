@@ -18,6 +18,15 @@ export function getRoles(params) {
   });
 }
 
+export function getAttendance(params) {
+  return request({
+    // /api/v1/admin-role/index
+    url: "/api/v1/attendance/groupList",
+    method: "get",
+    params
+  });
+}
+
 export function getDpet(params) {
   return request({
     url: "/api/v1/dept/getList",

@@ -2,7 +2,9 @@
   <div class="app-container">
     <div class="app-container">
       <h2>用户管理</h2>
-      <!-- <h2>{{rolemap}}</h2> -->
+      <!-- <h2>{{rolemap}}</h2>
+      <h2>{{attendancemap}}</h2>-->
+
       <el-table
         :data="usersInfoTable"
         style="width: 100%"
@@ -91,12 +93,18 @@
 </template>
 
 <script>
-import { getUsers, getDpet, getRoles } from "@/api/UserManagement.js";
+import {
+  getUsers,
+  getDpet,
+  getRoles,
+  getAttendance
+} from "@/api/UserManagement.js";
 
 import store from "@/store";
 export default {
   data() {
     return {
+      attendancemap: {},
       rolemap: {},
       deptList: [],
       userid: "",
@@ -179,20 +187,27 @@ export default {
   created() {
     this.fetchUsersData();
     this.getRolesList();
+    this.getAttendanceList();
   },
 
   methods: {
+    getAttendanceList() {
+      let access_token = this.access_token;
+      let obj = { access_token };
+      getAttendance(obj).then(success => {
+        for (let i of success.data) {
+          this.$set(this.attendancemap, i.name, i.id);
+        }
+      });
+    },
     getRolesList() {
       let access_token = this.access_token;
       let obj = { access_token };
       getRoles(obj).then(success => {
-        console.log(success.data);
         for (let i of success.data) {
-          console.log(i.id, i.name);
           this.$set(this.rolemap, i.name, i.id);
         }
       });
-      console.log(this.rolemap);
     },
     validatorRepeatPassword(rule, value, callback) {
       if (value === "") {
