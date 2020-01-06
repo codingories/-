@@ -1,7 +1,6 @@
 <template>
   <div class="app-container">
-    <h2>{{dayList}}</h2>
-    <h2>{{ifAttendance}}</h2>
+    {{dayList}}
     <el-calendar v-model="elDate">
       <template slot="dateCell" slot-scope="{ date, data }">
         <div @click="clickDate(date, data)" class="sideday">
@@ -28,49 +27,15 @@
         inactive-text="休息日"
         :change="switchChange(dayList[index].ifWorkDay,dayList)"
       />
+      <!-- @click.native="handleUpdate(autoUpdate)" -->
     </div>
 
-    <!-- <el-table :data="tableData" style="width: 100%" v-show="ifrest">
-      <el-table-column label="序号" width="180">
-        <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.ID }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="考勤参照日">
-        <template slot-scope="scope">
-          <el-radio v-model="dayInfo" label="1">周一</el-radio>
-          <el-radio v-model="dayInfo" label="2">周二</el-radio>
-          <el-radio v-model="dayInfo" label="3">周三</el-radio>
-          <el-radio v-model="dayInfo" label="4">周四</el-radio>
-          <el-radio v-model="dayInfo" label="5">周五</el-radio>
-          <el-radio v-model="dayInfo" label="6">周六</el-radio>
-          <el-radio v-model="dayInfo" label="0">周日</el-radio>
-        </template>
-      </el-table-column>
-      <el-table-column label="是否考勤">
-        <template slot-scope="scope">
-          <span>{{ scope.row.reference }}</span>
-        </template>
-        <template slot-scope="scope">
-          <el-switch v-model="ifAttendance" active-text="是" inactive-text="否" />
-        </template>
-      </el-table-column>
-    </el-table>-->
     <el-dialog
       title="选择考勤参考日"
       :visible.sync="rulesdayshow"
       width="700px"
       :before-close="handleClose"
     >
-      <!-- <el-form :model="addrepairform" ref="addrepairform" label-width="100px">
-        <el-form-item label="选择结果" prop="result">
-          <el-radio v-model="addrepairform.result" label="1">未修复</el-radio>
-          <el-radio v-model="addrepairform.result" label="2">修复</el-radio>
-          <el-radio v-model="addrepairform.result" label="3">无法修复</el-radio>
-          <el-radio v-model="addrepairform.result" label="4">退回</el-radio>
-        </el-form-item>
-      </el-form>-->
       <el-button type="success" @click="cancelDiag('rulesdayshow')">取消</el-button>
       <el-button type="primary" @click="confirmresult('rulesdayshow')">确认</el-button>
     </el-dialog>
@@ -142,59 +107,60 @@ export default {
       this.getDateInfo();
     },
     rulesshowflag: {
-      // console.log("====");
-      // console.log(newvalue, oldvalue);
-      // // if (newvalue === true) {
-      // //   this.rulesdayshow = true;
-      // // }
       handler(newValue, oldValue) {
-        // console.log(!oldValue.length);
         if (!oldValue.length) {
           return;
         }
-        console.log(newValue[0]);
-        console.log("-----------");
-        console.log(oldValue[0]);
-
+        // console.log(newValue[0]);
+        // console.log("-----------");
+        // console.log(oldValue[0]);
         if (newValue[0].day !== oldValue[0].day) {
           return;
-        } else {
-          if (newValue[0].ifWorkDay === true) {
-            this.rulesdayshow = true;
-          } else {
-            if (this.ifAttendance) {
-              // this.dayList[0].ifWorkDay = true;
-              // console.log(this.dayList[0].ifWorkDay);
-              this.ifshutattendance = true;
-              console.log("请先关闭考勤");
-              // $alert("请先关闭考勤");
-            } else {
-              return;
-            }
-          }
         }
-        // console.log(newvalue);
+
+        // else {
+        //   if (newValue[0].ifWorkDay === true) {
+        //     this.rulesdayshow = true;
+        //   } else {
+        //     if (this.ifAttendance) {
+        //       // this.ifshutattendance = true;
+        //       console.log("请先关闭考勤");
+        //     } else {
+        //       return;
+        //     }
+        //   }
+        // }
       },
       deep: true,
       immediate: false
     }
   },
-  computed: {
-    // month() {
-    //   return this.elDate.getMonth();
-    // }
-  },
+  computed: {},
   created() {
     this.getDateInfo();
   },
   methods: {
+    // handleUpdate(autoUpdate) {
+    //   let strOpen = "是否确认开启开关。";
+    //   let strClose = "是否确认关闭开关。";
+    //   if (!autoUpdate) {
+    //     // 弹窗询问，这个是封装过的element ui 弹窗
+    //     this.wConfirmTip("开启开关", strOpen, () => {
+    //       this.autoUpdate = true;
+    //     });
+    //   } else {
+    //     this.wConfirmTip("关闭开关", strClose, () => {
+    //       this.autoUpdate = false;
+    //     });
+    //   }
+    // },
     confirmattendance() {
       this.ifAttendance = false;
       this.ifshutattendance = false;
     },
     cancelattendance() {
       this.rulesdayshow = true;
-      this.dayList[0].ifWorkDay = true;
+      // this.dayList[0].ifWorkDay = true;
       this.ifAttendance = true;
       this.ifshutattendance = false;
     },
@@ -234,7 +200,7 @@ export default {
         mouth: month + 2
       };
       getDateList(obj0).then(res => {
-        console.log(res.data);
+        // console.log(res.data);
         for (let i of res.data) {
           let date = i["date"];
           let is_attendance = i["is_attendance"];
@@ -261,6 +227,18 @@ export default {
       // if (day === true) {
       //   this.rulesdayshow = true;
       // }
+      // this.dayList[0].ifWorkDay = true;
+
+      // setTimeout(() => {
+      //   this.dayList[0].ifWorkDay = true;
+      // }, 1000); // 这样的效果可以实现反弹效果
+
+      console.log(index[0].ifWorkDay);
+
+      // if (index[0].ifWorkDay === true) {
+      //   this.rulesdayshow = true;
+      // }
+
       this.rulesshowflag = index;
       this.ifrest = day;
     },
