@@ -1,7 +1,7 @@
 <!--suppress ALL -->
 <template>
   <div class="app-container">
-    <!--{{ menuTable }}-->
+    <!-- {{ menuTable }} -->
     <!--{{idLayer}}-->
     <el-table
       :data="menuTable"
@@ -94,7 +94,7 @@
 </template>
 
 <script>
-import { getMenus, saveMenu, delMenu } from "@/api/menu-manage";
+import { getMenus, saveMenu, delMenu, sortmenu } from "@/api/menu-manage";
 import store from "@/store";
 
 export default {
@@ -229,10 +229,14 @@ export default {
     },
     findLayerIndex(title) {
       // 找到点的是第几层的第几个
+      console.log("findLayerIndex的title");
+      console.log(title);
       const index = this.menuTable.findIndex(e => {
         return e["title"] === title;
       });
       console.log("index,index,index");
+      console.log(index);
+      console.log(this.menuTable[index]);
       console.log(!!this.menuTable[index]);
 
       // ||  !!this.menuTable[index].children
@@ -245,6 +249,8 @@ export default {
         console.log(this.menuTable[index]);
         console.log(this.menuTable[index].children);
         if (!!this.menuTable[index] && !!this.menuTable[index].children) {
+          console.log("有children,找到第几个");
+          console.log([index, -1]);
           return [index, -1]; // 有children的情况
         } else {
           return [0, 0, this.menuTable[index].id];
@@ -254,6 +260,8 @@ export default {
           if (!!this.menuTable[i].children) {
             for (let j = 0; j < this.menuTable[i].children.length; j++) {
               if (this.menuTable[i].children[j].title === title) {
+                console.log("找到了第二层的标题");
+                console.log([i, j, this.menuTable[i].id]);
                 return [i, j, this.menuTable[i].id];
               }
             }
@@ -294,6 +302,22 @@ export default {
     handleUp(a, b) {
       console.log(a, b);
       this.upDown(a, b, 0, 0, -1);
+      console.log(this.menuTable);
+      let menus = [];
+      for (let i of this.menuTable) {
+        menus.push(i.id);
+        // console.log(i)
+        for (let j of i.children) {
+          menus.push(j.id);
+        }
+      }
+      console.log(menus);
+      let access_token = this.access_token;
+      console.log(access_token);
+      let obj = { access_token, menus };
+      sortmenu(obj).then(success => {
+        console.log(success);
+      });
     },
     handleDown(a, b) {
       const title1 = b.title;
@@ -308,6 +332,22 @@ export default {
         downBorder = length - 1;
       }
       this.upDown(a, b, upBorder, downBorder, 1);
+      console.log(this.menuTable);
+      let menus = [];
+      for (let i of this.menuTable) {
+        menus.push(i.id);
+        // console.log(i)
+        for (let j of i.children) {
+          menus.push(j.id);
+        }
+      }
+      console.log(menus);
+      let access_token = this.access_token;
+      console.log(access_token);
+      let obj = { access_token, menus };
+      sortmenu(obj).then(success => {
+        console.log(success);
+      });
     },
     getTableMenus() {
       const obj = { access_token: this.access_token };
@@ -320,7 +360,6 @@ export default {
           this.idLayer.push(str);
           if (!!i.children) {
             for (const j of i.children) {
-              console.log(j.id);
               this.idLayer.push(i.id + "-" + j.id);
             }
           }
@@ -328,6 +367,7 @@ export default {
       });
     },
     addMenus(index, row) {
+      console.log(this.menuTable)
       console.log("aaaaa");
       console.log(index, row.id);
       console.log(index, row);
@@ -370,6 +410,7 @@ export default {
               icon: this.editTable[0].icon,
               remark: this.editTable[0].remark
             };
+            console.log(obj);
             saveMenu(obj).then(
               res => {
                 location.reload();
@@ -424,6 +465,7 @@ export default {
               title: this.editMenuList.menuName,
               uri: this.editMenuList.menuLink
             };
+
             saveMenu(obj).then(
               res => {
                 location.reload();

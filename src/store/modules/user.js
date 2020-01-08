@@ -7,7 +7,8 @@ const user = {
     name: "",
     avatar: "",
     roles: [],
-    RouterList: [] // 动态路由
+    RouterList: [], // 动态路由,
+    ButtonPermission: undefined
   },
 
   mutations: {
@@ -27,6 +28,13 @@ const user = {
     },
     set_router: (state, RouterList) => {
       state.RouterList = RouterList;
+    },
+    SET_ButtonPermission: (state, ButtonPermission) => {
+      console.log("----进入SET_ButtonPermission----");
+      console.log(ButtonPermission);
+      state.ButtonPermission = ButtonPermission;
+      console.log("ppppppppppppppppppppp");
+      console.log(state.ButtonPermission);
     }
   },
 

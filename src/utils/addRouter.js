@@ -6,17 +6,21 @@ import _import from "../router/_import"; // 获取组件的方法
  * @returns
  */
 export function addRouter(routerlist) {
-  console.log("addRouteraddRouteraddRouter");
   console.log(routerlist);
   const router = [];
+  let k = 0;
+  let depth = 2;
   routerlist.forEach(e => {
+    k += 1;
     let e_new = {
       path: e.uri,
       name: e.title,
       component: _import(e.uri)
     };
     if (e.children) {
-      e_new = Object.assign({}, e_new, { children: addRouter(e.children) });
+      if (k <= routerlist.length) {
+        e_new = Object.assign({}, e_new, { children: addRouter(e.children) });
+      }
     }
     if (e.redirect) {
       e_new = Object.assign({}, e_new, { redirect: e.redirect });
@@ -33,8 +37,5 @@ export function addRouter(routerlist) {
     }
     router.push(e_new);
   });
-  console.log("routerrouterrouter");
-  console.log(router);
-
   return router;
 }

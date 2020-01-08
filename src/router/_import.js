@@ -9,6 +9,7 @@ const map = {
   "/classes": () => import("@/views/basicsettings/classes"),
   "/basic-classrooms": () => import("@/views/basicsettings/classrooms"),
   "/grades": () => import("@/views/basicsettings/grades"),
+  "/deptmanage": () => import("@/views/basicsettings/deptmanage"),
   // 物品基础设置
   "/basic-goods": () => import("@/views/layout/Layout"),
   "/warehouses": () => import("@/views/basicgoods/warehouses"),

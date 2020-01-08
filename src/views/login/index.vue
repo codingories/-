@@ -46,6 +46,9 @@
         >Sign in</el-button>
       </el-form-item>
     </el-form>
+    <div class="beian0">
+      <el-link href="http://beian.miit.gov.cn" target="_blank" class="beian">沪ICP备17051841号-1</el-link>
+    </div>
   </div>
 </template>
 
@@ -210,6 +213,16 @@ $light_gray: #eee;
     color: $dark_gray;
     cursor: pointer;
     user-select: none;
+  }
+  .beian0 {
+    position: absolute;
+    top: 90vh;
+    left: 45%;
+  }
+  .beian {
+    color: #fff;
+    position: relative;
+    text-align: center;
   }
 }
 </style>

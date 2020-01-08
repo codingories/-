@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    {{dayList}}
+    <!-- {{dayList}} -->
     <el-calendar v-model="elDate">
       <template slot="dateCell" slot-scope="{ date, data }">
         <div @click="clickDate(date, data)" class="sideday">
@@ -36,10 +36,43 @@
       width="700px"
       :before-close="handleClose"
     >
+      <el-form :model="chooseattendance" ref="chooseattendance" label-width="100px">
+        <el-form-item label="选择考勤日" prop="attendanceday">
+          <el-radio v-model="chooseattendance.attendanceday" label="1">星期一</el-radio>
+          <el-radio v-model="chooseattendance.attendanceday" label="2">星期二</el-radio>
+          <el-radio v-model="chooseattendance.attendanceday" label="3">星期三</el-radio>
+          <el-radio v-model="chooseattendance.attendanceday" label="4">星期四</el-radio>
+          <el-radio v-model="chooseattendance.attendanceday" label="5">星期五</el-radio>
+          <el-radio v-model="chooseattendance.attendanceday" label="6">星期六</el-radio>
+          <el-radio v-model="chooseattendance.attendanceday" label="7">星期日</el-radio>
+        </el-form-item>
+      </el-form>
       <el-button type="success" @click="cancelDiag('rulesdayshow')">取消</el-button>
       <el-button type="primary" @click="confirmresult('rulesdayshow')">确认</el-button>
     </el-dialog>
+
     <el-dialog
+      title="是否关闭考勤日"
+      :visible.sync="ifcloseattendanceshow"
+      width="700px"
+      :before-close="handlecloseattendance"
+    >
+      <el-form :model="closeattendance" ref="closeattendance" label-width="100px">
+        <el-form-item label="关闭考勤日" prop="closeattendance">
+          <el-radio v-model="closeattendance.ifclose" label="1">是</el-radio>
+          <el-radio v-model="closeattendance.ifclose" label="2">否</el-radio>
+          <!-- <el-switch
+            v-model="closeattendance.ifclose"
+            active-text="否"
+            inactive-text="是"
+            :change="switchattendance"
+          />-->
+        </el-form-item>
+      </el-form>
+      <el-button type="success" @click="cancelcloseattendance">取消</el-button>
+      <el-button type="primary" @click="confirmcloseattendance">确认</el-button>
+    </el-dialog>
+    <!-- <el-dialog
       title="是否关闭考勤"
       :visible.sync="ifshutattendance"
       width="30%"
@@ -48,10 +81,9 @@
       <span>是否确认关闭考勤</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelattendance">取 消</el-button>
-        <!-- ifshutattendance = false -->
         <el-button type="primary" @click="confirmattendance">确 定</el-button>
       </span>
-    </el-dialog>
+    </el-dialog>-->
   </div>
 </template>
 
@@ -62,10 +94,15 @@ import { setAttendance, getDateList } from "@/api/singleday.js";
 export default {
   data() {
     return {
+      shutflag: true,
+      ifcloseattendanceshow: false,
       ifshutattendance: false,
       rulesshowflag: {},
-      addrepairform: {
-        result: "1"
+      chooseattendance: {
+        attendanceday: "1"
+      },
+      closeattendance: {
+        ifclose: "1"
       },
       rulesdayshow: false,
       is_attendance_dic: {},
@@ -108,6 +145,8 @@ export default {
     },
     rulesshowflag: {
       handler(newValue, oldValue) {
+        console.log("监视里的rulesshowflag");
+        console.log(newValue, oldValue);
         if (!oldValue.length) {
           return;
         }
@@ -116,20 +155,28 @@ export default {
         // console.log(oldValue[0]);
         if (newValue[0].day !== oldValue[0].day) {
           return;
+        } else {
+          console.log("this.shutflag");
+          console.log(this.shutflag);
+          if (newValue[0].ifWorkDay === true && this.shutflag === true) {
+            this.rulesdayshow = true;
+          } else if (
+            newValue[0].ifWorkDay === true &&
+            this.shutflag === false
+          ) {
+            return;
+          } else {
+            console.log("ifshutattendance");
+            this.ifcloseattendanceshow = true;
+            // if (this.ifAttendance) {
+            //   // this.ifshutattendance = true;
+            //   this.ifcloseattendanceshow = true;
+            //   console.log("请先关闭考勤");
+            // } else {
+            //   return;
+            // }
+          }
         }
-
-        // else {
-        //   if (newValue[0].ifWorkDay === true) {
-        //     this.rulesdayshow = true;
-        //   } else {
-        //     if (this.ifAttendance) {
-        //       // this.ifshutattendance = true;
-        //       console.log("请先关闭考勤");
-        //     } else {
-        //       return;
-        //     }
-        //   }
-        // }
       },
       deep: true,
       immediate: false
@@ -155,14 +202,38 @@ export default {
     //   }
     // },
     confirmattendance() {
-      this.ifAttendance = false;
-      this.ifshutattendance = false;
+      // this.ifAttendance = false;
+      // this.ifshutattendance = false;
     },
     cancelattendance() {
-      this.rulesdayshow = true;
-      // this.dayList[0].ifWorkDay = true;
-      this.ifAttendance = true;
-      this.ifshutattendance = false;
+      // this.rulesdayshow = true;
+      // // this.dayList[0].ifWorkDay = true;
+      // this.ifAttendance = true;
+      // this.ifshutattendance = false;
+    },
+    switchattendance() {
+      console.log("11123344");
+    },
+    cancelcloseattendance() {
+      this.ifcloseattendanceshow = false;
+    },
+    confirmcloseattendance() {
+      console.log("22222");
+
+      console.log(this.closeattendance.ifclose);
+
+      if (this.closeattendance.ifclose === "2") {
+        this.shutflag = false;
+        setTimeout(() => {
+          this.dayList[0].ifWorkDay = true;
+          this.closeattendance.ifclose = "1";
+          setTimeout(() => {
+            this.shutflag = true;
+          });
+        }, 200);
+      }
+
+      this.ifcloseattendanceshow = false;
     },
     handleshutattendance(done) {
       this.$confirm("确认关闭？")
@@ -176,6 +247,16 @@ export default {
         .then(_ => {
           console.log(123);
           this.rulesdayshow = false;
+          console.log(this.rulesdayshow);
+          done();
+        })
+        .catch(_ => {});
+    },
+    handlecloseattendance(done) {
+      this.$confirm("确认关闭？")
+        .then(_ => {
+          console.log(123);
+          // this.rulesdayshow = false;
           console.log(this.rulesdayshow);
           done();
         })

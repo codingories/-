@@ -1,10 +1,11 @@
 <template>
   <div class="app-container">
     <div class="app-container">
-      <h2>用户管理</h2>
-      <!-- <h2>{{rolemap}}</h2>
-      <h2>{{attendancemap}}</h2>-->
-
+      <h2>{{title}}</h2>
+      {{buttonfunctionlist}}
+      <!-- <h2>{{rolemap}}</h2> -->
+      <!-- <h2>{{attendancemap}}</h2> -->
+      <!-- {{this.deptList}} -->
       <el-table
         :data="usersInfoTable"
         style="width: 100%"
@@ -37,10 +38,10 @@
       ></el-pagination>
     </div>
     <!-- @click="addRoles" -->
-    <el-button type="primary">新增</el-button>
-    <el-button type="success" @click="editUsers">编辑</el-button>
+    <el-button type="primary" v-if="hasPermission('增加')">增加</el-button>
+    <el-button type="success" v-if="hasPermission('修改')" @click="editUsers">编辑</el-button>
     <!-- @click="deleteRoles" -->
-    <el-button type="info">删除</el-button>
+    <el-button type="info" v-if="hasPermission('删除')">删除</el-button>
     <el-dialog title="编辑用户" :visible.sync="editUsersShow" width="700px" :before-close="handleClose">
       <el-form
         :model="ruleForm"
@@ -97,20 +98,115 @@ import {
   getUsers,
   getDpet,
   getRoles,
-  getAttendance
+  getAttendance,
+  saveuserinfo,
+  getMenus
 } from "@/api/UserManagement.js";
 
 import store from "@/store";
 export default {
   data() {
     return {
+      title: "用户管理",
+      mocklist: [
+        {
+          id: 25,
+          title: "考勤管理",
+          uri: "/attendance",
+          parent_id: 0,
+          method: "",
+          children: [
+            {
+              id: 29,
+              title: "每日考勤",
+              uri: "/everyday-attendance",
+              parent_id: 25,
+              method: ""
+            },
+            {
+              id: 27,
+              title: "考勤汇总",
+              uri: "/total-attendance",
+              parent_id: 25,
+              method: ""
+            }
+          ]
+        },
+        {
+          id: 103,
+          title: "后台设置",
+          uri: "/backstage",
+          parent_id: 0,
+          method: "",
+          children: [
+            {
+              id: 104,
+              title: "权限列表",
+              uri: "/backstage/authority-management",
+              parent_id: 103,
+              method: ""
+            },
+            {
+              id: 105,
+              title: "用户管理",
+              uri: "/backstage/user-management",
+              parent_id: 103,
+              method: "",
+              children: [
+                {
+                  id: 141,
+                  title: "查看",
+                  uri: "",
+                  icon: "",
+                  remark: ""
+                },
+                {
+                  id: 142,
+                  title: "增加",
+                  uri: "",
+                  icon: "",
+                  remark: ""
+                },
+                {
+                  id: 143,
+                  title: "修改",
+                  uri: "",
+                  icon: "",
+                  remark: ""
+                },
+                {
+                  id: 144,
+                  title: "删除",
+                  uri: "",
+                  icon: "",
+                  remark: ""
+                }
+              ]
+            },
+            {
+              id: 106,
+              title: "角色管理",
+              uri: "/backstage/role-management",
+              parent_id: 103,
+              method: ""
+            },
+            {
+              id: 107,
+              title: "菜单管理",
+              uri: "/backstage/menu-manage",
+              parent_id: 103,
+              method: ""
+            }
+          ]
+        }
+      ],
       attendancemap: {},
       rolemap: {},
       deptList: [],
       userid: "",
       username: "",
-      role_id: "",
-      dept_id: "",
+      role_id: [],
+      dept_id: 0,
       position: "",
       attendance_group_id: "",
       ruleForm: {
@@ -181,16 +277,54 @@ export default {
   computed: {
     tableHeader: function() {
       return this.getTableHeader(this.tableYear, this.tableMonth);
+    },
+    buttonfunctionlist: function() {
+      // for(let i of this.mocklist)
+      let k;
+      let title = this.tilte;
+      for (let i of this.mocklist) {
+        // for (let j of i.children) {
+        // }
+        k = i.children.filter(v => v.title === this.title);
+      }
+      let buttonlist = k[0].children.map(v => v.title);
+      // k = this.mocklist.filter(v => v.title === this.title);
+
+      return buttonlist;
     }
   },
 
   created() {
+    this.getbuttonmenus();
     this.fetchUsersData();
     this.getRolesList();
     this.getAttendanceList();
+    this.getDepartment();
   },
 
   methods: {
+    hasPermission(permission) {
+      console.log("permission");
+      console.log(permission);
+      let flag = false;
+      for (let i of this.buttonfunctionlist) {
+        console.log(i);
+        if (i === permission) {
+          flag = true;
+        }
+      }
+      return flag;
+    },
+    getbuttonmenus() {
+      let access_token = this.access_token;
+      let obj = { access_token };
+
+      getMenus(obj).then(success => {
+        console.log("getMenus");
+        console.log(success.data);
+        let controllist = success.data;
+      });
+    },
     getAttendanceList() {
       let access_token = this.access_token;
       let obj = { access_token };
@@ -228,13 +362,14 @@ export default {
           .catch(() => {});
       } else {
         this.editUsersShow = true;
-        let obj = { access_token: this.access_token };
-        console.log(obj);
-        getDpet(obj).then(res => {
-          console.log(res.data);
-          this.deptList = res.data;
-        });
       }
+    },
+    getDepartment() {
+      let obj = { access_token: this.access_token };
+      console.log(obj);
+      getDpet(obj).then(res => {
+        this.deptList = res.data;
+      });
     },
     confirmEditUsers(attr) {
       this.$confirm("确认提交？")
@@ -243,6 +378,7 @@ export default {
           console.log("1233211");
           // console.log(this.ruleForm);
           // console.log(this.userid);
+
           console.log(this.ruleForm);
           let obj = {
             access_token: this.access_token,
@@ -253,9 +389,17 @@ export default {
             gender: this.ruleForm.gender,
             mobile: this.ruleForm.phone,
             password: this.ruleForm.password,
-            repassword: this.ruleForm.confirmPassword
+            repassword: this.ruleForm.confirmPassword,
+            role_id: this.role_id,
+            dept_id: this.ruleForm.dept_id,
+            attendance_group_id:
+              this.attendancemap[this.ruleForm.attendance_group_id] || 0
           };
+          // let role_id = this.role_id
           console.log(obj);
+          saveuserinfo(obj).then(success => {
+            console.log(success);
+          });
           // this[attr] = false;
         })
         .catch(_ => {});
@@ -288,9 +432,18 @@ export default {
         this.username = this.checkedList[0].username;
 
         this.role_id = this.checkedList[0].role.map(v => this.rolemap[v]);
-        this.dept_id = this.checkedList[0].dept_id;
+        this.ruleForm.attendance_group_id = this.checkedList[0].attendance_group;
+
+        let tempdept = this.checkedList[0].dept;
+        if (typeof tempdept === "string") {
+          console.log("这个是string");
+          this.ruleForm.dept_id = this.deptList.filter(
+            v => v.dept_name === tempdept
+          )[0].id;
+        }
+        // this.dept_id = this.checkedList[0].dept;
+
         this.position = this.checkedList[0].position;
-        this.attendance_group_id = this.checkedList[0].attendance_group_id;
 
         console.log(this.role_id);
 
