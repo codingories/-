@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="app-container">
       <h2>{{title}}</h2>
-      {{buttonfunctionlist}}
+      <h5>{{buttonPermission}}</h5>
       <!-- <h2>{{rolemap}}</h2> -->
       <!-- <h2>{{attendancemap}}</h2> -->
       <!-- {{this.deptList}} -->
@@ -107,7 +107,9 @@ import store from "@/store";
 export default {
   data() {
     return {
+      name: "Child1",
       title: "用户管理",
+      buttonPermission: store.getters.buttonPermission,
       mocklist: [
         {
           id: 25,
@@ -283,13 +285,9 @@ export default {
       let k;
       let title = this.tilte;
       for (let i of this.mocklist) {
-        // for (let j of i.children) {
-        // }
         k = i.children.filter(v => v.title === this.title);
       }
       let buttonlist = k[0].children.map(v => v.title);
-      // k = this.mocklist.filter(v => v.title === this.title);
-
       return buttonlist;
     }
   },
@@ -396,6 +394,7 @@ export default {
               this.attendancemap[this.ruleForm.attendance_group_id] || 0
           };
           // let role_id = this.role_id
+          obj.role_id = [];
           console.log(obj);
           saveuserinfo(obj).then(success => {
             console.log(success);

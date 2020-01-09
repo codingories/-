@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <h2>角色管理</h2>
-    <h2>------</h2>
     <!-- <h2>{{buttonPermission}}</h2> -->
+    <h5>{{buttonPermission}}</h5>
     <el-table
       ref="multipleTable"
       :data="roleTable"
