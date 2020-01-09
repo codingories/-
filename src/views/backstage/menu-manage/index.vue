@@ -1,7 +1,7 @@
 <!--suppress ALL -->
 <template>
   <div class="app-container">
-    <!-- {{ menuTable }} -->
+    {{ menuTable }}
     <!--{{idLayer}}-->
     <el-table
       :data="menuTable"
@@ -76,6 +76,25 @@
         <el-button type="primary" @click="confirmAdd">确 定</el-button>
       </span>
     </el-dialog>
+    <el-dialog title="增加三级菜单" :visible.sync="thirdmenuflag" width="80%" :before-close="handleClose">
+      <el-table :data="editTable" style="width: 100%">
+        <el-table-column prop="menuName" label="菜单名称" width="180">
+          <template slot-scope="scope">
+            <el-input v-model="editTable[0].menuName" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="remark" label="备注">
+          <template slot-scope="scope">
+            <el-input v-model="editTable[0].remark" />
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="cancelAddthird">取 消</el-button>
+        <el-button type="primary" @click="confirmAddthird">确 定</el-button>
+      </span>
+    </el-dialog>
     <el-dialog title="修改菜单" :visible.sync="EditVisible" width="30%" :before-close="handleClose">
       <el-form ref="form" :model="editMenuList" label-width="80px">
         <el-form-item label="菜单名称">
@@ -90,6 +109,25 @@
         <el-button type="primary" @click="confirmEdit">确 定</el-button>
       </span>
     </el-dialog>
+    <el-dialog
+      title="选择增加二级菜单还是三级菜单"
+      :visible.sync="secondmenuflag"
+      width="30%"
+      :before-close="handleClose"
+    >
+      <!-- <el-form ref="form" :model="editMenuList" label-width="80px">
+        <el-form-item label="菜单名称">
+          <el-input v-model="editMenuList.menuName" />
+        </el-form-item>
+        <el-form-item label="菜单链接">
+          <el-input v-model="editMenuList.menuLink" />
+        </el-form-item>
+      </el-form>-->
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="choosesecondmenu">二级菜单</el-button>
+        <el-button type="primary" @click="choosethirdmenu">三级菜单</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -100,6 +138,9 @@ import store from "@/store";
 export default {
   data() {
     return {
+      secondrowid: "",
+      thirdmenuflag: false,
+      secondmenuflag: false,
       options1: [
         {
           value: "calendar",
@@ -196,6 +237,91 @@ export default {
   },
 
   methods: {
+    cancelAddthird() {
+      console.log("取消增加三级菜单");
+      this.thirdmenuflag = false;
+    },
+    confirmAddthird() {
+      console.log("确认增加三级菜单");
+      console.log(this.editTable[0].menuName, this.editTable[0].remark);
+
+      if (
+        this.editTable[0].menuName !== "" &&
+        this.editTable[0].remark !== ""
+      ) {
+        this.$confirm("确认增加？").then(_ => {
+          console.log("确认");
+          console.log(parseInt(this.secondrowid));
+          let parent_id = parseInt(this.secondrowid);
+          const obj = {
+            access_token: this.access_token,
+            parent_id: parent_id,
+            title: this.editTable[0].menuName,
+            remark: this.editTable[0].remark
+          };
+          saveMenu(obj).then(
+            res => {
+              location.reload();
+            },
+            fail => {}
+          );
+          this.editTable[0].menuName = "";
+          this.editTable[0].remark = "";
+        });
+      } else {
+        this.$alert("有未填写的参数");
+      }
+
+      // if (
+      //   this.editTable[0].menuName !== "" &&
+      //   this.editTable[0].link !== "" &&
+      //   this.editTable[0].icon !== "" &&
+      //   this.editTable[0].remark !== ""
+      // ) {
+      //   this.$confirm("确认增加？")
+      //     .then(_ => {
+      //       console.log("------");
+      //       console.log(this.layer);
+      //       let id;
+      //       if (this.layer.length === 2) {
+      //         id = 0;
+      //       } else if (this.layer.length === 3) {
+      //         id = this.layer.slice(2, 3)[0];
+      //       }
+      //       console.log(id);
+      //       const obj = {
+      //         access_token: this.access_token,
+      //         parent_id: id,
+      //         title: this.editTable[0].menuName,
+      //         uri: this.editTable[0].link,
+      //         icon: this.editTable[0].icon,
+      //         remark: this.editTable[0].remark
+      //       };
+      //       console.log(obj);
+      //       saveMenu(obj).then(
+      //         res => {
+      //           location.reload();
+      //         },
+      //         fail => {}
+      //       );
+
+      //       this.editTable[0].menuName = "";
+      //       this.editTable[0].link = "";
+      //       this.editTable[0].icon = "";
+      //       this.editTable[0].remark = "";
+      this.thirdmenuflag = false;
+    },
+    choosesecondmenu() {
+      console.log("二级菜单");
+      this.secondmenuflag = false; // 二级菜单关闭
+      // this.layer = this.findLayerIndex(row.title);
+      this.dialogVisible = true;
+    },
+    choosethirdmenu() {
+      console.log("三级菜单");
+      this.secondmenuflag = false; // 显示二级菜单关闭
+      this.thirdmenuflag = true;
+    },
     EditMenu(index, row) {
       console.log(index, row);
       this.EditVisible = true;
@@ -367,14 +493,28 @@ export default {
       });
     },
     addMenus(index, row) {
-      console.log(this.menuTable)
-      console.log("aaaaa");
       console.log(index, row.id);
-      console.log(index, row);
-      console.log(this.findLayerIndex(row.title));
-      this.layer = this.findLayerIndex(row.title);
-      console.log("bbbbb");
-      this.dialogVisible = true;
+      this.secondrowid = row.id;
+      console.log(typeof row.id);
+
+      if (typeof row.id === "string") {
+        this.secondmenuflag = true; // 二级菜单显示
+        this.layer = this.findLayerIndex(row.title);
+      } else {
+        this.layer = this.findLayerIndex(row.title);
+        this.dialogVisible = true;
+      }
+      // if(typeof row.id==='')
+
+      // 之前旧的
+      // console.log(this.menuTable)
+      // console.log("aaaaa");
+      // console.log(index, row.id);
+      // console.log(index, row);
+      // console.log(this.findLayerIndex(row.title));
+
+      // console.log("bbbbb");
+      // this.dialogVisible = true;
     },
     cancelAdd() {
       this.$confirm("确认取消？")
