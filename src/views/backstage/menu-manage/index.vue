@@ -326,7 +326,7 @@ export default {
       console.log(index, row);
       this.EditVisible = true;
       this.editId = row.id;
-      this.layer = this.findLayerIndex(row.title);
+      this.layer = this.findLayerIndex(row.id);
       console.log(this.layer);
     },
     handleClose(done) {
@@ -336,29 +336,29 @@ export default {
         })
         .catch(_ => {});
     },
-    findLayer(title) {
+    findLayer(id) {
       // 找到点的是第几层的第几个
       const index = this.menuTable.findIndex(e => {
-        return e["title"] === title;
+        return e["id"] === id;
       });
       if (index !== -1) {
         return [index, -1];
       } else {
         for (let i = 0; i < this.menuTable.length; i++) {
           for (let j = 0; j < this.menuTable[i].children.length; j++) {
-            if (this.menuTable[i].children[j].title === title) {
+            if (this.menuTable[i].children[j].id === id) {
               return [i, j, this.menuTable[i].children.length];
             }
           }
         }
       }
     },
-    findLayerIndex(title) {
+    findLayerIndex(id) {
       // 找到点的是第几层的第几个
       console.log("findLayerIndex的title");
-      console.log(title);
+      console.log(id);
       const index = this.menuTable.findIndex(e => {
-        return e["title"] === title;
+        return e["id"] === id;
       });
       console.log("index,index,index");
       console.log(index);
@@ -379,16 +379,40 @@ export default {
           console.log([index, -1]);
           return [index, -1]; // 有children的情况
         } else {
-          return [0, 0, this.menuTable[index].id];
+          return [0, 0, this.menuTable[index].id]; // 没有children的情况
         }
       } else {
         for (let i = 0; i < this.menuTable.length; i++) {
           if (!!this.menuTable[i].children) {
             for (let j = 0; j < this.menuTable[i].children.length; j++) {
-              if (this.menuTable[i].children[j].title === title) {
-                console.log("找到了第二层的标题");
+              if (this.menuTable[i].children[j].id === id) {
+                console.log("找到了第二层的id");
                 console.log([i, j, this.menuTable[i].id]);
                 return [i, j, this.menuTable[i].id];
+              } else {
+                // console.log("去找第三层id");
+                // console.log(id);
+                // console.log(id);
+                // console.log(this.menuTable[i].children[j].children); // 这个就是三级菜单的列表
+                // for (let k of this.menuTable[i].children[j].children) {
+
+                // }
+
+                // console.log('')
+                let templist = this.menuTable[i].children[j].children.filter(
+                  v => v.id === id
+                );
+                if (templist.length === 1) {
+                  // let finderthird = j;
+                  // console.log("finderthird");
+                  // console.log(i, j);
+                  // console.log(this.menuTable[i].children[j]);
+                  // console.log(this.menuTable[i].children[j].id);
+                  return [0, i, j, this.menuTable[i].children[j].id]; // 四位的length代表了点的第三层，i代表顶，j代表2，最后为三级的id
+                }
+                // if (templist.length === 1) {
+                //   console.log(templist);
+                // }
               }
             }
           }
@@ -493,16 +517,26 @@ export default {
       });
     },
     addMenus(index, row) {
+      console.log(row);
       console.log(index, row.id);
       this.secondrowid = row.id;
       console.log(typeof row.id);
 
       if (typeof row.id === "string") {
         this.secondmenuflag = true; // 二级菜单显示
-        this.layer = this.findLayerIndex(row.title);
+        this.layer = this.findLayerIndex(row.id);
       } else {
-        this.layer = this.findLayerIndex(row.title);
-        this.dialogVisible = true;
+        this.layer = this.findLayerIndex(row.id);
+        console.log("layer");
+        console.log(this.layer);
+
+        if (this.layer.length === 4) {
+          let id = parseInt([0, 9, 0, "146"].slice(3)[0]);
+          this.thirdmenuflag = true;
+          this.secondrowid = id;
+        } else {
+          this.dialogVisible = true;
+        }
       }
       // if(typeof row.id==='')
 
