@@ -5,7 +5,8 @@
       <h5>{{buttonPermission}}</h5>
       <!-- <h2>{{rolemap}}</h2> -->
       <!-- <h2>{{attendancemap}}</h2> -->
-      <!-- {{this.deptList}} -->
+
+      <h5>{{buttonfunctionlist}}</h5>
       <el-table
         :data="usersInfoTable"
         style="width: 100%"
@@ -103,6 +104,7 @@ import {
   saveuserinfo,
   getMenus
 } from "@/api/UserManagement.js";
+import buttonpermission from "@/mixins/buttonpermission.js";
 
 import store from "@/store";
 export default {
@@ -276,21 +278,22 @@ export default {
     };
   },
   watch: {},
+  mixins: [buttonpermission],
 
   computed: {
     tableHeader: function() {
       return this.getTableHeader(this.tableYear, this.tableMonth);
-    },
-    buttonfunctionlist: function() {
-      // for(let i of this.mocklist)
-      let k;
-      let title = this.tilte;
-      for (let i of this.mocklist) {
-        k = i.children.filter(v => v.title === this.title);
-      }
-      let buttonlist = k[0].children.map(v => v.title);
-      return buttonlist;
     }
+    // buttonfunctionlist: function() {
+    //   // for(let i of this.mocklist)
+    //   let k;
+    //   let title = this.tilte;
+    //   for (let i of this.mocklist) {
+    //     k = i.children.filter(v => v.title === this.title);
+    //   }
+    //   let buttonlist = k[0].children.map(v => v.title);
+    //   return buttonlist;
+    // }
   },
 
   created() {

@@ -36,6 +36,14 @@ export function getRouter(role) {
   }
 }
 
+export function getTotalMenuList(params) {
+  return request({
+    url: "/api/v1/admin-menu/index",
+    method: "get",
+    params
+  });
+}
+
 export function logout(data) {
   let obj = {
     url: "/api/v1/logout",

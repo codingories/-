@@ -365,10 +365,11 @@ export default {
           const menus0 = this.$refs.tree.getCheckedKeys().map(function(x) {
             return parseInt(x);
           });
-          const menus1 = this.$refs.tree.getHalfCheckedKeys().map(function(x) {
-            return parseInt(x);
-          });
-          let menus = menus0.concat(menus1);
+          // const menus1 = this.$refs.tree.getHalfCheckedKeys().map(function(x) {
+          //   return parseInt(x);
+          // });
+          // let menus = menus0.concat(menus1);
+          let menus = menus0;
           const obj = {
             access_token: this.access_token,
             id: this.rowId,

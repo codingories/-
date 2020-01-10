@@ -4,7 +4,7 @@ import { getToken, removeToken } from "./utils/auth";
 import NProgress from "nprogress"; // Progress 进度条
 import "nprogress/nprogress.css"; // Progress 进度条样式
 import { Message } from "element-ui";
-import { getRouter } from "./api/login";
+import { getRouter, getTotalMenuList } from "./api/login";
 import { addRouter } from "./utils/addRouter";
 
 const whiteList = ["/login"];
@@ -56,11 +56,25 @@ router.afterEach(() => {
 function gotoRouter(to, next) {
   console.log("gotoRouter");
   console.log(store.getters.access_token);
+  let access_token = store.getters.access_token;
   getRouter(store.getters.access_token) // 获取动态路由的方法
     .then(res => {
       console.log(res);
       console.log("解析后端动态路由", res.data.data);
-      store.commit("SET_ButtonPermission", res.data.data);
+
+      // 获取三级菜单
+      getTotalMenuList({ access_token }).then(
+        success => {
+          // debugger;
+          console.log("获取三级菜单");
+          console.log(success);
+          store.commit("SET_ButtonPermission", success.data);
+        },
+        error => {
+          console.log(error);
+          // debugger;
+        }
+      );
       const asyncRouter = addRouter(res.data.data); // 进行递归解析
       // store.dispatch("setroles", res.data.data.permit);
       // 一定不能写在静态路由里面,否则会出现,访问动态路由404的情况.所以在这列添加
