@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <div class="app-container">
-      <h2>{{title}}</h2>
-      <h5>{{buttonPermission}}</h5>
+      <!-- <h2>{{title}}</h2> -->
+      <!-- <h5>{{buttonPermission}}</h5> -->
       <!-- <h2>{{rolemap}}</h2> -->
       <!-- <h2>{{attendancemap}}</h2> -->
       <!-- {{this.deptList}} -->
@@ -43,6 +43,7 @@
     <!-- @click="deleteRoles" -->
     <el-button type="info" v-if="hasPermission('删除')">删除</el-button>
     <el-dialog title="编辑用户" :visible.sync="editUsersShow" width="700px" :before-close="handleClose">
+      <!-- <h4>{{ruleForm}}</h4> -->
       <el-form
         :model="ruleForm"
         :rules="rules"
@@ -62,7 +63,7 @@
           <el-input v-model="ruleForm.phone" placeholder="请填写手机号"></el-input>
         </el-form-item>
         <el-form-item label="部门" prop="dept" class="setInline">
-          <el-select v-model="ruleForm.dept" placeholder="请选择部门">
+          <el-select v-model="ruleForm.dept_id" placeholder="请选择部门">
             <el-option
               :label="i.dept_name"
               :value="i.id"
@@ -215,7 +216,7 @@ export default {
         personName: "",
         JobNumber: "",
         phone: "",
-        dept: "",
+        dept_id: "",
         password: "",
         confirmPassword: "",
         status: "",
@@ -377,7 +378,7 @@ export default {
           // console.log(this.ruleForm);
           // console.log(this.userid);
 
-          console.log(this.ruleForm);
+          // console.log(this.ruleForm);
           let obj = {
             access_token: this.access_token,
             id: this.userid,
@@ -396,8 +397,23 @@ export default {
           // let role_id = this.role_id
           obj.role_id = [];
           console.log(obj);
+
+          // let obj = {
+          //   access_token: this.access_token,
+          //   id: this.userid,
+          //   username: this.username,
+          //   name: this.ruleForm.personName,
+          //   dept_id: this.ruleForm.dept_id
+          // };
+
+          console.log("objobjobj1234");
+          console.log(obj);
+          // let obj = { id: 38, username: "guwq", dept_id: 9, name: "顾文取" };
+          // obj.access_token = this.access_token;
+
           saveuserinfo(obj).then(success => {
-            console.log(success);
+            // console.log(success);
+            location.reload();
           });
           // this[attr] = false;
         })

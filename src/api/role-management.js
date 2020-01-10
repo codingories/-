@@ -37,3 +37,10 @@ export const AddRepairOne = ({
     data
   });
 };
+// export function editUserInfo(data) {
+//   return request({
+//     method: "post",
+//     url: "/api/v1/user/edit_info",
+//     data: qs.stringify(data)
+//   });
+// }

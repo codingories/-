@@ -96,6 +96,23 @@ export function saveuserinfo({
   });
 }
 
+// export function saveuserinfo({ access_token, id, username, name, dept_id }) {
+//   const data = new window.FormData();
+//   data.append("access_token", access_token);
+//   data.append("id", id);
+//   data.append("username", username);
+//   data.append("name", name);
+//   data.append("dept_id", dept_id);
+//   return request({
+//     method: "post",
+//     url: "/api/v1/admin-user/save",
+//     headers: {
+//       "Content-Type": "multipart/form-data"
+//     },
+//     data
+//   });
+// }
+
 // access_token: "f6f2e8347a6d234b5cdd52a2adbbfaeb"
 // id: 114
 // username: "telangpu"

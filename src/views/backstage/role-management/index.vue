@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
-    <h2>角色管理</h2>
+    <!-- <h2>角色管理</h2> -->
     <!-- <h2>{{buttonPermission}}</h2> -->
-    <h5>{{buttonPermission}}</h5>
+    <!-- <h5>{{buttonPermission}}</h5> -->
     <el-table
       ref="multipleTable"
       :data="roleTable"
@@ -344,14 +344,17 @@ export default {
                 this.roleTable = this.roleTable.filter(item => {
                   return item.id != obj.id;
                 });
-                delRoles(obj).then(() => {
-                  console.log("--删除成功--");
-                });
+                delRoles(obj)
+                  .then(() => {
+                    console.log("--删除成功--");
+                  })
+                  .catch(this.$alert("有角色分配用户了，无法进行删除操作"));
               }
               // console.log('开始发送删除请求')
-            } else {
-              this.$alert("有角色分配用户了，无法进行删除操作");
             }
+            // else {
+            //   this.$alert("有角色分配用户了，无法进行删除操作");
+            // }
           })
           .catch(_ => {});
       }

@@ -1,7 +1,7 @@
 <!--suppress ALL -->
 <template>
   <div class="app-container">
-    {{ menuTable }}
+    <!-- {{ menuTable }} -->
     <!--{{idLayer}}-->
     <el-table
       :data="menuTable"
@@ -327,6 +327,7 @@ export default {
       this.EditVisible = true;
       this.editId = row.id;
       this.layer = this.findLayerIndex(row.id);
+      console.log("====this.layer");
       console.log(this.layer);
     },
     handleClose(done) {
@@ -420,9 +421,9 @@ export default {
       }
     },
     upDown(a, b, upBorder, downBorder, step) {
-      const title = b.title;
+      const id = b.id;
       const TemperMenuTable = this.menuTable;
-      const Layer = this.findLayer(title);
+      const Layer = this.findLayer(id);
       const layerIndex1 = Layer.slice(0, 1)[0];
       const layerIndex2 = Layer.slice(1, 2)[0];
       if (layerIndex1 !== upBorder && layerIndex2 === -1) {
@@ -467,11 +468,12 @@ export default {
       let obj = { access_token, menus };
       sortmenu(obj).then(success => {
         console.log(success);
+        // location.reload();
       });
     },
     handleDown(a, b) {
-      const title1 = b.title;
-      const length = this.findLayer(title1).slice(2, 3)[0];
+      const id = b.id;
+      const length = this.findLayer(id).slice(2, 3)[0];
       const upBorder = this.menuTable.length - 1;
       let downBorder;
       if (length === undefined) {
@@ -496,6 +498,7 @@ export default {
       console.log(access_token);
       let obj = { access_token, menus };
       sortmenu(obj).then(success => {
+        // location.reload();
         console.log(success);
       });
     },
@@ -630,6 +633,8 @@ export default {
               id = 0;
             } else if (this.layer.length === 3) {
               id = this.layer.slice(2, 3)[0];
+            } else if (this.layer.length === 4) {
+              id = this.layer.slice(3)[0];
             }
 
             const obj = {
