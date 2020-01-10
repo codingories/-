@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <!-- {{dayList}} -->
+    {{dayList}}
     <el-calendar v-model="elDate">
       <template slot="dateCell" slot-scope="{ date, data }">
         <div @click="clickDate(date, data)" class="sideday">
@@ -48,7 +48,7 @@
         </el-form-item>
       </el-form>
       <el-button type="success" @click="cancelDiag('rulesdayshow')">取消</el-button>
-      <el-button type="primary" @click="confirmresult('rulesdayshow')">确认</el-button>
+      <el-button type="primary" @click="confirmresult()">确认</el-button>
     </el-dialog>
 
     <el-dialog
@@ -218,10 +218,8 @@ export default {
       this.ifcloseattendanceshow = false;
     },
     confirmcloseattendance() {
-      console.log("22222");
-
+      console.log("000000");
       console.log(this.closeattendance.ifclose);
-
       if (this.closeattendance.ifclose === "2") {
         this.shutflag = false;
         setTimeout(() => {
@@ -231,6 +229,19 @@ export default {
             this.shutflag = true;
           });
         }, 200);
+      } else {
+        console.log("开始发送请求");
+        let access_token = this.access_token;
+        let date = this.dayList[0].day.match(/\d+年\d+月\d+日/)[0];
+        let is_attendance = this.dayList[0].ifWorkDay ? 1 : 0;
+        let obj = { access_token, date, is_attendance };
+        setAttendance(obj)
+          .then(success => {
+            console.log(success);
+          })
+          .catch(error => {
+            console.log(error);
+          });
       }
 
       this.ifcloseattendanceshow = false;
@@ -323,9 +334,26 @@ export default {
       this.rulesshowflag = index;
       this.ifrest = day;
     },
-    confirmresult(attr) {
-      console.log(attr);
+    confirmresult() {
+      console.log("000");
+      let access_token = this.access_token;
+      let date = this.dayList[0].day.match(/\d+年\d+月\d+日/)[0];
+      let is_attendance = this.dayList[0].ifWorkDay ? 1 : 0;
       this.rulesdayshow = false;
+      let reference_date = this.chooseattendance.attendanceday;
+      let obj = {
+        access_token,
+        date,
+        is_attendance,
+        reference_date
+      };
+      setAttendance(obj)
+        .then(success => {
+          console.log(success);
+        })
+        .catch(error => {
+          console.log(error);
+        });
     },
     cancelDiag(attr) {
       this.$confirm("确认取消？")

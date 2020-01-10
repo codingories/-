@@ -362,15 +362,20 @@ export default {
     confirmAuthorizeTable(done) {
       this.$confirm("确认提交？")
         .then(_ => {
-          const menus = this.$refs.tree.getCheckedKeys().map(function(x) {
+          const menus0 = this.$refs.tree.getCheckedKeys().map(function(x) {
             return parseInt(x);
           });
+          const menus1 = this.$refs.tree.getHalfCheckedKeys().map(function(x) {
+            return parseInt(x);
+          });
+          let menus = menus0.concat(menus1);
           const obj = {
             access_token: this.access_token,
             id: this.rowId,
             name: this.rowName,
             menus: menus
           };
+          console.log("000");
           console.log(obj);
           authorizeRoles(obj).then(res => {
             console.log(obj);

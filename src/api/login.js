@@ -32,6 +32,7 @@ export function getRouter(role) {
     console.log("进入到请求获取路由列表");
 
     return axios.get("/api/v1/admin-user/menus", { params: data });
+    // return axios.get("/api/v1/admin-menu/index", { params: data });
   }
 }
 
