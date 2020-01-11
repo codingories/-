@@ -175,6 +175,7 @@ export default {
   created() {
     this.fetchRoleData();
     this.getAuthorizeTable();
+    this.getAllUsers();
   },
 
   methods: {
@@ -365,18 +366,19 @@ export default {
           const menus0 = this.$refs.tree.getCheckedKeys().map(function(x) {
             return parseInt(x);
           });
-          // const menus1 = this.$refs.tree.getHalfCheckedKeys().map(function(x) {
-          //   return parseInt(x);
-          // });
-          // let menus = menus0.concat(menus1);
-          let menus = menus0;
+          const menus1 = this.$refs.tree.getHalfCheckedKeys().map(function(x) {
+            return parseInt(x);
+          });
+          let menus = menus0.concat(menus1);
+          console.log('--------menus------')
+          console.log(menus)
+          // let menus = menus0;
           const obj = {
             access_token: this.access_token,
             id: this.rowId,
             name: this.rowName,
             menus: menus
           };
-          console.log("000");
           console.log(obj);
           authorizeRoles(obj).then(res => {
             console.log(obj);
@@ -475,13 +477,14 @@ export default {
     },
     // 分配用户模块
     assignment(index, row) {
+      console.log("000");
       console.log(index, row);
       this.role = row.name;
       console.log(index, row.id);
 
       this.alignIndex = index;
       this.alignRow = row;
-      this.getAllUsers();
+      // this.getAllUsers();
       this.alignUserShow = true;
 
       const tempobj = {
@@ -507,7 +510,7 @@ export default {
         // this.fromData = [];
         // let a = this.fromData;
         // console.log(a);
-        this.fromData = this.filterObj(this.fromData, this.toData);
+        this.fromData = this.filterObj(this.fromData0, this.toData);
         // this.fromData = setTimeout(this.filterObj(a, this.toData), 100);
         // console.log(this.fromData.pop(res.data.user_list[0]));
       });
@@ -524,7 +527,7 @@ export default {
         const ddd = ccc.replace(/\"id\":null/g, '"id":999');
         const eee = JSON.parse(ddd.replace(/\"pid\":null/g, '"pid":999'));
 
-        this.fromData = eee;
+        this.fromData0 = eee;
       });
     },
     filterObj(c, d) {
@@ -566,6 +569,11 @@ export default {
           return !(i.name in tempnamelist);
         });
       }
+      console.log("ccc");
+      console.log(c);
+
+      c = c.filter(v => v.children.length !== 0);
+
       return c;
     },
     confirmAlignUserTable() {

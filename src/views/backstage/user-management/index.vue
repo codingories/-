@@ -2,11 +2,11 @@
   <div class="app-container">
     <div class="app-container">
       <!-- <h2>{{title}}</h2> -->
-      <h5>{{buttonPermission}}</h5>
+      <!-- <h5>{{buttonPermission}}</h5> -->
       <!-- <h2>{{rolemap}}</h2> -->
       <!-- <h2>{{attendancemap}}</h2> -->
 
-      <h5>{{buttonfunctionlist}}</h5>
+      <!-- <h5>{{buttonfunctionlist}}</h5> -->
       <el-table
         :data="usersInfoTable"
         style="width: 100%"

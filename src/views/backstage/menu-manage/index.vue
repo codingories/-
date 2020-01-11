@@ -14,7 +14,7 @@
       <el-table-column prop="title" label="菜单名称" width="180" />
       <el-table-column prop="uri" label="链接" width="240" />
       <el-table-column prop="icon" label="icon" width="100" />
-      <el-table-column prop="address" label="备注" />
+      <el-table-column prop="remark" label="备注" />
       <el-table-column prop="address" label="操作" width="230">
         <template slot-scope="scope">
           <el-button size="mini" type="primary" @click="addMenus(scope.$index, scope.row)">增加</el-button>
@@ -86,6 +86,11 @@
         <el-table-column prop="remark" label="备注">
           <template slot-scope="scope">
             <el-input v-model="editTable[0].remark" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="method" label="方式">
+          <template slot-scope="scope">
+            <el-input v-model="editTable[0].method" />
           </template>
         </el-table-column>
       </el-table>
@@ -209,7 +214,8 @@ export default {
           menuName: "",
           link: "",
           icon: "",
-          remark: ""
+          remark: "",
+          method: ""
         }
       ],
       model: {},
@@ -257,7 +263,8 @@ export default {
             access_token: this.access_token,
             parent_id: parent_id,
             title: this.editTable[0].menuName,
-            remark: this.editTable[0].remark
+            remark: this.editTable[0].remark,
+            method: this.editTable[0].method
           };
           saveMenu(obj).then(
             res => {
@@ -534,7 +541,7 @@ export default {
         console.log(this.layer);
 
         if (this.layer.length === 4) {
-          let id = parseInt([0, 9, 0, "146"].slice(3)[0]);
+          let id = parseInt(this.layer.slice(3)[0]);
           this.thirdmenuflag = true;
           this.secondrowid = id;
         } else {
