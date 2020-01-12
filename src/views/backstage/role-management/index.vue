@@ -1,8 +1,10 @@
 <template>
   <div class="app-container">
-    <!-- <h2>角色管理</h2> -->
+    <h2>title</h2>
     <!-- <h2>{{buttonPermission}}</h2> -->
-    <!-- <h5>{{buttonPermission}}</h5> -->
+    <h5>{{buttonPermission}}</h5>
+    <h5>-------</h5>
+    <h5>{{buttonfunctionlist}}</h5>
     <el-table
       ref="multipleTable"
       :data="roleTable"
@@ -116,6 +118,7 @@ import {
   getUsers,
   distributeUser
 } from "@/api/RoleManagement.js";
+import buttonpermission from "@/mixins/buttonpermission.js";
 import store from "@/store";
 import treeTransfer from "el-tree-transfer"; // 引入
 export default {
@@ -134,6 +137,7 @@ export default {
     };
 
     return {
+      title: "角色管理",
       defaultCheckedKeys: [],
       treeTransferTitle: ["全选", "全选"],
       mode: "transfer", // transfer addressList
@@ -171,7 +175,7 @@ export default {
 
   computed: {},
   watch: {},
-
+  mixins: [buttonpermission],
   created() {
     this.fetchRoleData();
     this.getAuthorizeTable();
@@ -370,8 +374,8 @@ export default {
             return parseInt(x);
           });
           let menus = menus0.concat(menus1);
-          console.log('--------menus------')
-          console.log(menus)
+          console.log("--------menus------");
+          console.log(menus);
           // let menus = menus0;
           const obj = {
             access_token: this.access_token,

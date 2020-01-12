@@ -11,20 +11,21 @@ const buttonpermission = {
     buttonfunctionlist: function() {
       let k;
       let title = this.title;
+      if (!title) {
+        throw new Error("need title");
+      }
       let buttonPermission = this.buttonPermission;
 
       k = buttonPermission.filter(v => v.title === title);
 
       for (let i of buttonPermission) {
-        // console.log(i.children);
-
         k = i.children.filter(v => v.title === title);
         if (k.length !== 0) {
-          // console.log(k[0].children);
-          return k[0].children;
+          return k[0].children.map(v => v.title);
         }
       }
 
+      return 123;
       // console.log("kkkk");
       // console.log(title);
       // console.log(buttonPermission);
