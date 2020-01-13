@@ -15,17 +15,20 @@ const buttonpermission = {
         throw new Error("need title");
       }
       let buttonPermission = this.buttonPermission;
-
-      k = buttonPermission.filter(v => v.title === title);
-
+      // debugger;
+      if (buttonPermission instanceof Array && buttonPermission.length !== 0) {
+        k = buttonPermission.filter(v => v.title === title);
+      }
       for (let i of buttonPermission) {
-        k = i.children.filter(v => v.title === title);
-        if (k.length !== 0) {
-          return k[0].children.map(v => v.title);
+        if (i.children instanceof Array && buttonPermission.length !== 0) {
+          k = i.children.filter(v => v.title === title);
+          // debugger;
+          if (k.length !== 0) {
+            return k[0].children.map(v => v.title);
+          }
         }
       }
-
-      return 123;
+      return null;
       // console.log("kkkk");
       // console.log(title);
       // console.log(buttonPermission);
