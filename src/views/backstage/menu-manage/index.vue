@@ -77,10 +77,50 @@
       </span>
     </el-dialog>
     <el-dialog title="增加三级菜单" :visible.sync="thirdmenuflag" width="80%" :before-close="handleClose">
+      <!-- <el-table-column prop="menuName" label="菜单名称" width="180">
+        <template slot-scope="scope">
+          <el-input v-model="editTable[0].menuName" />
+        </template>
+      </el-table-column>
+      <el-table-column prop="link" label="链接" width="180">
+        <template slot-scope="scope">
+          <el-input v-model="editTable[0].link" />
+        </template>
+      </el-table-column>
+      <el-table-column prop="props" label="icon">
+        <template slot-scope="scope">
+          <el-select v-model="editTable[0].icon" placeholder="请选择">
+            <el-option
+              v-for="item in options1"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
+              <span style="float: left">{{ item.label }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px; line-height:34px">
+                <svg class="icon">
+                  <use :xlink:href="'#' + item.icon" />
+                </svg>
+              </span>
+            </el-option>
+          </el-select>
+        </template>
+      </el-table-column>
+      <el-table-column prop="remark" label="备注">
+        <template slot-scope="scope">
+          <el-input v-model="editTable[0].remark" />
+        </template>
+      </el-table-column>-->
+
       <el-table :data="editTable" style="width: 100%">
         <el-table-column prop="menuName" label="菜单名称" width="180">
           <template slot-scope="scope">
             <el-input v-model="editTable[0].menuName" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="link" label="链接" width="180">
+          <template slot-scope="scope">
+            <el-input v-model="editTable[0].link" />
           </template>
         </el-table-column>
         <el-table-column prop="remark" label="备注">
@@ -90,7 +130,41 @@
         </el-table-column>
         <el-table-column prop="method" label="方式">
           <template slot-scope="scope">
-            <el-input v-model="editTable[0].method" />
+            <!-- <el-input v-model="editTable[0].method" /> -->
+            <el-select v-model="editTable[0].method" placeholder="请选择">
+              <el-option
+                v-for="item in methodtable"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              >
+                <span style="float: left">{{ item.label }}</span>
+                <!-- <span style="float: right; color: #8492a6; font-size: 13px; line-height:34px">
+                  <svg class="icon">
+                    <use :xlink:href="'#' + item.icon" />
+                  </svg>
+                </span>-->
+              </el-option>
+            </el-select>
+          </template>
+        </el-table-column>
+        <el-table-column prop="props" label="icon">
+          <template slot-scope="scope">
+            <el-select v-model="editTable[0].icon" placeholder="请选择">
+              <el-option
+                v-for="item in options1"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              >
+                <span style="float: left">{{ item.label }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px; line-height:34px">
+                  <svg class="icon">
+                    <use :xlink:href="'#' + item.icon" />
+                  </svg>
+                </span>
+              </el-option>
+            </el-select>
           </template>
         </el-table-column>
       </el-table>
@@ -143,6 +217,12 @@ import store from "@/store";
 export default {
   data() {
     return {
+      methodtable: [
+        { value: "get", label: "get" },
+        { value: "post", label: "post" },
+        { value: "put", label: "put" },
+        { value: "delete", label: "delete" }
+      ],
       secondrowid: "",
       thirdmenuflag: false,
       secondmenuflag: false,
@@ -262,10 +342,13 @@ export default {
           const obj = {
             access_token: this.access_token,
             parent_id: parent_id,
+            link: this.editTable[0].link,
             title: this.editTable[0].menuName,
             remark: this.editTable[0].remark,
-            method: this.editTable[0].method
+            method: this.editTable[0].method,
+            icon: this.editTable[0].icon
           };
+          console.log(obj);
           saveMenu(obj).then(
             res => {
               location.reload();
@@ -274,6 +357,8 @@ export default {
           );
           this.editTable[0].menuName = "";
           this.editTable[0].remark = "";
+          this.editTable[0].link = "";
+          this.editTable[0].icon = "";
         });
       } else {
         this.$alert("有未填写的参数");

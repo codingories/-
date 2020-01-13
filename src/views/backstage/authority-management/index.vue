@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <h2>权限列表</h2>
+    <h2>{{title}}</h2>
     <h5>{{buttonPermission}}</h5>
     <h5>-------</h5>
     <h5>{{buttonfunctionlist}}</h5>
@@ -28,7 +28,7 @@ import store from "@/store";
 export default {
   data() {
     return {
-      title: "考勤管理",
+      title: "权限列表",
       access_token: store.getters.access_token,
       getGroupsLoading: false,
       RawGroupData: [],

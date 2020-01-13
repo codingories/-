@@ -3,10 +3,12 @@
     <div class="app-container">
       <h2>{{title}}</h2>
       <h5>{{buttonPermission}}</h5>
+      <h3>{{deptList}}</h3>
       <!-- <h2>{{rolemap}}</h2> -->
-      <!-- <h2>{{attendancemap}}</h2> -->
+      <h2>{{attendancemap}}</h2>
 
       <h5>{{buttonfunctionlist}}</h5>
+      <h5>{{userid}}</h5>
       <el-table
         :data="usersInfoTable"
         style="width: 100%"
@@ -39,10 +41,10 @@
       ></el-pagination>
     </div>
     <!-- @click="addRoles" -->
-    <el-button type="primary" v-if="hasPermission('增加')">增加</el-button>
+    <el-button type="primary" v-if="hasPermission('增加')" @click="addUser">增加</el-button>
     <el-button type="success" v-if="hasPermission('修改')" @click="editUsers">编辑</el-button>
     <!-- @click="deleteRoles" -->
-    <el-button type="info" v-if="hasPermission('删除')">删除</el-button>
+    <el-button type="info" v-if="hasPermission('删除')" @click="deleteUser">删除</el-button>
     <el-dialog title="编辑用户" :visible.sync="editUsersShow" width="700px" :before-close="handleClose">
       <!-- <h4>{{ruleForm}}</h4> -->
       <el-form
@@ -92,6 +94,69 @@
       <el-button type="success" @click="cancelDiag('editUsersShow')">取消</el-button>
       <el-button type="primary" @click="confirmEditUsers('editUsersShow')">确认</el-button>
     </el-dialog>
+    <el-dialog title="增加用户" :visible.sync="addUserShow" width="700px" :before-close="handleClose">
+      <el-form :model="addUserform" ref="addUserform" label-width="100px" class="demo-ruleForm">
+        <el-form-item label="用户名" prop="username" class="setInline">
+          <el-input v-model="addUserform.username" placeholder="请填写用户"></el-input>
+        </el-form-item>
+        <el-form-item label="姓名" prop="name" class="setInline">
+          <el-input v-model="addUserform.name" placeholder="请填写姓名"></el-input>
+        </el-form-item>
+        <el-form-item label="性别" prop="gender" class="setInline">
+          <el-radio v-model="addUserform.gender" label="1">男</el-radio>
+          <el-radio v-model="addUserform.gender" label="2">女</el-radio>
+        </el-form-item>
+
+        <el-form-item label="手机号" prop="mobile" class="setInline">
+          <el-input v-model="addUserform.mobile" placeholder="请填写手机号"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email" class="setInline">
+          <el-input v-model="addUserform.email" placeholder="请填写邮箱"></el-input>
+        </el-form-item>
+        <el-form-item label="微信" prop="wechat" class="setInline">
+          <el-input v-model="addUserform.wechat" placeholder="请填写微信"></el-input>
+        </el-form-item>
+        <el-form-item label="部门" prop="dept" class="setInline">
+          <el-select v-model="addUserform.dept_id" placeholder="请选择部门">
+            <el-option
+              :label="i.dept_name"
+              :value="i.id"
+              v-for="(i,index) in deptList"
+              :key="index"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="考勤组" prop="attendance_group_id" class="setInline">
+          <el-select v-model="addUserform.attendance_group_id" placeholder="考勤组">
+            <el-option
+              :label="key"
+              :value="value"
+              v-for="(value,key,index) in attendancemap"
+              :key="index"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="密码" prop="password" class="setInline">
+          <el-input v-model="addUserform.password" placeholder="请填写密码"></el-input>
+        </el-form-item>
+        <el-form-item label="确认密码" prop="confirmPassword" class="setInline">
+          <el-input v-model="addUserform.confirmPassword" placeholder="请重复填写密码"></el-input>
+        </el-form-item>
+      </el-form>
+
+      <el-button type="success" @click="cancelDiag('addUserShow')">取消</el-button>
+      <el-button type="primary" @click="confirmAddUsers('addUserShow')">确认</el-button>
+    </el-dialog>
+    <el-dialog
+      title="请问是否确认删除此用户?"
+      :visible.sync="DeleteUserShow"
+      width="700px"
+      :before-close="handleClose"
+    >
+      <!-- <h2>请问是否确认删除用户</h2> -->
+      <el-button type="success" @click="cancelDiag('DeleteUserShow')">取消</el-button>
+      <el-button type="primary" @click="confirmDeleteUser('DeleteUserShow')">确认</el-button>
+    </el-dialog>
   </div>
 </template>
 
@@ -102,7 +167,9 @@ import {
   getRoles,
   getAttendance,
   saveuserinfo,
-  getMenus
+  getMenus,
+  addoneuser,
+  deleteuser
 } from "@/api/UserManagement.js";
 import buttonpermission from "@/mixins/buttonpermission.js";
 
@@ -112,99 +179,9 @@ export default {
     return {
       name: "Child1",
       title: "用户管理",
+      DeleteUserShow: false,
+      addUserShow: false,
       buttonPermission: store.getters.buttonPermission,
-      mocklist: [
-        {
-          id: 25,
-          title: "考勤管理",
-          uri: "/attendance",
-          parent_id: 0,
-          method: "",
-          children: [
-            {
-              id: 29,
-              title: "每日考勤",
-              uri: "/everyday-attendance",
-              parent_id: 25,
-              method: ""
-            },
-            {
-              id: 27,
-              title: "考勤汇总",
-              uri: "/total-attendance",
-              parent_id: 25,
-              method: ""
-            }
-          ]
-        },
-        {
-          id: 103,
-          title: "后台设置",
-          uri: "/backstage",
-          parent_id: 0,
-          method: "",
-          children: [
-            {
-              id: 104,
-              title: "权限列表",
-              uri: "/backstage/authority-management",
-              parent_id: 103,
-              method: ""
-            },
-            {
-              id: 105,
-              title: "用户管理",
-              uri: "/backstage/user-management",
-              parent_id: 103,
-              method: "",
-              children: [
-                {
-                  id: 141,
-                  title: "查看",
-                  uri: "",
-                  icon: "",
-                  remark: ""
-                },
-                {
-                  id: 142,
-                  title: "增加",
-                  uri: "",
-                  icon: "",
-                  remark: ""
-                },
-                {
-                  id: 143,
-                  title: "修改",
-                  uri: "",
-                  icon: "",
-                  remark: ""
-                },
-                {
-                  id: 144,
-                  title: "删除",
-                  uri: "",
-                  icon: "",
-                  remark: ""
-                }
-              ]
-            },
-            {
-              id: 106,
-              title: "角色管理",
-              uri: "/backstage/role-management",
-              parent_id: 103,
-              method: ""
-            },
-            {
-              id: 107,
-              title: "菜单管理",
-              uri: "/backstage/menu-manage",
-              parent_id: 103,
-              method: ""
-            }
-          ]
-        }
-      ],
       attendancemap: {},
       rolemap: {},
       deptList: [],
@@ -224,6 +201,18 @@ export default {
         status: "",
         gender: "1",
         role: ""
+      },
+      addUserform: {
+        username: "",
+        name: "",
+        gender: "",
+        mobile: "",
+        email: "",
+        wechat: "",
+        dept_id: "",
+        attendance_group_id: "",
+        password: "",
+        confirmPassword: ""
       },
       rules: {
         status: [{ required: true, message: "选择状态", trigger: "change" }],
@@ -306,11 +295,9 @@ export default {
 
   methods: {
     hasPermission(permission) {
-      console.log("permission");
-      console.log(permission);
       let flag = false;
       for (let i of this.buttonfunctionlist) {
-        console.log(i);
+        // console.log(i);
         if (i === permission) {
           flag = true;
         }
@@ -366,12 +353,78 @@ export default {
         this.editUsersShow = true;
       }
     },
+    deleteUser() {
+      if (this.checkedList.length === 0) {
+        this.$alert("未勾选，请选择一个选项")
+          .then(() => {})
+          .catch(() => {});
+      } else if (this.checkedList.length >= 2) {
+        this.$alert("只能选择一个选项")
+          .then(() => {})
+          .catch(() => {});
+      } else {
+        this.DeleteUserShow = true;
+      }
+    },
+    addUser() {
+      // console.log(11111);
+      // if (this.checkedList.length === 0) {
+      //   this.$alert("未勾选，请选择一个选项")
+      //     .then(() => {})
+      //     .catch(() => {});
+      // } else if (this.checkedList.length >= 2) {
+      //   this.$alert("只能选择一个选项")
+      //     .then(() => {})
+      //     .catch(() => {});
+      // } else {
+      //   this.addUserShow = true;
+      // }
+      this.addUserShow = true;
+    },
     getDepartment() {
       let obj = { access_token: this.access_token };
       console.log(obj);
       getDpet(obj).then(res => {
         this.deptList = res.data;
       });
+    },
+    confirmAddUsers(attr) {
+      this.$confirm("确认提交？")
+        .then(_ => {
+          console.log(_);
+          console.log("1233211");
+          let obj = this.addUserform;
+          obj.access_token = this.access_token;
+          console.log(obj);
+          // obj.role_id = [];
+          // console.log(obj);
+          // console.log("objobjobj1234");
+          // console.log(obj);
+          addoneuser(obj).then(success => {
+            location.reload();
+          });
+        })
+        .catch(_ => {});
+    },
+    confirmDeleteUser(attr) {
+      this.$confirm("是否确认删除此用户？")
+        .then(_ => {
+          console.log(_);
+          console.log("1233211");
+          // let obj = this.addUserform;
+          let access_token = this.access_token;
+          let user_id = this.userid;
+          let obj = { access_token, user_id };
+
+          deleteuser(obj)
+            .then(success => {
+              location.reload();
+            })
+            .catch(error => {
+              console.log("删除失败");
+            });
+        })
+        .catch(_ => {});
     },
     confirmEditUsers(attr) {
       this.$confirm("确认提交？")
