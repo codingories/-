@@ -17,7 +17,8 @@
       <el-table-column prop="kind" label="创建时间" />
       <el-table-column prop="name" label="更新时间" />
     </el-table>
-    <el-button type="primary" @click="printtable">打印</el-button>
+    <el-button type="primary" v-print="'#goodlist'">打印</el-button>
+    <!-- @click="printtable" -->
 
     <div class="block">
       <span class="demonstration">翻页</span>
@@ -115,7 +116,7 @@
 </template>
 
 <script>
-import printJS from "print-js";
+// import printJS from "print-js";
 import {
   getUsers,
   getDpet,
@@ -125,6 +126,7 @@ import {
   getMenus
 } from "@/api/UserManagement.js";
 import buttonpermission from "@/mixins/buttonpermission.js";
+// import Print from "vue-print-nb";
 
 import store from "@/store";
 export default {
@@ -550,7 +552,7 @@ export default {
 .ActiveStatus {
   margin-left: 45px;
 }
-#goodlist {
+/* #goodlist {
   border: 2px solid blue;
-}
+} */
 </style>
