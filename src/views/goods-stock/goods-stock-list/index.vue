@@ -34,17 +34,10 @@
     </div>
     <!-- @click="addRoles" -->
     <el-button type="primary" v-if="hasPermission('增加')">增加</el-button>
-    <el-button type="success" v-if="hasPermission('修改')" @click="editUsers"
-      >编辑</el-button
-    >
+    <el-button type="success" v-if="hasPermission('修改')" @click="editUsers">编辑</el-button>
     <!-- @click="deleteRoles" -->
     <el-button type="info" v-if="hasPermission('删除')">删除</el-button>
-    <el-dialog
-      title="编辑用户"
-      :visible.sync="editUsersShow"
-      width="700px"
-      :before-close="handleClose"
-    >
+    <el-dialog title="编辑用户" :visible.sync="editUsersShow" width="700px" :before-close="handleClose">
       <!-- <h4>{{ruleForm}}</h4> -->
       <el-form
         :model="ruleForm"
@@ -56,22 +49,13 @@
         <!-- :inline="true" -->
 
         <el-form-item label="姓名" prop="personName" class="setInline">
-          <el-input
-            v-model="ruleForm.personName"
-            placeholder="请填写姓名"
-          ></el-input>
+          <el-input v-model="ruleForm.personName" placeholder="请填写姓名"></el-input>
         </el-form-item>
         <el-form-item label="工号" prop="JobNumber" class="setInline">
-          <el-input
-            v-model="ruleForm.JobNumber"
-            placeholder="请填写工号"
-          ></el-input>
+          <el-input v-model="ruleForm.JobNumber" placeholder="请填写工号"></el-input>
         </el-form-item>
         <el-form-item label="手机号" prop="phone" class="setInline">
-          <el-input
-            v-model="ruleForm.phone"
-            placeholder="请填写手机号"
-          ></el-input>
+          <el-input v-model="ruleForm.phone" placeholder="请填写手机号"></el-input>
         </el-form-item>
         <el-form-item label="部门" prop="dept" class="setInline">
           <el-select v-model="ruleForm.dept_id" placeholder="请选择部门">
@@ -84,16 +68,10 @@
           </el-select>
         </el-form-item>
         <el-form-item label="密码" prop="password" class="setInline">
-          <el-input
-            v-model="ruleForm.password"
-            placeholder="请填写密码"
-          ></el-input>
+          <el-input v-model="ruleForm.password" placeholder="请填写密码"></el-input>
         </el-form-item>
         <el-form-item label="确认密码" prop="confirmPassword" class="setInline">
-          <el-input
-            v-model="ruleForm.confirmPassword"
-            placeholder="请重复填写密码"
-          ></el-input>
+          <el-input v-model="ruleForm.confirmPassword" placeholder="请重复填写密码"></el-input>
         </el-form-item>
         <el-form-item label="性别" prop="gender" class="setInline">
           <el-radio v-model="ruleForm.gender" label="1">男</el-radio>
@@ -105,12 +83,8 @@
         </el-form-item>
       </el-form>
 
-      <el-button type="success" @click="cancelDiag('editUsersShow')"
-        >取消</el-button
-      >
-      <el-button type="primary" @click="confirmEditUsers('editUsersShow')"
-        >确认</el-button
-      >
+      <el-button type="success" @click="cancelDiag('editUsersShow')">取消</el-button>
+      <el-button type="primary" @click="confirmEditUsers('editUsersShow')">确认</el-button>
     </el-dialog>
   </div>
 </template>
@@ -300,13 +274,14 @@ export default {
       console.log("permission");
       console.log(permission);
       let flag = false;
-      for (let i of this.buttonfunctionlist) {
-        console.log(i);
-        if (i === permission) {
-          flag = true;
-        }
-      }
-      return flag;
+      // for (let i of this.buttonfunctionlist) {
+      //   console.log(i);
+      //   if (i === permission) {
+      //     flag = true;
+      //   }
+      // }
+      // return flag;
+      return null;
     },
     getbuttonmenus() {
       let access_token = this.access_token;

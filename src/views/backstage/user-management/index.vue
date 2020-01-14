@@ -3,12 +3,11 @@
     <div class="app-container">
       <h2>{{title}}</h2>
       <h5>{{buttonPermission}}</h5>
-      <h3>{{deptList}}</h3>
-      <!-- <h2>{{rolemap}}</h2> -->
+      <!-- <h3>{{deptList}}</h3>
       <h2>{{attendancemap}}</h2>
 
       <h5>{{buttonfunctionlist}}</h5>
-      <h5>{{userid}}</h5>
+      <h5>{{userid}}</h5>-->
       <el-table
         :data="usersInfoTable"
         style="width: 100%"
@@ -295,14 +294,15 @@ export default {
 
   methods: {
     hasPermission(permission) {
-      let flag = false;
-      for (let i of this.buttonfunctionlist) {
-        // console.log(i);
-        if (i === permission) {
-          flag = true;
-        }
-      }
-      return flag;
+      return null;
+      // let flag = false;
+      // for (let i of this.buttonfunctionlist) {
+      //   // console.log(i);
+      //   if (i === permission) {
+      //     flag = true;
+      //   }
+      // }
+      // return flag;
     },
     getbuttonmenus() {
       let access_token = this.access_token;

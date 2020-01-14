@@ -1,32 +1,19 @@
 <template>
   <div class="app-container">
-    <h2>{{title}}</h2>
+    <h2>{{title1}}</h2>
+    <el-button type="primary">入库</el-button>
     <el-table
       :data="gradeInfoTable"
       style="width: 100%"
       ref="multipleTable"
       @selection-change="handleSelection"
     >
-      <el-table-column prop="choose" label="选择" type="selection" />
-      <el-table-column prop="id" label="管理员" />
+      <el-table-column prop="choose" label="入库物品" />
+      <el-table-column prop="id" label="入库时间" />
       <el-table-column prop="school" label="仓库名" />
-      <el-table-column prop="grade" label="供应商" />
-      <el-table-column prop="class" label="商品条形码" />
-      <el-table-column prop="administractor" label="商品名称" />
-      <el-table-column prop="kind" label="入库数量" />
-      <el-table-column prop="remark" label="备注" />
-      <el-table-column prop="status" label="采购方式" />
-      <el-table-column prop="createtime" label="创建时间" />
-      <el-table-column prop="updatetime" label="更新时间" />
-      <el-table-column prop="handle" label="操作" width="230">
-        <template slot-scope="scope">
-          <el-button size="mini" type="primary" @click="addMenus(scope.$index, scope.row)">查看</el-button>
-          <el-button size="mini" type="success" @click="EditMenu(scope.$index, scope.row)">编辑</el-button>
-          <el-button size="mini" type="danger" @click="DeleteMenu(scope.$index, scope.row)">删除</el-button>
-        </template>
-      </el-table-column>
+      <el-table-column prop="grade" label="入库数量" />
+      <el-table-column prop="class" label="操作时间" />
     </el-table>
-    <el-button type="primary">增加</el-button>
 
     <div class="block">
       <span class="demonstration">翻页</span>
@@ -35,18 +22,42 @@
         @current-change="handleCurrentChange"
         :current-page="currentPage"
         :page-sizes="[10, 20, 100]"
-        :page-size="10"
+        :page-size="20"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
       ></el-pagination>
     </div>
-    <!-- @click="addRoles" -->
-    <el-button type="primary" v-if="hasPermission('增加')">增加</el-button>
+    <el-button type="primary">返回</el-button>
+
+    <el-table
+      :data="gradeInfoTable"
+      style="width: 100%"
+      ref="multipleTable"
+      @selection-change="handleSelection"
+    >
+      <el-table-column prop="choose" label="入库物品" />
+      <el-table-column prop="id" label="入库时间" />
+      <el-table-column prop="school" label="仓库名" />
+      <el-table-column prop="grade" label="入库数量" />
+      <el-table-column prop="class" label="操作时间" />
+    </el-table>
+
+    <div class="block">
+      <span class="demonstration">翻页</span>
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[10, 20, 100]"
+        :page-size="20"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+      ></el-pagination>
+    </div>
+    <!-- <el-button type="primary" v-if="hasPermission('增加')">增加</el-button>
     <el-button type="success" v-if="hasPermission('修改')" @click="editUsers">编辑</el-button>
-    <!-- @click="deleteRoles" -->
-    <el-button type="info" v-if="hasPermission('删除')">删除</el-button>
+    <el-button type="info" v-if="hasPermission('删除')">删除</el-button>-->
     <el-dialog title="编辑用户" :visible.sync="editUsersShow" width="700px" :before-close="handleClose">
-      <!-- <h4>{{ruleForm}}</h4> -->
       <el-form
         :model="ruleForm"
         :rules="rules"
@@ -54,8 +65,6 @@
         label-width="100px"
         class="demo-ruleForm"
       >
-        <!-- :inline="true" -->
-
         <el-form-item label="姓名" prop="personName" class="setInline">
           <el-input v-model="ruleForm.personName" placeholder="请填写姓名"></el-input>
         </el-form-item>
@@ -112,7 +121,7 @@ import store from "@/store";
 export default {
   data() {
     return {
-      title: "入库操作",
+      title1: "入库情况",
       buttonPermission: store.getters.buttonPermission,
       gradeInfoTable: [
         { id: 1, gradename: "小班", ifGraduation: "否" },
@@ -171,7 +180,7 @@ export default {
       pageSize: 10,
       currentPage: 1,
       userTableTitle: [
-        { label: "选择", prop: "choose", type: "selection" },
+        { label: "选择", prop: "choose" },
         { label: "id", prop: "id" },
         { label: "年级名称", prop: "gradename" },
         { label: "是否毕业年", prop: "ifGraduation" },
@@ -217,13 +226,14 @@ export default {
       console.log("permission");
       console.log(permission);
       let flag = false;
-      for (let i of this.buttonfunctionlist) {
-        console.log(i);
-        if (i === permission) {
-          flag = true;
-        }
-      }
-      return flag;
+      // for (let i of this.buttonfunctionlist) {
+      //   console.log(i);
+      //   if (i === permission) {
+      //     flag = true;
+      //   }
+      // }
+      // return flag;
+      return true;
     },
     getbuttonmenus() {
       let access_token = this.access_token;

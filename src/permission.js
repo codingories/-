@@ -62,20 +62,36 @@ function gotoRouter(to, next) {
       console.log(res);
       console.log("解析后端动态路由", res.data.data);
 
-      // 获取三级菜单
-      getTotalMenuList({ access_token }).then(
-        success => {
-          // debugger;
-          console.log("获取三级菜单");
-          console.log(success);
-          store.commit("SET_ButtonPermission", success.data);
-        },
-        error => {
-          console.log(error);
-          // debugger;
-        }
-      );
+      // // 获取三级菜单
+      // getTotalMenuList({ access_token }).then(
+      //   success => {
+      //     // debugger;
+      //     console.log("获取三级菜单");
+      //     console.log(success);
+      //     store.commit("SET_ButtonPermission", success.data);
+      //   },
+      //   error => {
+      //     console.log(error);
+      //     // debugger;
+      //   }
+
+      // // 获取三级菜单
+      // getTotalMenuList({ access_token }).then(
+      //   success => {
+      //     // debugger;
+      //     console.log("获取三级菜单");
+      //     console.log(success);
+      //     store.commit("SET_ButtonPermission", success.data);
+      //   },
+      //   error => {
+      //     console.log(error);
+      //     // debugger;
+      //   }
+      // );
+      store.commit("SET_ButtonPermission", res.data.data);
+
       const asyncRouter = addRouter(res.data.data); // 进行递归解析
+
       // store.dispatch("setroles", res.data.data.permit);
       // 一定不能写在静态路由里面,否则会出现,访问动态路由404的情况.所以在这列添加
       asyncRouter.push({ path: "*", redirect: "/404", hidden: true });
