@@ -15,7 +15,7 @@
       <el-table-column prop="class" label="条形码" />
       <el-table-column prop="administractor" label="库存梳理" />
       <el-table-column prop="kind" label="创建时间" />
-      <el-table-column prop="name" label="更新时间" />
+      <el-table-column prop="name" label="更新时间" /> 
     </el-table>
     <el-button type="primary" v-print="'#goodlist'">打印</el-button>
     <!-- @click="printtable" -->

@@ -1,97 +1,197 @@
 <template>
   <div class="app-container">
-    <h2>{{title}}</h2>
-    <el-table
-      :data="gradeInfoTable"
-      style="width: 100%"
-      ref="multipleTable"
-      @selection-change="handleSelection"
-    >
-      <el-table-column prop="choose" label="选择" type="selection" />
-      <el-table-column prop="id" label="序号" />
-      <el-table-column prop="school" label="管理员" />
-      <el-table-column prop="grade" label="商品条形码" />
-      <el-table-column prop="class" label="出库数量" />
-      <el-table-column prop="administractor" label="用途" />
-      <el-table-column prop="kind" label="申领教室" />
-      <el-table-column prop="name" label="备注" />
-      <el-table-column prop="name" label="创建时间" />
-      <el-table-column prop="name" label="更新时间" />
-      <el-table-column prop="handle" label="操作" width="230">
-        <template slot-scope="scope">
-          <el-button size="mini" type="primary" @click="addMenus(scope.$index, scope.row)">查看</el-button>
-          <el-button size="mini" type="success" @click="EditMenu(scope.$index, scope.row)">编辑</el-button>
-          <el-button size="mini" type="danger" @click="DeleteMenu(scope.$index, scope.row)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <el-button type="primary">增加</el-button>
-
-    <div class="block">
-      <span class="demonstration">翻页</span>
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage"
-        :page-sizes="[10, 20, 100]"
-        :page-size="10"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-      ></el-pagination>
-    </div>
-    <!-- @click="addRoles" -->
-    <el-button type="primary" v-if="hasPermission('增加')">增加</el-button>
-    <el-button type="success" v-if="hasPermission('修改')" @click="editUsers">编辑</el-button>
-    <!-- @click="deleteRoles" -->
-    <el-button type="info" v-if="hasPermission('删除')">删除</el-button>
-    <el-dialog title="编辑用户" :visible.sync="editUsersShow" width="700px" :before-close="handleClose">
-      <!-- <h4>{{ruleForm}}</h4> -->
-      <el-form
-        :model="ruleForm"
-        :rules="rules"
-        ref="ruleForm"
-        label-width="100px"
-        class="demo-ruleForm"
+    <!-- <h2>{{title}}</h2> -->
+    <div class="page1" v-if="pageFlag">
+      <h2>{{title}}</h2>
+      <el-button type="primary" @click="receive">领用</el-button>
+      <el-button type="primary" @click="distribute">下发</el-button>
+      <el-table
+        :data="gradeInfoTable"
+        style="width: 100%"
+        ref="multipleTable"
+        @selection-change="handleSelection"
       >
-        <!-- :inline="true" -->
+        <el-table-column prop="choose" label="Column1" />
+        <el-table-column prop="id" label="Column2" />
+        <el-table-column prop="school" label="Column3" />
+      </el-table>
 
-        <el-form-item label="姓名" prop="personName" class="setInline">
-          <el-input v-model="ruleForm.personName" placeholder="请填写姓名"></el-input>
-        </el-form-item>
-        <el-form-item label="工号" prop="JobNumber" class="setInline">
-          <el-input v-model="ruleForm.JobNumber" placeholder="请填写工号"></el-input>
-        </el-form-item>
-        <el-form-item label="手机号" prop="phone" class="setInline">
-          <el-input v-model="ruleForm.phone" placeholder="请填写手机号"></el-input>
-        </el-form-item>
-        <el-form-item label="部门" prop="dept" class="setInline">
-          <el-select v-model="ruleForm.dept_id" placeholder="请选择部门">
-            <el-option
-              :label="i.dept_name"
-              :value="i.id"
-              v-for="(i,index) in deptList"
-              :key="index"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="密码" prop="password" class="setInline">
-          <el-input v-model="ruleForm.password" placeholder="请填写密码"></el-input>
-        </el-form-item>
-        <el-form-item label="确认密码" prop="confirmPassword" class="setInline">
-          <el-input v-model="ruleForm.confirmPassword" placeholder="请重复填写密码"></el-input>
-        </el-form-item>
-        <el-form-item label="性别" prop="gender" class="setInline">
-          <el-radio v-model="ruleForm.gender" label="1">男</el-radio>
-          <el-radio v-model="ruleForm.gender" label="2">女</el-radio>
-        </el-form-item>
-        <el-form-item label="状态" prop="status" class="setInline ActiveStatus">
-          <el-radio v-model="ruleForm.status" label="激活">激活</el-radio>
-          <el-radio v-model="ruleForm.status" label="冻结">冻结</el-radio>
-        </el-form-item>
-      </el-form>
+      <div class="block">
+        <span class="demonstration">翻页</span>
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[10, 20, 100]"
+          :page-size="20"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+        ></el-pagination>
+      </div>
+    </div>
+    <div class="page2" v-if="!pageFlag1">
+      <el-button type="primary" @click="goback1">返回</el-button>
+      <el-table
+        :data="gradeInfoTable1"
+        style="width: 40%"
+        ref="multipleTable"
+        @selection-change="handleSelection"
+      >
+        <el-table-column prop="choose" label="申领部门" />
+        <el-table-column prop="id" label="申领人" />
+        <el-table-column prop="school" label="查询">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              type="primary"
+              @click="choosereceiver(scope.$index, scope.row)"
+            >选择</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
 
-      <el-button type="success" @click="cancelDiag('editUsersShow')">取消</el-button>
-      <el-button type="primary" @click="confirmEditUsers('editUsersShow')">确认</el-button>
+      <h2>领用物品</h2>
+      <div class="secondpage">
+        <el-form :model="warehouseform" ref="warehouseform" label-width="100px" class="goodscode">
+          <el-form-item label="物品编码" prop="dept" class="setInline">
+            <el-input v-model="ruleForm.personName" placeholder="物品编号" style="width:400px"></el-input>
+          </el-form-item>
+          <el-button type="primary">手工选择</el-button>
+        </el-form>
+        <el-table
+          :data="gradeInfoTable"
+          style="width: 100%"
+          ref="multipleTable"
+          @selection-change="handleSelection"
+        >
+          <el-table-column prop="choose" label="序号" />
+          <el-table-column prop="id" label="编码" />
+          <el-table-column prop="school" label="物品" />
+          <el-table-column prop="grade" label="品牌" />
+          <el-table-column prop="class" label="类别" />
+          <el-table-column prop="class" label="规格" />
+          <el-table-column prop="number" label="数量" width="200">
+            <template slot-scope="scope">
+              <el-input-number
+                v-model="scope.row.number"
+                @change="addminusvalue(scope.row.number)"
+                :min="1"
+                label="数量"
+              ></el-input-number>
+            </template>
+          </el-table-column>
+          <el-table-column prop="class" label="操作">
+            <template slot-scope="scope">
+              <el-button size="mini" type="danger" @click="DeleteGood(scope.$index, scope.row)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <div class="block">
+          <span class="demonstration">翻页</span>
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-sizes="[10, 20, 100]"
+            :page-size="20"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
+        <section class="footer">
+          <el-button type="primary">领用</el-button>
+          <el-button type="danger">取消</el-button>
+        </section>
+      </div>
+    </div>
+    <div class="page3" v-if="!pageFlag2">
+      <el-button type="primary" @click="goback2">返回</el-button>
+      <el-table
+        :data="gradeInfoTable1"
+        style="width: 40%"
+        ref="multipleTable"
+        @selection-change="handleSelection"
+      >
+        <el-table-column prop="choose" label="申领部门" />
+        <el-table-column prop="id" label="班级数" />
+        <el-table-column prop="school" label="查询">
+          <template slot-scope="scope">
+            <el-button size="mini" type="primary" @click="DeleteGood(scope.$index, scope.row)">选择</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <h2>下发物品</h2>
+      <div class="secondpage">
+        <el-form :model="warehouseform" ref="warehouseform" label-width="100px" class="goodscode">
+          <el-form-item label="物品编码" prop="dept" class="setInline">
+            <el-input v-model="ruleForm.personName" placeholder="物品编号" style="width:400px"></el-input>
+          </el-form-item>
+          <el-button type="primary">手工选择</el-button>
+        </el-form>
+        <el-table
+          :data="gradeInfoTable"
+          style="width: 100%"
+          ref="multipleTable"
+          @selection-change="handleSelection"
+        >
+          <el-table-column prop="choose" label="序号" />
+          <el-table-column prop="id" label="编码" />
+          <el-table-column prop="school" label="物品" />
+          <el-table-column prop="grade" label="品牌" />
+          <el-table-column prop="class" label="分类" />
+          <el-table-column prop="class" label="规格" />
+          <el-table-column prop="number" label="数量" width="200">
+            <template slot-scope="scope">
+              <el-input-number
+                v-model="scope.row.number"
+                @change="addminusvalue(scope.row.number)"
+                :min="1"
+                label="数量"
+              ></el-input-number>
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="class" label="操作">
+            <template slot-scope="scope">
+              <el-button size="mini" type="danger" @click="DeleteGood(scope.$index, scope.row)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <div class="block">
+          <span class="demonstration">翻页</span>
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-sizes="[10, 20, 100]"
+            :page-size="20"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
+        <section class="footer">
+          <el-button type="primary">下发</el-button>
+          <el-button type="danger">取消</el-button>
+        </section>
+      </div>
+    </div>
+    <el-dialog title="选择" :visible.sync="chooseshow" width="400px" :before-close="handleClose">
+      <el-tree
+        :data="data"
+        show-checkbox
+        default-expand-all
+        node-key="id"
+        ref="receivertree"
+        highlight-current
+        :props="defaultProps"
+      ></el-tree>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="cancelreceiver">取 消</el-button>
+        <el-button type="primary" @click="confirmreceiver">确 定</el-button>
+      </span>
     </el-dialog>
   </div>
 </template>
@@ -111,13 +211,54 @@ import store from "@/store";
 export default {
   data() {
     return {
-      title: "出库操作",
+      data: [
+        {
+          id: 1,
+          label: "部门一",
+          children: [
+            {
+              id: 4,
+              label: "特朗普"
+            }
+          ]
+        },
+        {
+          id: 2,
+          label: "部门二",
+          children: [
+            {
+              id: 5,
+              label: "习近平"
+            },
+            {
+              id: 6,
+              label: "金正嗯"
+            }
+          ]
+        }
+      ],
+      defaultProps: {
+        children: "children",
+        label: "label"
+      },
+      chooseshow: false,
+      pageFlag: "true",
+      pageFlag1: "false",
+      pageFlag2: "false",
+      title: "出库详情",
       buttonPermission: store.getters.buttonPermission,
       gradeInfoTable: [
         { id: 1, gradename: "小班", ifGraduation: "否" },
         { id: 2, gradename: "中班", ifGraduation: "否" },
         { id: 3, gradename: "大班", ifGraduation: "否" }
       ],
+      gradeInfoTable1: [{ id: 1, gradename: "小班", ifGraduation: "否" }],
+      warehouseform: {
+        warehouse: "",
+        suppliers: "",
+        purchasingmethod: ""
+      },
+
       attendancemap: {},
       rolemap: {},
       deptList: [],
@@ -212,6 +353,42 @@ export default {
   },
 
   methods: {
+    cancelreceiver() {
+      this.chooseshow = false;
+      this.$refs.receivertree.setCheckedKeys([]);
+    },
+    confirmreceiver() {
+      this.chooseshow = false;
+      this.$refs.receivertree.setCheckedKeys([]);
+    },
+    choosereceiver() {
+      console.log(111);
+      this.chooseshow = true;
+    },
+    handleClose(done) {
+      this.$confirm("确认关闭？")
+        .then(_ => {
+          done();
+        })
+        .catch(_ => {});
+    },
+    receive() {
+      console.log("123");
+      this.pageFlag = !this.pageFlag;
+      this.pageFlag1 = !this.pageFlag1;
+    },
+    distribute() {
+      this.pageFlag = !this.pageFlag;
+      this.pageFlag2 = !this.pageFlag2;
+    },
+    goback1() {
+      this.pageFlag = !this.pageFlag;
+      this.pageFlag1 = !this.pageFlag1;
+    },
+    goback2() {
+      this.pageFlag = !this.pageFlag;
+      this.pageFlag2 = !this.pageFlag2;
+    },
     hasPermission(permission) {
       console.log("permission");
       console.log(permission);
@@ -468,4 +645,13 @@ export default {
 .ActiveStatus {
   margin-left: 45px;
 }
+/* .page1 {
+  border: 1px solid red;
+}
+.page2 {
+  border: 1px solid yellow;
+}
+.page3 {
+  border: 1px solid green;
+} */
 </style>

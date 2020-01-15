@@ -5,7 +5,6 @@
       <!-- <h5>{{buttonPermission}}</h5> -->
       <!-- <h3>{{deptList}}</h3> -->
       <!-- <h2>{{attendancemap}}</h2> -->
-
       <!-- <h5>{{buttonfunctionlist}}</h5> -->
       <!-- <h5>{{userid}}</h5> -->
       <el-table
@@ -20,10 +19,7 @@
           v-for="(item, i) in userTableTitle"
           v-bind:key="i"
           :type="item.type"
-        >
-          <!-- <el-table-column prop="choose" label="选择" type="selection" />
-          <el-table-column prop="choose" label="选择" type="selection" />-->
-        </el-table-column>
+        ></el-table-column>
       </el-table>
     </div>
 

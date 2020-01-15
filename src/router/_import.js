@@ -70,5 +70,6 @@ const map = {
   "/goods-stock": () => import("@/views/layout/Layout"),
   "/goods-stock-in": () => import("@/views/goods-stock/goods-stock-in"),
   "/goods-stock-list": () => import("@/views/goods-stock/goods-stock-list"),
-  "/goods-stock-out": () => import("@/views/goods-stock/goods-stock-out")
+  "/goods-stock-out": () => import("@/views/goods-stock/goods-stock-out"),
+  "/goodsinfo": () => import("@/views/goods-stock/goodsinfo")
 };

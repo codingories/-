@@ -2,9 +2,9 @@
   <div class="app-container">
     <h2>title</h2>
     <!-- <h2>{{buttonPermission}}</h2> -->
-    <h5>{{buttonPermission}}</h5>
-    <h5>-------</h5>
-    <h5>{{buttonfunctionlist}}</h5>
+    <!-- <h5>{{buttonPermission}}</h5> -->
+    <!-- <h5>-------</h5> -->
+    <!-- <h5>{{buttonfunctionlist}}</h5> -->
     <el-table
       ref="multipleTable"
       :data="roleTable"

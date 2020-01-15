@@ -1,9 +1,9 @@
 <template>
   <div class="app-container">
     <h2>{{title}}</h2>
-    <h5>{{buttonPermission}}</h5>
-    <h5>-------</h5>
-    <h5>{{buttonfunctionlist}}</h5>
+    <!-- <h5>{{buttonPermission}}</h5> -->
+    <!-- <h5>-------</h5> -->
+    <!-- <h5>{{buttonfunctionlist}}</h5> -->
     <el-button type="primary">刷新</el-button>
     <el-button type="success">筛选</el-button>
     <el-button type="info">新增</el-button>

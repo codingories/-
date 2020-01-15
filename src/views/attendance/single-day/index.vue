@@ -1,6 +1,5 @@
 <template>
   <div class="app-container">
-    {{dayList}}
     <el-calendar v-model="elDate">
       <template slot="dateCell" slot-scope="{ date, data }">
         <div @click="clickDate(date, data)" class="sideday">
