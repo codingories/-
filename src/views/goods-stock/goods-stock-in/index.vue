@@ -1,59 +1,113 @@
 <template>
   <div class="app-container">
-    <h2>{{title1}}</h2>
-    <el-button type="primary">入库</el-button>
-    <el-table
-      :data="gradeInfoTable"
-      style="width: 100%"
-      ref="multipleTable"
-      @selection-change="handleSelection"
-    >
-      <el-table-column prop="choose" label="入库物品" />
-      <el-table-column prop="id" label="入库时间" />
-      <el-table-column prop="school" label="仓库名" />
-      <el-table-column prop="grade" label="入库数量" />
-      <el-table-column prop="class" label="操作时间" />
-    </el-table>
+    <!-- <h2>{{warehouseform}}</h2> -->
+    <!-- <h2>{{backpageflag}}</h2> -->
+    <div class="page1" v-if="pageFlag">
+      <h2>{{title1}}</h2>
+      <el-button type="primary" @click="stockin">入库</el-button>
+      <el-table
+        :data="gradeInfoTable"
+        style="width: 100%"
+        ref="multipleTable"
+        @selection-change="handleSelection"
+      >
+        <el-table-column prop="choose" label="入库物品" />
+        <el-table-column prop="id" label="入库时间" />
+        <el-table-column prop="school" label="仓库名" />
+        <el-table-column prop="grade" label="入库数量" />
+        <el-table-column prop="class" label="操作时间" />
+      </el-table>
 
-    <div class="block">
-      <span class="demonstration">翻页</span>
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage"
-        :page-sizes="[10, 20, 100]"
-        :page-size="20"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-      ></el-pagination>
+      <div class="block">
+        <span class="demonstration">翻页</span>
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[10, 20, 100]"
+          :page-size="20"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+        ></el-pagination>
+      </div>
     </div>
-    <el-button type="primary">返回</el-button>
+    <div class="page2" v-if="!pageFlag">
+      <h2>{{title2}}</h2>
+      <el-button type="primary" @click="goback">返回</el-button>
+      <el-form :model="warehouseform" ref="warehouseform" label-width="100px" class="warefare">
+        <el-form-item label="仓库" prop="dept" class="setInline">
+          <el-select v-model="warehouseform.warehouse" placeholder="请选择仓库">
+            <el-option
+              :label="i.warehousename"
+              :value="i.warehousename"
+              v-for="(i,index) in warehouselist"
+              :key="index"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="供应商" prop="dept" class="setInline">
+          <el-select v-model="warehouseform.supplies" placeholder="请选择供应商">
+            <el-option
+              :label="i.supplier"
+              :value="i.supplier"
+              v-for="(i,index) in supplierslist"
+              :key="index"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="采购方式" prop="dept" class="setInline">
+          <el-select v-model="warehouseform.purchasingmethod" placeholder="请选择采购方式">
+            <el-option
+              :label="i.purchasingmethod"
+              :value="i.purchasingmethod"
+              v-for="(i,index) in purchasingmethodlist"
+              :key="index"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div class="secondpage" v-if="backpageflag">
+        <el-form :model="warehouseform" ref="warehouseform" label-width="100px" class="goodscode">
+          <el-form-item label="物品编码" prop="dept" class="setInline">
+            <el-input v-model="ruleForm.personName" placeholder="物品编号" style="width:400px"></el-input>
+          </el-form-item>
+          <el-button type="primary">添加</el-button>
+        </el-form>
+        <el-table
+          :data="gradeInfoTable"
+          style="width: 100%"
+          ref="multipleTable"
+          @selection-change="handleSelection"
+        >
+          <el-table-column prop="choose" label="序号" />
+          <el-table-column prop="id" label="编码" />
+          <el-table-column prop="school" label="物品名称" />
+          <el-table-column prop="grade" label="品牌" />
+          <el-table-column prop="class" label="分类" />
+          <el-table-column prop="class" label="单价" />
+          <el-table-column prop="class" label="单位" />
+          <el-table-column prop="class" label="数量" />
+        </el-table>
 
-    <el-table
-      :data="gradeInfoTable"
-      style="width: 100%"
-      ref="multipleTable"
-      @selection-change="handleSelection"
-    >
-      <el-table-column prop="choose" label="入库物品" />
-      <el-table-column prop="id" label="入库时间" />
-      <el-table-column prop="school" label="仓库名" />
-      <el-table-column prop="grade" label="入库数量" />
-      <el-table-column prop="class" label="操作时间" />
-    </el-table>
-
-    <div class="block">
-      <span class="demonstration">翻页</span>
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage"
-        :page-sizes="[10, 20, 100]"
-        :page-size="20"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-      ></el-pagination>
+        <div class="block">
+          <span class="demonstration">翻页</span>
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-sizes="[10, 20, 100]"
+            :page-size="20"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
+        <section class="footer">
+          <el-button type="primary">入库</el-button>
+          <el-button type="danger">取消</el-button>
+        </section>
+      </div>
     </div>
+
     <!-- <el-button type="primary" v-if="hasPermission('增加')">增加</el-button>
     <el-button type="success" v-if="hasPermission('修改')" @click="editUsers">编辑</el-button>
     <el-button type="info" v-if="hasPermission('删除')">删除</el-button>-->
@@ -121,7 +175,39 @@ import store from "@/store";
 export default {
   data() {
     return {
+      backpageflag: false,
+      pageFlag: true,
       title1: "入库情况",
+      title2: "入库操作",
+      warehouseform: {
+        warehouse: "",
+        suppliers: "",
+        purchasingmethod: ""
+      },
+      warehouselist: [
+        {
+          warehousename: "仓库一"
+        },
+        {
+          warehousename: "仓库二"
+        }
+      ],
+      supplierslist: [
+        {
+          supplier: "供应商一"
+        },
+        {
+          supplier: "供应商二"
+        }
+      ],
+      purchasingmethodlist: [
+        {
+          purchasingmethod: "采购方式一"
+        },
+        {
+          purchasingmethod: "采购方式二"
+        }
+      ],
       buttonPermission: store.getters.buttonPermission,
       gradeInfoTable: [
         { id: 1, gradename: "小班", ifGraduation: "否" },
@@ -194,7 +280,20 @@ export default {
       editUsersShow: false
     };
   },
-  watch: {},
+  watch: {
+    warehouseform: {
+      handler(newValue, oldValue) {
+        // console.log(newValue.warehouse);
+        if (newValue.warehouse === "") {
+          this.backpageflag = false;
+        } else {
+          this.backpageflag = true;
+        }
+      },
+      deep: true,
+      immediate: false
+    }
+  },
   mixins: [buttonpermission],
 
   computed: {
@@ -222,6 +321,15 @@ export default {
   },
 
   methods: {
+    stockin() {
+      this.pageFlag = !this.pageFlag;
+    },
+    goback() {
+      this.pageFlag = !this.pageFlag;
+      this.warehouseform.warehouse = "";
+      this.backpageflag = true;
+      // this.$set("warehouseform","warehouse")
+    },
     hasPermission(permission) {
       console.log("permission");
       console.log(permission);
@@ -478,5 +586,19 @@ export default {
 }
 .ActiveStatus {
   margin-left: 45px;
+}
+.warefare {
+  margin-top: 20px;
+  margin-left: -55px;
+}
+.goodscode {
+  margin-left: -20px;
+}
+.footer {
+  display: flex;
+  justify-content: flex-end;
+}
+.secondpage {
+  /* border: 1px solid red; */
 }
 </style>

@@ -2,12 +2,12 @@
   <div class="app-container">
     <div class="app-container">
       <h2>{{title}}</h2>
-      <h5>{{buttonPermission}}</h5>
-      <!-- <h3>{{deptList}}</h3>
-      <h2>{{attendancemap}}</h2>
+      <!-- <h5>{{buttonPermission}}</h5> -->
+      <!-- <h3>{{deptList}}</h3> -->
+      <!-- <h2>{{attendancemap}}</h2> -->
 
-      <h5>{{buttonfunctionlist}}</h5>
-      <h5>{{userid}}</h5>-->
+      <!-- <h5>{{buttonfunctionlist}}</h5> -->
+      <!-- <h5>{{userid}}</h5> -->
       <el-table
         :data="usersInfoTable"
         style="width: 100%"
@@ -41,9 +41,10 @@
     </div>
     <!-- @click="addRoles" -->
     <el-button type="primary" v-if="hasPermission('增加')" @click="addUser">增加</el-button>
-    <el-button type="success" v-if="hasPermission('修改')" @click="editUsers">编辑</el-button>
+    <el-button type="success" v-if="hasPermission('编辑')" @click="editUsers">编辑</el-button>
     <!-- @click="deleteRoles" -->
     <el-button type="info" v-if="hasPermission('删除')" @click="deleteUser">删除</el-button>
+
     <el-dialog title="编辑用户" :visible.sync="editUsersShow" width="700px" :before-close="handleClose">
       <!-- <h4>{{ruleForm}}</h4> -->
       <el-form
@@ -294,15 +295,14 @@ export default {
 
   methods: {
     hasPermission(permission) {
-      return null;
-      // let flag = false;
-      // for (let i of this.buttonfunctionlist) {
-      //   // console.log(i);
-      //   if (i === permission) {
-      //     flag = true;
-      //   }
-      // }
-      // return flag;
+      let flag = false;
+      for (let i of this.buttonfunctionlist) {
+        // console.log(i);
+        if (i === permission) {
+          flag = true;
+        }
+      }
+      return flag;
     },
     getbuttonmenus() {
       let access_token = this.access_token;
