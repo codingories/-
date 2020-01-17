@@ -345,7 +345,7 @@ export default {
     goback() {
       this.pageFlag = !this.pageFlag;
       this.warehouseform.warehouse = "";
-      this.backpageflag = true;
+      this.backpageflag = false;
       // this.$set("warehouseform","warehouse")
     },
     hasPermission(permission) {
@@ -623,6 +623,15 @@ export default {
   display: flex;
   justify-content: flex-end;
 }
+.page1 {
+  border: 1px solid black;
+}
+
+.page2 {
+  border: 1px solid black;
+  padding: 20px;
+}
+
 .secondpage {
   /* border: 1px solid red; */
 }

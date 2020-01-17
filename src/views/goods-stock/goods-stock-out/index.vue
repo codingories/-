@@ -32,14 +32,14 @@
     <div class="page2" v-if="!pageFlag1">
       <el-button type="primary" @click="goback1">返回</el-button>
       <el-table
-        :data="gradeInfoTable1"
+        :data="receivertable"
         style="width: 40%"
         ref="multipleTable"
         @selection-change="handleSelection"
       >
-        <el-table-column prop="choose" label="申领部门" />
-        <el-table-column prop="id" label="申领人" />
-        <el-table-column prop="school" label="查询">
+        <el-table-column prop="department" label="申领部门" />
+        <el-table-column prop="receiver" label="申领人" />
+        <el-table-column prop="search" label="查询">
           <template slot-scope="scope">
             <el-button
               size="mini"
@@ -187,6 +187,7 @@
         ref="receivertree"
         highlight-current
         :props="defaultProps"
+        @check-change="singlepick"
       ></el-tree>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelreceiver">取 消</el-button>
@@ -211,6 +212,7 @@ import store from "@/store";
 export default {
   data() {
     return {
+      i: 0,
       data: [
         {
           id: 1,
@@ -252,6 +254,7 @@ export default {
         { id: 2, gradename: "中班", ifGraduation: "否" },
         { id: 3, gradename: "大班", ifGraduation: "否" }
       ],
+      receivertable: [{ department: "", receiver: "", search: "" }],
       gradeInfoTable1: [{ id: 1, gradename: "小班", ifGraduation: "否" }],
       warehouseform: {
         warehouse: "",
@@ -353,12 +356,34 @@ export default {
   },
 
   methods: {
+    singlepick(data, checked, node) {
+      this.i++;
+      if (this.i % 2 == 0) {
+        if (checked) {
+          this.$refs.receivertree.setCheckedNodes([]);
+          this.$refs.receivertree.setCheckedNodes([data]);
+          //交叉点击节点
+        } else {
+          this.$refs.receivertree.setCheckedNodes([]);
+          //点击已经选中的节点，置空
+        }
+      }
+    },
     cancelreceiver() {
       this.chooseshow = false;
       this.$refs.receivertree.setCheckedKeys([]);
     },
     confirmreceiver() {
       this.chooseshow = false;
+      let totalinfo = this.$refs.receivertree
+        .getHalfCheckedNodes()
+        .concat(this.$refs.receivertree.getCheckedNodes());
+      let department = totalinfo[0].label;
+      let receiver = totalinfo[1].label;
+      console.log(department, receiver);
+      this.receivertable[0].department = department;
+      this.receivertable[0].receiver = receiver;
+
       this.$refs.receivertree.setCheckedKeys([]);
     },
     choosereceiver() {
@@ -644,6 +669,11 @@ export default {
 }
 .ActiveStatus {
   margin-left: 45px;
+}
+.footer {
+  /* border: 1px solid red; */
+  display: flex;
+  justify-content: flex-end;
 }
 /* .page1 {
   border: 1px solid red;
