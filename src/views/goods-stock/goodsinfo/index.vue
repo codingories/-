@@ -1,6 +1,100 @@
 <template>
-  <div class="app-container">
-    <h2>{{ title }}</h2>
+  <div class="outdiv">
+    <el-container class="container">
+      <el-aside width="400px" class="aside">
+        <el-tabs v-model="activeName" @tab-click="switchgood">
+          <el-tab-pane label="物品分类" name="first">
+            <el-tree
+              :data="data"
+              node-key="id"
+              default-expand-all
+              @node-drag-start="handleDragStart"
+              @node-drag-enter="handleDragEnter"
+              @node-drag-leave="handleDragLeave"
+              @node-drag-over="handleDragOver"
+              @node-drag-end="handleDragEnd"
+              @node-drop="handleDrop"
+              draggable
+              :allow-drop="allowDrop"
+              :allow-drag="allowDrag"
+            ></el-tree>
+            <div class="edit" v-if="editshow">
+              <el-button type="primary" @click="edit" class="editbutton">编辑</el-button>
+            </div>
+            <div v-else>
+              <div class="edit1">
+                <el-button-group>
+                  <el-button type="primary" icon="el-icon-check" @click="confirmedit"></el-button>
+                  <el-button type="primary" icon="el-icon-close" @click="canceledit"></el-button>
+                </el-button-group>
+              </div>
+              <div>
+                <el-button type="primary">增加</el-button>
+                <el-button type="success">修改</el-button>
+                <el-button type="danger">删除</el-button>
+              </div>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="排序号" name="second">排序号</el-tab-pane>
+        </el-tabs>
+      </el-aside>
+
+      <el-main width="400px" class="main">
+        <el-header class="header">
+          <el-button type="primary">新增</el-button>
+          <el-form :model="ruleForm" :rules="rules" ref="ruleForm" class="searchstyle">
+            <el-form-item prop="personName" class="setInline">
+              <el-input v-model="ruleForm.personName" placeholder="请填写需要查询的内容"></el-input>
+            </el-form-item>
+          </el-form>
+          <el-button type="primary">查询</el-button>
+        </el-header>
+        <el-main class="innermain">
+          <div>
+            <el-table
+              :data="gradeInfoTable"
+              style="width: 100%"
+              ref="multipleTable"
+              @selection-change="handleSelection"
+              id="goodlist"
+            >
+              <el-table-column prop="choose" label="编号" type="selection" />
+              <el-table-column prop="id" label="序号" />
+              <el-table-column prop="school" label="物品编码" />
+              <el-table-column prop="school" label="名称" />
+              <el-table-column prop="school" label="操作">
+                <template slot-scope="scope">
+                  <el-button
+                    size="mini"
+                    type="primary"
+                    @click="DeleteGood(scope.$index, scope.row)"
+                  >详情</el-button>
+                  <el-button
+                    size="mini"
+                    type="primary"
+                    @click="DeleteGood(scope.$index, scope.row)"
+                  >编辑</el-button>
+                </template>
+              </el-table-column>
+
+              <!-- <el-table-column prop="class" label="条形码" />
+          <el-table-column prop="grade" label="商品名" />
+          <el-table-column prop="administractor" label="商标/商品名称" />
+          <el-table-column prop="kind" label="商品分类" />
+          <el-table-column prop="name" label="规格" />
+          <el-table-column prop="name" label="品牌" />
+          <el-table-column prop="name" label="图片" />
+          <el-table-column prop="name" label="原产地" />
+          <el-table-column prop="name" label="参考价格(单位:无)" />
+          <el-table-column prop="name" label="创建事件" />
+          <el-table-column prop="name" label="更新时间" />
+              <el-table-column prop="name" label="操作" />-->
+            </el-table>
+          </div>
+        </el-main>
+      </el-main>
+
+      <!-- <h2>{{ title }}</h2>
     <el-table
       :data="gradeInfoTable"
       style="width: 100%"
@@ -25,7 +119,6 @@
       <el-table-column prop="name" label="操作" />
     </el-table>
     <el-button type="primary" v-print="'#goodlist'">打印</el-button>
-    <!-- @click="printtable" -->
 
     <div class="block">
       <span class="demonstration">翻页</span>
@@ -39,13 +132,10 @@
         :total="total"
       ></el-pagination>
     </div>
-    <!-- @click="addRoles" -->
     <el-button type="primary" v-if="hasPermission('增加')">增加</el-button>
     <el-button type="success" v-if="hasPermission('修改')" @click="editUsers">编辑</el-button>
-    <!-- @click="deleteRoles" -->
     <el-button type="info" v-if="hasPermission('删除')">删除</el-button>
     <el-dialog title="编辑用户" :visible.sync="editUsersShow" width="700px" :before-close="handleClose">
-      <!-- <h4>{{ruleForm}}</h4> -->
       <el-form
         :model="ruleForm"
         :rules="rules"
@@ -53,8 +143,6 @@
         label-width="100px"
         class="demo-ruleForm"
       >
-        <!-- :inline="true" -->
-
         <el-form-item label="姓名" prop="personName" class="setInline">
           <el-input v-model="ruleForm.personName" placeholder="请填写姓名"></el-input>
         </el-form-item>
@@ -89,10 +177,10 @@
           <el-radio v-model="ruleForm.status" label="冻结">冻结</el-radio>
         </el-form-item>
       </el-form>
-
       <el-button type="success" @click="cancelDiag('editUsersShow')">取消</el-button>
       <el-button type="primary" @click="confirmEditUsers('editUsersShow')">确认</el-button>
-    </el-dialog>
+      </el-dialog>-->
+    </el-container>
   </div>
 </template>
 
@@ -111,6 +199,77 @@ import store from "@/store";
 export default {
   data() {
     return {
+      editshow: "true",
+
+      data: [
+        {
+          id: 1,
+          label: "一级 1",
+          children: [
+            {
+              id: 4,
+              label: "二级 1-1",
+              children: [
+                {
+                  id: 9,
+                  label: "三级 1-1-1"
+                },
+                {
+                  id: 10,
+                  label: "三级 1-1-2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 2,
+          label: "一级 2",
+          children: [
+            {
+              id: 5,
+              label: "二级 2-1"
+            },
+            {
+              id: 6,
+              label: "二级 2-2"
+            }
+          ]
+        },
+        {
+          id: 3,
+          label: "一级 3",
+          children: [
+            {
+              id: 7,
+              label: "二级 3-1"
+            },
+            {
+              id: 8,
+              label: "二级 3-2",
+              children: [
+                {
+                  id: 11,
+                  label: "三级 3-2-1"
+                },
+                {
+                  id: 12,
+                  label: "三级 3-2-2"
+                },
+                {
+                  id: 13,
+                  label: "三级 3-2-3"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      defaultProps: {
+        children: "children",
+        label: "label"
+      },
+      activeName: "first",
       title: "物品基础管理",
       buttonPermission: store.getters.buttonPermission,
       gradeInfoTable: [
@@ -212,6 +371,47 @@ export default {
   },
 
   methods: {
+    edit() {
+      console.log("111111");
+      this.editshow = false;
+    },
+    confirmedit() {
+      this.editshow = true;
+    },
+    canceledit() {
+      this.editshow = true;
+    },
+    handleDragStart(node, ev) {
+      console.log("drag start", node);
+    },
+    handleDragEnter(draggingNode, dropNode, ev) {
+      console.log("tree drag enter: ", dropNode.label);
+    },
+    handleDragLeave(draggingNode, dropNode, ev) {
+      console.log("tree drag leave: ", dropNode.label);
+    },
+    handleDragOver(draggingNode, dropNode, ev) {
+      console.log("tree drag over: ", dropNode.label);
+    },
+    handleDragEnd(draggingNode, dropNode, dropType, ev) {
+      console.log("tree drag end: ", dropNode && dropNode.label, dropType);
+    },
+    handleDrop(draggingNode, dropNode, dropType, ev) {
+      console.log("tree drop: ", dropNode.label, dropType);
+    },
+    allowDrop(draggingNode, dropNode, type) {
+      if (dropNode.data.label === "二级 3-1") {
+        return type !== "inner";
+      } else {
+        return true;
+      }
+    },
+    allowDrag(draggingNode) {
+      return draggingNode.data.label.indexOf("三级 3-2-2") === -1;
+    },
+    switchgood(tab, event) {
+      console.log(tab, event);
+    },
     hasPermission(permission) {
       console.log("permission");
       console.log(permission);
@@ -467,5 +667,59 @@ export default {
 }
 .ActiveStatus {
   margin-left: 45px;
+}
+.container {
+  /* height: 500px; */
+  /* border: 1px solid black; */
+  /* background-color: red; */
+}
+.aside {
+  background-color: white;
+  border-left: 10px solid #f9f9f9;
+  margin-right: 10px;
+  box-shadow: 4px 5px 6px 0px rgba(182, 168, 168, 0.75);
+  z-index: 1;
+}
+.main {
+  background-color: white;
+  box-shadow: 4px 5px 6px 0px rgba(182, 168, 168, 0.75);
+  /* border-right: 10px solid #f9f9f9; */
+  margin-right: 10px;
+}
+.edit {
+  margin-top: 40px;
+  display: flex;
+  justify-content: flex-end;
+  /* border-top: 1px solid black; */
+}
+.searchstyle {
+  display: inline;
+}
+.header {
+  /* border: 1px solid black; */
+}
+.innermain {
+  /* border: 1px solid red; */
+}
+.edit1 {
+  display: flex;
+  justify-content: flex-end;
+}
+.container {
+  /* background-color: #d3d3d3; */
+  /* border: 1px solid red; */
+  border-top: 12px solid #f9f9f9;
+}
+.main-container {
+  border: 1px solid red;
+}
+.outdiv {
+  /* border: 1px solid red; */
+  height: 95vh;
+  background-color: #f9f9f9;
+}
+.editbutton {
+  margin-right: 10px;
+  margin-bottom: 10px;
 }
 </style>
