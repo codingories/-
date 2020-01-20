@@ -483,29 +483,12 @@ export default {
                 console.log([i, j, this.menuTable[i].id]);
                 return [i, j, this.menuTable[i].id];
               } else {
-                // console.log("去找第三层id");
-                // console.log(id);
-                // console.log(id);
-                // console.log(this.menuTable[i].children[j].children); // 这个就是三级菜单的列表
-                // for (let k of this.menuTable[i].children[j].children) {
-
-                // }
-
-                // console.log('')
                 let templist = this.menuTable[i].children[j].children.filter(
                   v => v.id === id
                 );
                 if (templist.length === 1) {
-                  // let finderthird = j;
-                  // console.log("finderthird");
-                  // console.log(i, j);
-                  // console.log(this.menuTable[i].children[j]);
-                  // console.log(this.menuTable[i].children[j].id);
                   return [0, i, j, this.menuTable[i].children[j].id]; // 四位的length代表了点的第三层，i代表顶，j代表2，最后为三级的id
                 }
-                // if (templist.length === 1) {
-                //   console.log(templist);
-                // }
               }
             }
           }

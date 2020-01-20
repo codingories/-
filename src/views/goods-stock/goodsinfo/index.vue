@@ -1,185 +1,14 @@
 <template>
   <div class="outdiv">
     <el-container class="container">
-      <el-aside width="400px" class="aside">
-        <el-tabs v-model="activeName" @tab-click="switchgood">
-          <el-tab-pane label="物品分类" name="first">
-            <el-tree
-              :data="data"
-              node-key="id"
-              default-expand-all
-              @node-drag-start="handleDragStart"
-              @node-drag-enter="handleDragEnter"
-              @node-drag-leave="handleDragLeave"
-              @node-drag-over="handleDragOver"
-              @node-drag-end="handleDragEnd"
-              @node-drop="handleDrop"
-              draggable
-              :allow-drop="allowDrop"
-              :allow-drag="allowDrag"
-            ></el-tree>
-            <div class="edit" v-if="editshow">
-              <el-button type="primary" @click="edit" class="editbutton">编辑</el-button>
-            </div>
-            <div v-else>
-              <div class="edit1">
-                <el-button-group>
-                  <el-button type="primary" icon="el-icon-check" @click="confirmedit"></el-button>
-                  <el-button type="primary" icon="el-icon-close" @click="canceledit"></el-button>
-                </el-button-group>
-              </div>
-              <div>
-                <el-button type="primary">增加</el-button>
-                <el-button type="success">修改</el-button>
-                <el-button type="danger">删除</el-button>
-              </div>
-            </div>
-          </el-tab-pane>
-          <el-tab-pane label="排序号" name="second">排序号</el-tab-pane>
-        </el-tabs>
-      </el-aside>
-
-      <el-main width="400px" class="main">
-        <el-header class="header">
-          <el-button type="primary">新增</el-button>
-          <el-form :model="ruleForm" :rules="rules" ref="ruleForm" class="searchstyle">
-            <el-form-item prop="personName" class="setInline">
-              <el-input v-model="ruleForm.personName" placeholder="请填写需要查询的内容"></el-input>
-            </el-form-item>
-          </el-form>
-          <el-button type="primary">查询</el-button>
-        </el-header>
-        <el-main class="innermain">
-          <div>
-            <el-table
-              :data="gradeInfoTable"
-              style="width: 100%"
-              ref="multipleTable"
-              @selection-change="handleSelection"
-              id="goodlist"
-            >
-              <el-table-column prop="choose" label="编号" type="selection" />
-              <el-table-column prop="id" label="序号" />
-              <el-table-column prop="school" label="物品编码" />
-              <el-table-column prop="school" label="名称" />
-              <el-table-column prop="school" label="操作">
-                <template slot-scope="scope">
-                  <el-button
-                    size="mini"
-                    type="primary"
-                    @click="DeleteGood(scope.$index, scope.row)"
-                  >详情</el-button>
-                  <el-button
-                    size="mini"
-                    type="primary"
-                    @click="DeleteGood(scope.$index, scope.row)"
-                  >编辑</el-button>
-                </template>
-              </el-table-column>
-
-              <!-- <el-table-column prop="class" label="条形码" />
-          <el-table-column prop="grade" label="商品名" />
-          <el-table-column prop="administractor" label="商标/商品名称" />
-          <el-table-column prop="kind" label="商品分类" />
-          <el-table-column prop="name" label="规格" />
-          <el-table-column prop="name" label="品牌" />
-          <el-table-column prop="name" label="图片" />
-          <el-table-column prop="name" label="原产地" />
-          <el-table-column prop="name" label="参考价格(单位:无)" />
-          <el-table-column prop="name" label="创建事件" />
-          <el-table-column prop="name" label="更新时间" />
-              <el-table-column prop="name" label="操作" />-->
-            </el-table>
-          </div>
-        </el-main>
-      </el-main>
-
-      <!-- <h2>{{ title }}</h2>
-    <el-table
-      :data="gradeInfoTable"
-      style="width: 100%"
-      ref="multipleTable"
-      @selection-change="handleSelection"
-      id="goodlist"
-    >
-      <el-table-column prop="choose" label="编号" type="selection" />
-      <el-table-column prop="id" label="分类" />
-      <el-table-column prop="school" label="特性" />
-      <el-table-column prop="class" label="条形码" />
-      <el-table-column prop="grade" label="商品名" />
-      <el-table-column prop="administractor" label="商标/商品名称" />
-      <el-table-column prop="kind" label="商品分类" />
-      <el-table-column prop="name" label="规格" />
-      <el-table-column prop="name" label="品牌" />
-      <el-table-column prop="name" label="图片" />
-      <el-table-column prop="name" label="原产地" />
-      <el-table-column prop="name" label="参考价格(单位:无)" />
-      <el-table-column prop="name" label="创建事件" />
-      <el-table-column prop="name" label="更新时间" />
-      <el-table-column prop="name" label="操作" />
-    </el-table>
-    <el-button type="primary" v-print="'#goodlist'">打印</el-button>
-
-    <div class="block">
-      <span class="demonstration">翻页</span>
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage"
-        :page-sizes="[10, 20, 100]"
-        :page-size="10"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-      ></el-pagination>
-    </div>
-    <el-button type="primary" v-if="hasPermission('增加')">增加</el-button>
-    <el-button type="success" v-if="hasPermission('修改')" @click="editUsers">编辑</el-button>
-    <el-button type="info" v-if="hasPermission('删除')">删除</el-button>
-    <el-dialog title="编辑用户" :visible.sync="editUsersShow" width="700px" :before-close="handleClose">
-      <el-form
-        :model="ruleForm"
-        :rules="rules"
-        ref="ruleForm"
-        label-width="100px"
-        class="demo-ruleForm"
-      >
-        <el-form-item label="姓名" prop="personName" class="setInline">
-          <el-input v-model="ruleForm.personName" placeholder="请填写姓名"></el-input>
-        </el-form-item>
-        <el-form-item label="工号" prop="JobNumber" class="setInline">
-          <el-input v-model="ruleForm.JobNumber" placeholder="请填写工号"></el-input>
-        </el-form-item>
-        <el-form-item label="手机号" prop="phone" class="setInline">
-          <el-input v-model="ruleForm.phone" placeholder="请填写手机号"></el-input>
-        </el-form-item>
-        <el-form-item label="部门" prop="dept" class="setInline">
-          <el-select v-model="ruleForm.dept_id" placeholder="请选择部门">
-            <el-option
-              :label="i.dept_name"
-              :value="i.id"
-              v-for="(i, index) in deptList"
-              :key="index"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="密码" prop="password" class="setInline">
-          <el-input v-model="ruleForm.password" placeholder="请填写密码"></el-input>
-        </el-form-item>
-        <el-form-item label="确认密码" prop="confirmPassword" class="setInline">
-          <el-input v-model="ruleForm.confirmPassword" placeholder="请重复填写密码"></el-input>
-        </el-form-item>
-        <el-form-item label="性别" prop="gender" class="setInline">
-          <el-radio v-model="ruleForm.gender" label="1">男</el-radio>
-          <el-radio v-model="ruleForm.gender" label="2">女</el-radio>
-        </el-form-item>
-        <el-form-item label="状态" prop="status" class="setInline ActiveStatus">
-          <el-radio v-model="ruleForm.status" label="激活">激活</el-radio>
-          <el-radio v-model="ruleForm.status" label="冻结">冻结</el-radio>
-        </el-form-item>
-      </el-form>
-      <el-button type="success" @click="cancelDiag('editUsersShow')">取消</el-button>
-      <el-button type="primary" @click="confirmEditUsers('editUsersShow')">确认</el-button>
-      </el-dialog>-->
+      <category
+        :chooseFlag="chooseFlag"
+        :editshow="editshow"
+        @upedit="upedit"
+        @upconfirmedit="upconfirmedit"
+        @upcanceledit="upcanceledit"
+      ></category>
+      <goods></goods>
     </el-container>
   </div>
 </template>
@@ -193,14 +22,18 @@ import {
   saveuserinfo,
   getMenus
 } from "@/api/UserManagement.js";
+import Category from "./components/category";
+import Goods from "./components/goods";
 import buttonpermission from "@/mixins/buttonpermission.js";
 
 import store from "@/store";
 export default {
+  mixins: [buttonpermission],
   data() {
     return {
-      editshow: "true",
-
+      chooseFlag: false,
+      editshow: true,
+      goodsTable: [],
       data: [
         {
           id: 1,
@@ -272,11 +105,7 @@ export default {
       activeName: "first",
       title: "物品基础管理",
       buttonPermission: store.getters.buttonPermission,
-      gradeInfoTable: [
-        { id: 1, gradename: "小班", ifGraduation: "否" },
-        { id: 2, gradename: "中班", ifGraduation: "否" },
-        { id: 3, gradename: "大班", ifGraduation: "否" }
-      ],
+
       attendancemap: {},
       rolemap: {},
       deptList: [],
@@ -286,44 +115,7 @@ export default {
       dept_id: 0,
       position: "",
       attendance_group_id: "",
-      ruleForm: {
-        personName: "",
-        JobNumber: "",
-        phone: "",
-        dept_id: "",
-        password: "",
-        confirmPassword: "",
-        status: "",
-        gender: "1",
-        role: ""
-      },
-      rules: {
-        status: [{ required: true, message: "选择状态", trigger: "change" }],
-        roles: [{ required: true, message: "选择角色", trigger: "change" }],
-        confirmPassword: [
-          {
-            required: true,
-            // message: "请重复填写密码",
-            trigger: "change",
-            validator: this.validatorRepeatPassword
-          }
-        ],
-        password: [
-          {
-            required: true,
-            message: "请填写密码",
-            trigger: "change"
-          }
-        ],
-        personName: [
-          { required: true, message: "请填写姓名", trigger: "change" }
-        ],
-        JobNumber: [
-          { required: true, message: "请填写工号", trigger: "change" }
-        ],
-        phone: [{ required: true, message: "请填写工号", trigger: "change" }],
-        dept: [{ required: true, message: "请选择部门", trigger: "change" }]
-      },
+
       total: 10,
       pageSizes: 10,
       pageSize: 10,
@@ -343,8 +135,6 @@ export default {
       editUsersShow: false
     };
   },
-  watch: {},
-  mixins: [buttonpermission],
 
   computed: {
     tableHeader: function() {
@@ -361,6 +151,12 @@ export default {
     //   return buttonlist;
     // }
   },
+  watch: {},
+
+  components: {
+    category: Category,
+    goods: Goods
+  },
 
   created() {
     this.getbuttonmenus();
@@ -371,15 +167,17 @@ export default {
   },
 
   methods: {
-    edit() {
-      console.log("111111");
+    upedit() {
+      this.chooseFlag = true;
       this.editshow = false;
     },
-    confirmedit() {
+    upconfirmedit() {
       this.editshow = true;
+      this.chooseFlag = false;
     },
-    canceledit() {
+    upcanceledit() {
       this.editshow = true;
+      this.chooseFlag = false;
     },
     handleDragStart(node, ev) {
       console.log("drag start", node);
@@ -415,7 +213,7 @@ export default {
     hasPermission(permission) {
       console.log("permission");
       console.log(permission);
-      let flag = false;
+      const flag = false;
       // for (let i of this.buttonfunctionlist) {
       //   console.log(i);
       //   if (i === permission) {
@@ -425,29 +223,29 @@ export default {
       return flag;
     },
     getbuttonmenus() {
-      let access_token = this.access_token;
-      let obj = { access_token };
+      const access_token = this.access_token;
+      const obj = { access_token };
 
       getMenus(obj).then(success => {
         console.log("getMenus");
         console.log(success.data);
-        let controllist = success.data;
+        const controllist = success.data;
       });
     },
     getAttendanceList() {
-      let access_token = this.access_token;
-      let obj = { access_token };
+      const access_token = this.access_token;
+      const obj = { access_token };
       getAttendance(obj).then(success => {
-        for (let i of success.data) {
+        for (const i of success.data) {
           this.$set(this.attendancemap, i.name, i.id);
         }
       });
     },
     getRolesList() {
-      let access_token = this.access_token;
-      let obj = { access_token };
+      const access_token = this.access_token;
+      const obj = { access_token };
       getRoles(obj).then(success => {
-        for (let i of success.data) {
+        for (const i of success.data) {
           this.$set(this.rolemap, i.name, i.id);
         }
       });
@@ -474,7 +272,7 @@ export default {
       }
     },
     getDepartment() {
-      let obj = { access_token: this.access_token };
+      const obj = { access_token: this.access_token };
       console.log(obj);
       getDpet(obj).then(res => {
         this.deptList = res.data;
@@ -489,7 +287,7 @@ export default {
           // console.log(this.userid);
 
           // console.log(this.ruleForm);
-          let obj = {
+          const obj = {
             access_token: this.access_token,
             id: this.userid,
             username: this.username,
@@ -544,49 +342,6 @@ export default {
         .catch(_ => {});
     },
 
-    handleSelection(val) {
-      this.checkedList = val;
-      if (this.checkedList.length === 1) {
-        console.log(this.checkedList);
-        this.ruleForm.dept = this.checkedList[0].dept;
-        this.ruleForm.personName = this.checkedList[0].name;
-        this.ruleForm.JobNumber = this.checkedList[0].workno;
-        this.ruleForm.phone = this.checkedList[0].mobile;
-        // this.ruleForm.dept_id = this.checkedList[0].mobile;
-        this.userid = this.checkedList[0].id;
-        this.username = this.checkedList[0].username;
-
-        this.role_id = this.checkedList[0].role.map(v => this.rolemap[v]);
-        this.ruleForm.attendance_group_id = this.checkedList[0].attendance_group;
-
-        let tempdept = this.checkedList[0].dept;
-        if (typeof tempdept === "string") {
-          console.log("这个是string");
-          this.ruleForm.dept_id = this.deptList.filter(
-            v => v.dept_name === tempdept
-          )[0].id;
-        }
-        // this.dept_id = this.checkedList[0].dept;
-
-        this.position = this.checkedList[0].position;
-
-        console.log(this.role_id);
-
-        console.log(
-          this.userid,
-          this.username,
-          this.role_id,
-          this.dept_id,
-          this.position,
-          this.attendance_group_id
-        );
-
-        //         role_id: "",
-        // dept_id: "",
-        // position: "",
-        // attendance_group_id: "",
-      }
-    },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
       this.pageSize = val;
@@ -600,8 +355,8 @@ export default {
       this.fetchUsersData();
     },
     fetchUsersData() {
-      let access_token = this.access_token;
-      let access_token_obj = {
+      const access_token = this.access_token;
+      const access_token_obj = {
         access_token: this.access_token,
         page: this.currentPage,
         num: this.pageSize
@@ -610,7 +365,7 @@ export default {
       console.log("access_token_obj->", access_token_obj);
       this.getUsersLoading = true;
 
-      let list = [
+      const list = [
         "id",
         "username",
         "name",
@@ -631,8 +386,8 @@ export default {
         console.log(this.pageSize);
         console.log(success.data.list);
 
-        for (let i of success.data.list) {
-          let obj = {
+        for (const i of success.data.list) {
+          const obj = {
             id: "",
             username: "",
             name: "",
@@ -645,7 +400,7 @@ export default {
             attendance_group: "",
             leave: ""
           };
-          for (let j of list) {
+          for (const j of list) {
             obj[j] = i[j];
             if (i["leave"] === 0) {
               obj["leave"] = "在职";
@@ -662,9 +417,6 @@ export default {
 };
 </script>
 <style scoped>
-.setInline {
-  display: inline-block;
-}
 .ActiveStatus {
   margin-left: 45px;
 }
@@ -673,52 +425,26 @@ export default {
   /* border: 1px solid black; */
   /* background-color: red; */
 }
-.aside {
-  background-color: white;
-  border-left: 10px solid #f9f9f9;
-  margin-right: 10px;
-  box-shadow: 4px 5px 6px 0px rgba(182, 168, 168, 0.75);
-  z-index: 1;
-}
-.main {
-  background-color: white;
-  box-shadow: 4px 5px 6px 0px rgba(182, 168, 168, 0.75);
-  /* border-right: 10px solid #f9f9f9; */
-  margin-right: 10px;
-}
-.edit {
-  margin-top: 40px;
-  display: flex;
-  justify-content: flex-end;
-  /* border-top: 1px solid black; */
-}
-.searchstyle {
-  display: inline;
-}
+
 .header {
   /* border: 1px solid black; */
 }
 .innermain {
   /* border: 1px solid red; */
 }
-.edit1 {
-  display: flex;
-  justify-content: flex-end;
-}
+
 .container {
-  /* background-color: #d3d3d3; */
-  /* border: 1px solid red; */
   border-top: 12px solid #f9f9f9;
 }
 .main-container {
-  border: 1px solid red;
+  /* border: 1px solid red; */
 }
 .outdiv {
-  /* border: 1px solid red; */
   height: 95vh;
   background-color: #f9f9f9;
 }
 .editbutton {
+  /* border: 1px solid red; */
   margin-right: 10px;
   margin-bottom: 10px;
 }
