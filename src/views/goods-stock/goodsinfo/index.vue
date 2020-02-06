@@ -1,11 +1,10 @@
 <template>
   <div class="outdiv">
     <el-container class="container">
-      123
       <category
         :editshow="editshow"
+        :choose-flag="chooseFlag"
         class="categorystyle"
-        :chooseFlag="chooseFlag"
         @upedit="upedit"
         @upconfirmedit="upconfirmedit"
         @upcanceledit="upcanceledit"
@@ -23,111 +22,52 @@ import {
   getAttendance,
   saveuserinfo,
   getMenus
-} from "@/api/UserManagement.js";
-import Category from "./components/category";
-import Goods from "./components/goods";
-import buttonpermission from "@/mixins/buttonpermission.js";
+} from '@/api/UserManagement.js'
+import Category from './components/category'
+import Goods from './components/goods'
+import buttonpermission from '@/mixins/buttonpermission.js'
 
-import store from "@/store";
+import store from '@/store'
 export default {
+
+  components: {
+    category: Category,
+    goods: Goods
+  },
   mixins: [buttonpermission],
   data() {
     return {
       chooseFlag: false,
       editshow: true,
       goodsTable: [],
-      data: [
-        {
-          id: 1,
-          label: "一级 1",
-          children: [
-            {
-              id: 4,
-              label: "二级 1-1",
-              children: [
-                {
-                  id: 9,
-                  label: "三级 1-1-1"
-                },
-                {
-                  id: 10,
-                  label: "三级 1-1-2"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          id: 2,
-          label: "一级 2",
-          children: [
-            {
-              id: 5,
-              label: "二级 2-1"
-            },
-            {
-              id: 6,
-              label: "二级 2-2"
-            }
-          ]
-        },
-        {
-          id: 3,
-          label: "一级 3",
-          children: [
-            {
-              id: 7,
-              label: "二级 3-1"
-            },
-            {
-              id: 8,
-              label: "二级 3-2",
-              children: [
-                {
-                  id: 11,
-                  label: "三级 3-2-1"
-                },
-                {
-                  id: 12,
-                  label: "三级 3-2-2"
-                },
-                {
-                  id: 13,
-                  label: "三级 3-2-3"
-                }
-              ]
-            }
-          ]
-        }
-      ],
       defaultProps: {
-        children: "children",
-        label: "label"
+        children: 'children',
+        label: 'label'
       },
-      activeName: "first",
-      title: "物品基础管理",
+      activeName: 'first',
+      title: '物品基础管理',
       buttonPermission: store.getters.buttonPermission,
 
       attendancemap: {},
       rolemap: {},
       deptList: [],
-      userid: "",
-      username: "",
+      userid: '',
+      username: '',
       role_id: [],
       dept_id: 0,
-      position: "",
-      attendance_group_id: "",
+      position: '',
+      attendance_group_id: '',
 
       total: 10,
       pageSizes: 10,
       pageSize: 10,
       currentPage: 1,
       userTableTitle: [
-        { label: "选择", prop: "choose", type: "selection" },
-        { label: "id", prop: "id" },
-        { label: "年级名称", prop: "gradename" },
-        { label: "是否毕业年", prop: "ifGraduation" },
-        { label: "操作", prop: "handle", type: "selection" }
+        { label: '选择', prop: 'choose', type: 'selection' },
+        { label: 'id', prop: 'id' },
+        { label: '年级名称', prop: 'gradename' },
+        { label: '是否毕业年', prop: 'ifGraduation' },
+        { label: '操作', prop: 'handle', type: 'selection' }
       ],
       access_token: store.getters.access_token,
       getUsersLoading: false,
@@ -135,12 +75,12 @@ export default {
       currentPage: 1,
       checkedList: [],
       editUsersShow: false
-    };
+    }
   },
 
   computed: {
     tableHeader: function() {
-      return this.getTableHeader(this.tableYear, this.tableMonth);
+      return this.getTableHeader(this.tableYear, this.tableMonth)
     }
     // buttonfunctionlist: function() {
     //   // for(let i of this.mocklist)
@@ -155,136 +95,131 @@ export default {
   },
   watch: {},
 
-  components: {
-    category: Category,
-    goods: Goods
-  },
-
   created() {
-    this.getbuttonmenus();
-    this.fetchUsersData();
-    this.getRolesList();
-    this.getAttendanceList();
-    this.getDepartment();
+    this.getbuttonmenus()
+    this.fetchUsersData()
+    this.getRolesList()
+    this.getAttendanceList()
+    this.getDepartment()
   },
 
   methods: {
     upedit() {
-      this.chooseFlag = true;
-      this.editshow = false;
+      this.chooseFlag = true
+      this.editshow = false
     },
     upconfirmedit() {
-      this.editshow = true;
-      this.chooseFlag = false;
+      this.editshow = true
+      this.chooseFlag = false
     },
     upcanceledit() {
-      this.editshow = true;
-      this.chooseFlag = false;
+      this.editshow = true
+      this.chooseFlag = false
     },
     handleDragStart(node, ev) {
-      console.log("drag start", node);
+      console.log('drag start', node)
     },
     handleDragEnter(draggingNode, dropNode, ev) {
-      console.log("tree drag enter: ", dropNode.label);
+      console.log('tree drag enter: ', dropNode.label)
     },
     handleDragLeave(draggingNode, dropNode, ev) {
-      console.log("tree drag leave: ", dropNode.label);
+      console.log('tree drag leave: ', dropNode.label)
     },
     handleDragOver(draggingNode, dropNode, ev) {
-      console.log("tree drag over: ", dropNode.label);
+      console.log('tree drag over: ', dropNode.label)
     },
     handleDragEnd(draggingNode, dropNode, dropType, ev) {
-      console.log("tree drag end: ", dropNode && dropNode.label, dropType);
+      console.log('tree drag end: ', dropNode && dropNode.label, dropType)
     },
     handleDrop(draggingNode, dropNode, dropType, ev) {
-      console.log("tree drop: ", dropNode.label, dropType);
+      console.log('tree drop: ', dropNode.label, dropType)
     },
     allowDrop(draggingNode, dropNode, type) {
-      if (dropNode.data.label === "二级 3-1") {
-        return type !== "inner";
+      if (dropNode.data.label === '二级 3-1') {
+        return type !== 'inner'
       } else {
-        return true;
+        return true
       }
     },
     allowDrag(draggingNode) {
-      return draggingNode.data.label.indexOf("三级 3-2-2") === -1;
+      return draggingNode.data.label.indexOf('三级 3-2-2') === -1
     },
     switchgood(tab, event) {
-      console.log(tab, event);
+      console.log(tab, event)
     },
     hasPermission(permission) {
-      console.log("permission");
-      console.log(permission);
-      const flag = false;
+      console.log('permission')
+      console.log(permission)
+      const flag = false
       // for (let i of this.buttonfunctionlist) {
       //   console.log(i);
       //   if (i === permission) {
       //     flag = true;
       //   }
       // }
-      return flag;
+      return flag
     },
     getbuttonmenus() {
-      const access_token = this.access_token;
-      const obj = { access_token };
+      const access_token = this.access_token
+      const obj = { access_token }
 
       getMenus(obj).then(success => {
-        console.log("getMenus");
-        console.log(success.data);
-        const controllist = success.data;
-      });
+        console.log('getMenus')
+        console.log(success.data)
+        const controllist = success.data
+      })
     },
     getAttendanceList() {
-      const access_token = this.access_token;
-      const obj = { access_token };
+      const access_token = this.access_token
+      const obj = { access_token }
       getAttendance(obj).then(success => {
         for (const i of success.data) {
-          this.$set(this.attendancemap, i.name, i.id);
+          this.$set(this.attendancemap, i.name, i.id)
         }
-      });
+      })
     },
     getRolesList() {
-      const access_token = this.access_token;
-      const obj = { access_token };
+      const access_token = this.access_token
+      const obj = { access_token }
       getRoles(obj).then(success => {
         for (const i of success.data) {
-          this.$set(this.rolemap, i.name, i.id);
+          this.$set(this.rolemap, i.name, i.id)
         }
-      });
+      })
     },
     validatorRepeatPassword(rule, value, callback) {
-      if (value === "") {
-        callback(new Error("请重复输入密码"));
+      if (value === '') {
+        callback(new Error('请重复输入密码'))
       } else if (value !== this.ruleForm.password) {
-        callback(new Error("两次密码输入不同"));
+        callback(new Error('两次密码输入不同'))
       }
     },
     editUsers() {
-      console.log(123);
+      console.log(123)
       if (this.checkedList.length === 0) {
-        this.$alert("未勾选，请选择一个选项")
+        this.$alert('未勾选，请选择一个选项')
           .then(() => {})
-          .catch(() => {});
+          .catch(() => {})
       } else if (this.checkedList.length >= 2) {
-        this.$alert("只能选择一个选项")
+        this.$alert('只能选择一个选项')
           .then(() => {})
-          .catch(() => {});
+          .catch(() => {})
       } else {
-        this.editUsersShow = true;
+        this.editUsersShow = true
       }
     },
     getDepartment() {
-      const obj = { access_token: this.access_token };
-      console.log(obj);
+      const obj = { access_token: this.access_token }
+      console.log(obj)
       getDpet(obj).then(res => {
-        this.deptList = res.data;
-      });
+        this.deptList = res.data
+      })
     },
     confirmEditUsers(attr) {
-      this.$confirm("确认提交？")
+      this.$confirm('确认提交？')
         .then(_ => {
-          console.log(_);
-          console.log("1233211");
+          console.log(_)
+          console.log('1233211')
           // console.log(this.ruleForm);
           // console.log(this.userid);
 
@@ -303,10 +238,10 @@ export default {
             dept_id: this.ruleForm.dept_id,
             attendance_group_id:
               this.attendancemap[this.ruleForm.attendance_group_id] || 0
-          };
+          }
           // let role_id = this.role_id
-          obj.role_id = [];
-          console.log(obj);
+          obj.role_id = []
+          console.log(obj)
 
           // let obj = {
           //   access_token: this.access_token,
@@ -316,107 +251,107 @@ export default {
           //   dept_id: this.ruleForm.dept_id
           // };
 
-          console.log("objobjobj1234");
-          console.log(obj);
+          console.log('objobjobj1234')
+          console.log(obj)
           // let obj = { id: 38, username: "guwq", dept_id: 9, name: "顾文取" };
           // obj.access_token = this.access_token;
 
           saveuserinfo(obj).then(success => {
             // console.log(success);
-            location.reload();
-          });
+            location.reload()
+          })
           // this[attr] = false;
         })
-        .catch(_ => {});
+        .catch(_ => {})
     },
     cancelDiag(attr) {
-      this.$confirm("确认取消？")
+      this.$confirm('确认取消？')
         .then(_ => {
-          this[attr] = false;
+          this[attr] = false
         })
-        .catch(_ => {});
+        .catch(_ => {})
     },
     handleClose(done) {
-      this.$confirm("确认关闭？")
+      this.$confirm('确认关闭？')
         .then(_ => {
-          done();
+          done()
         })
-        .catch(_ => {});
+        .catch(_ => {})
     },
 
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
-      this.pageSize = val;
-      this.usersInfoTable = [];
-      this.fetchUsersData();
+      console.log(`每页 ${val} 条`)
+      this.pageSize = val
+      this.usersInfoTable = []
+      this.fetchUsersData()
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
-      this.currentPage = val;
-      this.usersInfoTable = [];
-      this.fetchUsersData();
+      console.log(`当前页: ${val}`)
+      this.currentPage = val
+      this.usersInfoTable = []
+      this.fetchUsersData()
     },
     fetchUsersData() {
-      const access_token = this.access_token;
+      const access_token = this.access_token
       const access_token_obj = {
         access_token: this.access_token,
         page: this.currentPage,
         num: this.pageSize
-      };
+      }
 
-      console.log("access_token_obj->", access_token_obj);
-      this.getUsersLoading = true;
+      console.log('access_token_obj->', access_token_obj)
+      this.getUsersLoading = true
 
       const list = [
-        "id",
-        "username",
-        "name",
-        "workno",
-        "email",
-        "mobile",
-        "wechat",
-        "role",
-        "dept",
-        "attendance_group",
-        "leave"
-      ];
+        'id',
+        'username',
+        'name',
+        'workno',
+        'email',
+        'mobile',
+        'wechat',
+        'role',
+        'dept',
+        'attendance_group',
+        'leave'
+      ]
 
       getUsers(access_token_obj).then(success => {
-        console.log("data----->");
+        console.log('data----->')
         // this.total = success.data.total;
-        this.total = 10;
-        console.log(this.pageSize);
-        console.log(success.data.list);
+        this.total = 10
+        console.log(this.pageSize)
+        console.log(success.data.list)
 
         for (const i of success.data.list) {
           const obj = {
-            id: "",
-            username: "",
-            name: "",
-            workno: "",
-            email: "",
-            mobile: "",
-            wechat: "",
-            role: "",
-            dept: "",
-            attendance_group: "",
-            leave: ""
-          };
+            id: '',
+            username: '',
+            name: '',
+            workno: '',
+            email: '',
+            mobile: '',
+            wechat: '',
+            role: '',
+            dept: '',
+            attendance_group: '',
+            leave: ''
+          }
           for (const j of list) {
-            obj[j] = i[j];
-            if (i["leave"] === 0) {
-              obj["leave"] = "在职";
+            obj[j] = i[j]
+            if (i['leave'] === 0) {
+              obj['leave'] = '在职'
             } else {
-              obj["leave"] = "离职";
+              obj['leave'] = '离职'
             }
           }
-          this.usersInfoTable.push(obj);
+          this.usersInfoTable.push(obj)
         }
-        this.getUsersLoading = false;
-      });
+        this.getUsersLoading = false
+      })
     }
   }
-};
+}
 </script>
 <style scoped lang="scss">
 .ActiveStatus {

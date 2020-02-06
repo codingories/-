@@ -16,24 +16,16 @@
             id="goodlist"
             ref="multipleTable"
             :data="gradeInfoTable"
-            @selection-change="handleSelection"
             style="width: 100%"
+            @selection-change="handleSelection"
           >
             <el-table-column prop="choose" label="编号" type="selection"/>
-            <el-table-column prop="id" label="编号"/>
-            <el-table-column prop="school" label="分类"/>
-            <el-table-column prop="school" label="特性"/>
+            <el-table-column prop="id" label="序号"/>
             <el-table-column prop="school" label="条形码"/>
             <el-table-column prop="school" label="商品名"/>
-            <el-table-column prop="school" label="商标/品牌名称"/>
-            <el-table-column prop="school" label="商品分类"/>
+            <el-table-column prop="school" label="商品品牌"/>
             <el-table-column prop="school" label="规格"/>
-            <el-table-column prop="school" label="品牌"/>
             <el-table-column prop="school" label="图片"/>
-            <el-table-column prop="school" label="原产地"/>
-            <el-table-column prop="school" label="参考价格(单位:元)"/>
-            <el-table-column prop="school" label="创建时间"/>
-            <el-table-column prop="school" label="更新时间"/>
             <el-table-column prop="school" label="操作	">
               <template slot-scope="scope">
                 <el-button
@@ -58,101 +50,103 @@
 </template>
 
 <script>
-  export default {
-    components: {},
-    data() {
-      return {
-        ruleForm: {
-          personName: '',
-          JobNumber: '',
-          phone: '',
-          dept_id: '',
-          password: '',
-          confirmPassword: '',
-          status: '',
-          gender: '1',
-          role: ''
-        },
-        rules: {
-          status: [{ required: true, message: '选择状态', trigger: 'change' }],
-          roles: [{ required: true, message: '选择角色', trigger: 'change' }],
-          confirmPassword: [
-            {
-              required: true,
-              // message: "请重复填写密码",
-              trigger: 'change',
-              validator: this.validatorRepeatPassword
-            }
-          ],
-          password: [
-            {
-              required: true,
-              message: '请填写密码',
-              trigger: 'change'
-            }
-          ],
-          personName: [
-            { required: true, message: '请填写姓名', trigger: 'change' }
-          ],
-          JobNumber: [
-            { required: true, message: '请填写工号', trigger: 'change' }
-          ],
-          phone: [{ required: true, message: '请填写工号', trigger: 'change' }],
-          dept: [{ required: true, message: '请选择部门', trigger: 'change' }]
-        },
-        gradeInfoTable: [
-          { id: 1, gradename: '小班', ifGraduation: '否' },
-          { id: 2, gradename: '中班', ifGraduation: '否' },
-          { id: 3, gradename: '大班', ifGraduation: '否' }
-        ]
-      }
-    },
-    methods: {
-      handleSelection(val) {
-        this.checkedList = val
-        if (this.checkedList.length === 1) {
-          console.log(this.checkedList)
-          this.ruleForm.dept = this.checkedList[0].dept
-          this.ruleForm.personName = this.checkedList[0].name
-          this.ruleForm.JobNumber = this.checkedList[0].workno
-          this.ruleForm.phone = this.checkedList[0].mobile
-          // this.ruleForm.dept_id = this.checkedList[0].mobile;
-          this.userid = this.checkedList[0].id
-          this.username = this.checkedList[0].username
-
-          this.role_id = this.checkedList[0].role.map(v => this.rolemap[v])
-          this.ruleForm.attendance_group_id = this.checkedList[0].attendance_group
-
-          const tempdept = this.checkedList[0].dept
-          if (typeof tempdept === 'string') {
-            console.log('这个是string')
-            this.ruleForm.dept_id = this.deptList.filter(
-              v => v.dept_name === tempdept
-            )[0].id
+import store from '@/store'
+export default {
+  components: {},
+  data() {
+    return {
+      access_token: store.getters.access_token,
+      ruleForm: {
+        personName: '',
+        JobNumber: '',
+        phone: '',
+        dept_id: '',
+        password: '',
+        confirmPassword: '',
+        status: '',
+        gender: '1',
+        role: ''
+      },
+      rules: {
+        status: [{ required: true, message: '选择状态', trigger: 'change' }],
+        roles: [{ required: true, message: '选择角色', trigger: 'change' }],
+        confirmPassword: [
+          {
+            required: true,
+            // message: "请重复填写密码",
+            trigger: 'change',
+            validator: this.validatorRepeatPassword
           }
-          // this.dept_id = this.checkedList[0].dept;
+        ],
+        password: [
+          {
+            required: true,
+            message: '请填写密码',
+            trigger: 'change'
+          }
+        ],
+        personName: [
+          { required: true, message: '请填写姓名', trigger: 'change' }
+        ],
+        JobNumber: [
+          { required: true, message: '请填写工号', trigger: 'change' }
+        ],
+        phone: [{ required: true, message: '请填写工号', trigger: 'change' }],
+        dept: [{ required: true, message: '请选择部门', trigger: 'change' }]
+      },
+      gradeInfoTable: [
+        { id: 1, gradename: '小班', ifGraduation: '否' },
+        { id: 2, gradename: '中班', ifGraduation: '否' },
+        { id: 3, gradename: '大班', ifGraduation: '否' }
+      ]
+    }
+  },
+  methods: {
+    handleSelection(val) {
+      this.checkedList = val
+      if (this.checkedList.length === 1) {
+        console.log(this.checkedList)
+        this.ruleForm.dept = this.checkedList[0].dept
+        this.ruleForm.personName = this.checkedList[0].name
+        this.ruleForm.JobNumber = this.checkedList[0].workno
+        this.ruleForm.phone = this.checkedList[0].mobile
+        // this.ruleForm.dept_id = this.checkedList[0].mobile;
+        this.userid = this.checkedList[0].id
+        this.username = this.checkedList[0].username
 
-          this.position = this.checkedList[0].position
+        this.role_id = this.checkedList[0].role.map(v => this.rolemap[v])
+        this.ruleForm.attendance_group_id = this.checkedList[0].attendance_group
 
-          console.log(this.role_id)
-
-          console.log(
-            this.userid,
-            this.username,
-            this.role_id,
-            this.dept_id,
-            this.position,
-            this.attendance_group_id
-          )
-
-          //         role_id: "",
-          // dept_id: "",
-          // position: "",
-          // attendance_group_id: "",
+        const tempdept = this.checkedList[0].dept
+        if (typeof tempdept === 'string') {
+          console.log('这个是string')
+          this.ruleForm.dept_id = this.deptList.filter(
+            v => v.dept_name === tempdept
+          )[0].id
         }
+        // this.dept_id = this.checkedList[0].dept;
+
+        this.position = this.checkedList[0].position
+
+        console.log(this.role_id)
+
+        console.log(
+          this.userid,
+          this.username,
+          this.role_id,
+          this.dept_id,
+          this.position,
+          this.attendance_group_id
+        )
+
+        //         role_id: "",
+        // dept_id: "",
+        // position: "",
+        // attendance_group_id: "",
       }
     }
   }
+}
 </script>
 
 <style scoped>
