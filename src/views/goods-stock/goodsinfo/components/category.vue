@@ -2,7 +2,7 @@
   <div>
     <!-- <h1>{{goodData}}</h1> -->
     <el-aside class="aside">
-      <h2>{{editshow}}</h2>
+      <!-- <h2>{{editshow}}</h2> -->
       <el-table
         :data="goodData"
         style="width: 100%;margin-bottom: 20px;"
@@ -13,7 +13,7 @@
       >
         <el-table-column v-if="chooseFlag" prop="choose" label="编号" type="selection" />
         <el-table-column prop="date" label="物品分类" />
-        <el-table-column prop="name" label="排序号" />
+        <el-table-column prop="name" width="80px" label="排序号" />
       </el-table>
       <div v-if="editshow" class="edit">
         <el-button type="primary" class="editbutton" @click="edit" size="small">编辑</el-button>
@@ -90,6 +90,31 @@ export default {
           id: 4,
           date: "一级4",
           name: ""
+        },
+        {
+          id: 5,
+          date: "一级4",
+          name: ""
+        },
+        {
+          id: 6,
+          date: "一级4",
+          name: ""
+        },
+        {
+          id: 4,
+          date: "一级4",
+          name: ""
+        },
+        {
+          id: 5,
+          date: "一级4",
+          name: ""
+        },
+        {
+          id: 6,
+          date: "一级4",
+          name: ""
         }
       ]
     };
@@ -131,11 +156,19 @@ export default {
 .aside {
   min-width: 500px;
   max-width: 800px;
-  height: 85vh;
+  overflow: auto;
+  max-height: 90vh;
+  /* max-width: 85vh; */
+
   background-color: white;
   border-left: 10px solid #f9f9f9;
   margin-right: 10px;
   box-shadow: 4px 5px 6px 0px rgba(182, 168, 168, 0.75);
   z-index: 1;
+}
+.editbutton {
+  /* border: 1px solid red; */
+  margin-right: 10px;
+  margin-bottom: 10px;
 }
 </style>

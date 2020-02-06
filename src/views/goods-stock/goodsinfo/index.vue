@@ -1,14 +1,16 @@
 <template>
   <div class="outdiv">
     <el-container class="container">
+      123
       <category
-        :chooseFlag="chooseFlag"
         :editshow="editshow"
+        class="categorystyle"
+        :chooseFlag="chooseFlag"
         @upedit="upedit"
         @upconfirmedit="upconfirmedit"
         @upcanceledit="upcanceledit"
-      ></category>
-      <goods></goods>
+      />
+      <goods class="goodsstyle"/>
     </el-container>
   </div>
 </template>
@@ -416,14 +418,9 @@ export default {
   }
 };
 </script>
-<style scoped>
+<style scoped lang="scss">
 .ActiveStatus {
   margin-left: 45px;
-}
-.container {
-  /* height: 500px; */
-  /* border: 1px solid black; */
-  /* background-color: red; */
 }
 
 .header {
@@ -435,6 +432,10 @@ export default {
 
 .container {
   border-top: 12px solid #f9f9f9;
+  display: flex;
+  justify-content: flex-start;
+  /*overflow: auto;*/
+  /*border: 1px solid black;*/
 }
 .main-container {
   /* border: 1px solid red; */
@@ -443,9 +444,20 @@ export default {
   height: 95vh;
   background-color: #f9f9f9;
 }
-.editbutton {
-  /* border: 1px solid red; */
+
+.categorystyle {
+  /*border: 1px solid green;*/
+  width:500px;
+}
+
+.goodsstyle {
+  /*width: 40vw;*/
+  /*border: 1px solid black*/
+  margin-left: 10px;
   margin-right: 10px;
-  margin-bottom: 10px;
+  flex:1;
+  overflow: auto;
+  box-shadow: 4px 5px 6px 0px rgba(182, 168, 168, 0.75);
+
 }
 </style>

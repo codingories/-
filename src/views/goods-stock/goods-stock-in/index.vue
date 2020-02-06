@@ -66,60 +66,60 @@
           </el-select>
         </el-form-item>
       </el-form>
-      <div class="secondpage" v-if="backpageflag">
-        <el-form :model="warehouseform" ref="warehouseform" label-width="100px" class="goodscode">
-          <el-form-item label="物品编码" prop="dept" class="setInline">
-            <el-input v-model="ruleForm.personName" placeholder="物品编号" style="width:400px"></el-input>
-          </el-form-item>
-          <el-button type="primary">添加</el-button>
-        </el-form>
-        <el-table
-          :data="gradeInfoTable"
-          style="width: 100%"
-          ref="multipleTable"
-          @selection-change="handleSelection"
-        >
-          <el-table-column prop="choose" label="序号" />
-          <el-table-column prop="id" label="编码" />
-          <el-table-column prop="school" label="物品名称" />
-          <el-table-column prop="grade" label="品牌" />
-          <el-table-column prop="class" label="分类" />
-          <el-table-column prop="class" label="单价" />
-          <el-table-column prop="class" label="单位" />
-          <el-table-column prop="number" label="数量" width="200">
-            <template slot-scope="scope">
-              <el-input-number
-                v-model="scope.row.number"
-                @change="addminusvalue(scope.row.number)"
-                :min="1"
-                label="数量"
-              ></el-input-number>
-            </template>
-          </el-table-column>
-          <el-table-column prop="class" label="操作">
-            <template slot-scope="scope">
-              <el-button size="mini" type="danger" @click="DeleteGood(scope.$index, scope.row)">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+    </div>
+    <div class="secondpage" v-if="backpageflag">
+      <el-form :model="warehouseform" ref="warehouseform" label-width="100px" class="goodscode">
+        <el-form-item label="物品编码" prop="dept" class="setInline">
+          <el-input v-model="ruleForm.personName" placeholder="物品编号" style="width:400px"></el-input>
+        </el-form-item>
+        <el-button type="primary">添加</el-button>
+      </el-form>
+      <el-table
+        :data="gradeInfoTable"
+        style="width: 100%"
+        ref="multipleTable"
+        @selection-change="handleSelection"
+      >
+        <el-table-column prop="choose" label="序号" />
+        <el-table-column prop="id" label="编码" />
+        <el-table-column prop="school" label="物品名称" />
+        <el-table-column prop="grade" label="品牌" />
+        <el-table-column prop="class" label="分类" />
+        <el-table-column prop="class" label="单价" />
+        <el-table-column prop="class" label="单位" />
+        <el-table-column prop="number" label="数量" width="200">
+          <template slot-scope="scope">
+            <el-input-number
+              v-model="scope.row.number"
+              @change="addminusvalue(scope.row.number)"
+              :min="1"
+              label="数量"
+            ></el-input-number>
+          </template>
+        </el-table-column>
+        <el-table-column prop="class" label="操作">
+          <template slot-scope="scope">
+            <el-button size="mini" type="danger" @click="DeleteGood(scope.$index, scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
 
-        <div class="block">
-          <span class="demonstration">翻页</span>
-          <el-pagination
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page="currentPage"
-            :page-sizes="[10, 20, 100]"
-            :page-size="20"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="total"
-          ></el-pagination>
-        </div>
-        <section class="footer">
-          <el-button type="primary">入库</el-button>
-          <el-button type="danger">取消</el-button>
-        </section>
+      <div class="block">
+        <span class="demonstration">翻页</span>
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[10, 20, 100]"
+          :page-size="20"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+        ></el-pagination>
       </div>
+      <section class="footer">
+        <el-button type="primary">入库</el-button>
+        <el-button type="danger">取消</el-button>
+      </section>
     </div>
 
     <!-- <el-button type="primary" v-if="hasPermission('增加')">增加</el-button>
@@ -606,6 +606,10 @@ export default {
 };
 </script>
 <style scoped>
+.app-container {
+  height: 95vh;
+  background-color: #f9f9f9;
+}
 .setInline {
   display: inline-block;
 }
@@ -624,15 +628,22 @@ export default {
   justify-content: flex-end;
 }
 .page1 {
-  border: 1px solid black;
+  background-color: #fff;
+  box-shadow: 4px 5px 6px 0px rgba(182, 168, 168, 0.75);
 }
 
 .page2 {
-  border: 1px solid black;
+  background-color: #fff;
   padding: 20px;
+  box-shadow: 4px 5px 6px 0px rgba(182, 168, 168, 0.75);
+
 }
 
 .secondpage {
   /* border: 1px solid red; */
+  background-color: #fff;
+  margin-top:10px;
+  box-shadow: 4px 5px 6px 0px rgba(182, 168, 168, 0.75);
+
 }
 </style>
