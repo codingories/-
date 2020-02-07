@@ -19,7 +19,7 @@
       <div v-else class="edit">
         <div class="edit1">
           <div>
-            <el-button type="primary" size="small">增加</el-button>
+            <el-button type="primary" size="small" @click="addCategory">增加</el-button>
             <el-button type="success" size="small">修改</el-button>
             <el-button type="danger" size="small">删除</el-button>
             <el-button type="primary" size="small">上移</el-button>
@@ -31,6 +31,17 @@
           </el-button-group>
         </div>
       </div>
+      <el-dialog :visible.sync="categoryFlag" :before-close="handleClose" title="增加" width="700px">
+        <!--        <el-form ref="addUserform" :model="addUserform" label-width="100px" class="demo-ruleForm">-->
+        <!--          <el-form-item label="确认密码" prop="confirmPassword" class="setInline">-->
+        <!--            <el-input v-model="addUserform.confirmPassword" placeholder="请重复填写密码"></el-input>-->
+        <!--          </el-form-item>-->
+        <!--        </el-form>-->
+
+        <el-button type="success" @click="cancelDialog('categoryFlag')">取消</el-button>
+        <el-button type="primary" @click="confirmAddCategory('categoryFlag')">确认</el-button>
+      </el-dialog>
+
     </el-aside>
   </div>
 </template>
@@ -47,53 +58,14 @@ export default {
   },
   data() {
     return {
+      categoryFlag: false,
       access_token: store.getters.access_token,
       gradeInfoTable: [
         { id: 1, gradename: '小班', ifGraduation: '否' },
         { id: 2, gradename: '中班', ifGraduation: '否' },
         { id: 3, gradename: '大班', ifGraduation: '否' }
       ],
-      goodsCategory: [
-        // {
-        //   id: 1,
-        //   date: '一级1',
-        //   name: ''
-        // },
-        // {
-        //   id: 2,
-        //   date: '一级2',
-        //   name: ''
-        // },
-        // {
-        //   id: 3,
-        //   date: '一级3',
-        //   name: '',
-        //   children: [
-        //     {
-        //       id: 31,
-        //       date: '二级1',
-        //       name: ''
-        //     },
-        //     {
-        //       id: 32,
-        //       date: '二级2',
-        //       name: '',
-        //       children: [
-        //         {
-        //           date: '三级1',
-        //           id: 9,
-        //           label: '三级 1-1-1'
-        //         },
-        //         {
-        //           date: '三级2',
-        //           id: 10,
-        //           label: '三级 1-1-2'
-        //         }
-        //       ]
-        //     }
-        //   ]
-        // }
-      ]
+      goodsCategory: []
     }
   },
   created() {
@@ -104,7 +76,6 @@ export default {
       const obj = { 'access_token': this.access_token }
       getGoodsCategory(obj).then(
         res => {
-          console.log(res)
           this.goodsCategory = res.data
         }
       )
@@ -120,7 +91,26 @@ export default {
     },
     canceledit() {
       this.$emit('upcanceledit')
-    }
+    },
+    addCategory() {
+      this.categoryFlag = true
+    },
+    addUser() {
+      this.addCategory = true
+    },
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done()
+        })
+        .catch(_ => {})
+    },
+    cancelDialog(Flag) {
+      this[Flag] = false
+    },
+    confirmAddCategory(Flag){
+      this[Flag] = false
+    },
   }
 }
 </script>

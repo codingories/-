@@ -1,7 +1,6 @@
 <template>
   <div class="app-container">
     <div class="app-container">
-      <h2>{{title}}</h2>
       <!-- <h5>{{buttonPermission}}</h5> -->
       <!-- <h3>{{deptList}}</h3> -->
       <!-- <h2>{{attendancemap}}</h2> -->
@@ -363,18 +362,6 @@ export default {
       }
     },
     addUser() {
-      // console.log(11111);
-      // if (this.checkedList.length === 0) {
-      //   this.$alert("未勾选，请选择一个选项")
-      //     .then(() => {})
-      //     .catch(() => {});
-      // } else if (this.checkedList.length >= 2) {
-      //   this.$alert("只能选择一个选项")
-      //     .then(() => {})
-      //     .catch(() => {});
-      // } else {
-      //   this.addUserShow = true;
-      // }
       this.addUserShow = true;
     },
     getDepartment() {
