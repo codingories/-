@@ -324,20 +324,15 @@ export default {
 
   methods: {
     cancelAddthird() {
-      console.log("取消增加三级菜单");
       this.thirdmenuflag = false;
     },
     confirmAddthird() {
-      console.log("确认增加三级菜单");
-      console.log(this.editTable[0].menuName, this.editTable[0].remark);
 
       if (
         this.editTable[0].menuName !== "" &&
         this.editTable[0].remark !== ""
       ) {
         this.$confirm("确认增加？").then(_ => {
-          console.log("确认");
-          console.log(parseInt(this.secondrowid));
           let parent_id = parseInt(this.secondrowid);
           const obj = {
             access_token: this.access_token,
@@ -348,7 +343,6 @@ export default {
             method: this.editTable[0].method,
             icon: this.editTable[0].icon
           };
-          console.log(obj);
           saveMenu(obj).then(
             res => {
               location.reload();
@@ -363,64 +357,20 @@ export default {
       } else {
         this.$alert("有未填写的参数");
       }
-
-      // if (
-      //   this.editTable[0].menuName !== "" &&
-      //   this.editTable[0].link !== "" &&
-      //   this.editTable[0].icon !== "" &&
-      //   this.editTable[0].remark !== ""
-      // ) {
-      //   this.$confirm("确认增加？")
-      //     .then(_ => {
-      //       console.log("------");
-      //       console.log(this.layer);
-      //       let id;
-      //       if (this.layer.length === 2) {
-      //         id = 0;
-      //       } else if (this.layer.length === 3) {
-      //         id = this.layer.slice(2, 3)[0];
-      //       }
-      //       console.log(id);
-      //       const obj = {
-      //         access_token: this.access_token,
-      //         parent_id: id,
-      //         title: this.editTable[0].menuName,
-      //         uri: this.editTable[0].link,
-      //         icon: this.editTable[0].icon,
-      //         remark: this.editTable[0].remark
-      //       };
-      //       console.log(obj);
-      //       saveMenu(obj).then(
-      //         res => {
-      //           location.reload();
-      //         },
-      //         fail => {}
-      //       );
-
-      //       this.editTable[0].menuName = "";
-      //       this.editTable[0].link = "";
-      //       this.editTable[0].icon = "";
-      //       this.editTable[0].remark = "";
       this.thirdmenuflag = false;
     },
     choosesecondmenu() {
-      console.log("二级菜单");
       this.secondmenuflag = false; // 二级菜单关闭
-      // this.layer = this.findLayerIndex(row.title);
       this.dialogVisible = true;
     },
     choosethirdmenu() {
-      console.log("三级菜单");
       this.secondmenuflag = false; // 显示二级菜单关闭
       this.thirdmenuflag = true;
     },
     EditMenu(index, row) {
-      console.log(index, row);
       this.EditVisible = true;
       this.editId = row.id;
       this.layer = this.findLayerIndex(row.id);
-      console.log("====this.layer");
-      console.log(this.layer);
     },
     handleClose(done) {
       this.$confirm("确认关闭？")
@@ -448,28 +398,13 @@ export default {
     },
     findLayerIndex(id) {
       // 找到点的是第几层的第几个
-      console.log("findLayerIndex的title");
-      console.log(id);
       const index = this.menuTable.findIndex(e => {
         return e["id"] === id;
       });
-      console.log("index,index,index");
-      console.log(index);
-      console.log(this.menuTable[index]);
-      console.log(!!this.menuTable[index]);
 
-      // ||  !!this.menuTable[index].children
-
-      // && (!!this.menuTable[index] || !!this.menuTable[index].children)
-      console.log("index", index);
       if (index !== -1) {
         // 表明这个点击的是第一层
-        console.log("-1-1-1");
-        console.log(this.menuTable[index]);
-        console.log(this.menuTable[index].children);
         if (!!this.menuTable[index] && !!this.menuTable[index].children) {
-          console.log("有children,找到第几个");
-          console.log([index, -1]);
           return [index, -1]; // 有children的情况
         } else {
           return [0, 0, this.menuTable[index].id]; // 没有children的情况
@@ -479,8 +414,6 @@ export default {
           if (!!this.menuTable[i].children) {
             for (let j = 0; j < this.menuTable[i].children.length; j++) {
               if (this.menuTable[i].children[j].id === id) {
-                console.log("找到了第二层的id");
-                console.log([i, j, this.menuTable[i].id]);
                 return [i, j, this.menuTable[i].id];
               } else {
                 let templist = this.menuTable[i].children[j].children.filter(
@@ -526,24 +459,17 @@ export default {
       }
     },
     handleUp(a, b) {
-      console.log(a, b);
       this.upDown(a, b, 0, 0, -1);
-      console.log(this.menuTable);
       let menus = [];
       for (let i of this.menuTable) {
         menus.push(i.id);
-        // console.log(i)
         for (let j of i.children) {
           menus.push(j.id);
         }
       }
-      console.log(menus);
       let access_token = this.access_token;
-      console.log(access_token);
       let obj = { access_token, menus };
       sortmenu(obj).then(success => {
-        console.log(success);
-        // location.reload();
       });
     },
     handleDown(a, b) {
@@ -559,29 +485,21 @@ export default {
         downBorder = length - 1;
       }
       this.upDown(a, b, upBorder, downBorder, 1);
-      console.log(this.menuTable);
       let menus = [];
       for (let i of this.menuTable) {
         menus.push(i.id);
-        // console.log(i)
         for (let j of i.children) {
           menus.push(j.id);
         }
       }
-      console.log(menus);
       let access_token = this.access_token;
-      console.log(access_token);
       let obj = { access_token, menus };
       sortmenu(obj).then(success => {
-        // location.reload();
-        console.log(success);
       });
     },
     getTableMenus() {
       const obj = { access_token: this.access_token };
       getMenus(obj).then(res => {
-        console.log("getTableMenusgetTableMenusgetTableMenus");
-        console.log(res.data);
         this.menuTable = res.data;
         for (const i of this.menuTable) {
           const str = i.id + "-0";
@@ -595,18 +513,12 @@ export default {
       });
     },
     addMenus(index, row) {
-      console.log(row);
-      console.log(index, row.id);
       this.secondrowid = row.id;
-      console.log(typeof row.id);
-
       if (typeof row.id === "string") {
         this.secondmenuflag = true; // 二级菜单显示
         this.layer = this.findLayerIndex(row.id);
       } else {
         this.layer = this.findLayerIndex(row.id);
-        console.log("layer");
-        console.log(this.layer);
 
         if (this.layer.length === 4) {
           let id = parseInt(this.layer.slice(3)[0]);
@@ -616,23 +528,11 @@ export default {
           this.dialogVisible = true;
         }
       }
-      // if(typeof row.id==='')
-
-      // 之前旧的
-      // console.log(this.menuTable)
-      // console.log("aaaaa");
-      // console.log(index, row.id);
-      // console.log(index, row);
-      // console.log(this.findLayerIndex(row.title));
-
-      // console.log("bbbbb");
-      // this.dialogVisible = true;
     },
     cancelAdd() {
       this.$confirm("确认取消？")
         .then(_ => {
           this.dialogVisible = false;
-          console.log(this.layer.length, this.layer.slice(0, 1)[0]);
         })
         .catch(_ => {});
     },
@@ -645,15 +545,12 @@ export default {
       ) {
         this.$confirm("确认增加？")
           .then(_ => {
-            console.log("------");
-            console.log(this.layer);
             let id;
             if (this.layer.length === 2) {
               id = 0;
             } else if (this.layer.length === 3) {
               id = this.layer.slice(2, 3)[0];
             }
-            console.log(id);
             const obj = {
               access_token: this.access_token,
               parent_id: id,
@@ -662,7 +559,6 @@ export default {
               icon: this.editTable[0].icon,
               remark: this.editTable[0].remark
             };
-            console.log(obj);
             saveMenu(obj).then(
               res => {
                 location.reload();
@@ -737,13 +633,11 @@ export default {
             access_token: this.access_token,
             id: parseInt(row.id)
           };
-          console.log(obj);
           delMenu(obj).then(
             res => {
               location.reload();
             },
             fail => {
-              console.log(fail);
               this.$alert(fail);
             }
           );

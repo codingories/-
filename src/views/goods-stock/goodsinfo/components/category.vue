@@ -1,6 +1,7 @@
 <template>
   <div>
     <el-aside class="aside">
+      {{goodsCategory}}
       <el-table
         :data="goodsCategory"
         :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
@@ -32,12 +33,11 @@
         </div>
       </div>
       <el-dialog :visible.sync="categoryFlag" :before-close="handleClose" title="增加" width="700px">
-        <!--        <el-form ref="addUserform" :model="addUserform" label-width="100px" class="demo-ruleForm">-->
-        <!--          <el-form-item label="确认密码" prop="confirmPassword" class="setInline">-->
-        <!--            <el-input v-model="addUserform.confirmPassword" placeholder="请重复填写密码"></el-input>-->
-        <!--          </el-form-item>-->
-        <!--        </el-form>-->
-
+        <el-form ref="categoryForm" :model="categoryForm" label-width="100px" >
+          <el-form-item label="物品类别" prop="kind">
+            <el-input v-model="categoryForm.categoryName" placeholder="请请输入需要增加的物品类别"/>
+          </el-form-item>
+        </el-form>
         <el-button type="success" @click="cancelDialog('categoryFlag')">取消</el-button>
         <el-button type="primary" @click="confirmAddCategory('categoryFlag')">确认</el-button>
       </el-dialog>
@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { getGoodsCategory } from '@/api/goodsinfo-category'
+import { getGoodsCategory, addGoodsCategory } from '@/api/goodsinfo-category'
 import store from '@/store'
 
 export default {
@@ -58,6 +58,9 @@ export default {
   },
   data() {
     return {
+      categoryForm: {
+        categoryName: ''
+      },
       categoryFlag: false,
       access_token: store.getters.access_token,
       gradeInfoTable: [
@@ -94,6 +97,7 @@ export default {
     },
     addCategory() {
       this.categoryFlag = true
+      this.categoryForm.categoryName = ''
     },
     addUser() {
       this.addCategory = true
@@ -108,9 +112,20 @@ export default {
     cancelDialog(Flag) {
       this[Flag] = false
     },
-    confirmAddCategory(Flag){
+    confirmAddCategory(Flag) {
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.name = this.categoryForm.categoryName
+      obj.parent_id = '6'
+      console.log(obj)
+      addGoodsCategory(obj).then(
+        res => {
+          console.log(res)
+          // location.reload()
+        }
+      )
       this[Flag] = false
-    },
+    }
   }
 }
 </script>

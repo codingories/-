@@ -41,8 +41,6 @@ export function createEntry({ access_token, flow_id, tpl }) {
 }
 
 export function getEntries({ access_token }) {
-  console.log('access_token')
-  console.log(access_token)
   return request({
     method: 'get',
     url: '/api/v1/entries',

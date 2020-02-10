@@ -208,7 +208,6 @@ export default {
             repair_deal: "",
             repair_id: ""
           };
-          console.log(i);
           obj.report_time = i.apply_at;
           obj.repair_person = i.approver.name;
           obj.repair_address = i.address;

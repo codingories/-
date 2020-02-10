@@ -28,6 +28,7 @@ import Goods from './components/goods'
 import buttonpermission from '@/mixins/buttonpermission.js'
 
 import store from '@/store'
+
 export default {
 
   components: {
@@ -82,16 +83,6 @@ export default {
     tableHeader: function() {
       return this.getTableHeader(this.tableYear, this.tableMonth)
     }
-    // buttonfunctionlist: function() {
-    //   // for(let i of this.mocklist)
-    //   let k;
-    //   let title = this.tilte;
-    //   for (let i of this.mocklist) {
-    //     k = i.children.filter(v => v.title === this.title);
-    //   }
-    //   let buttonlist = k[0].children.map(v => v.title);
-    //   return buttonlist;
-    // }
   },
   watch: {},
 
@@ -198,12 +189,16 @@ export default {
       console.log(123)
       if (this.checkedList.length === 0) {
         this.$alert('未勾选，请选择一个选项')
-          .then(() => {})
-          .catch(() => {})
+          .then(() => {
+          })
+          .catch(() => {
+          })
       } else if (this.checkedList.length >= 2) {
         this.$alert('只能选择一个选项')
-          .then(() => {})
-          .catch(() => {})
+          .then(() => {
+          })
+          .catch(() => {
+          })
       } else {
         this.editUsersShow = true
       }
@@ -237,7 +232,7 @@ export default {
             role_id: this.role_id,
             dept_id: this.ruleForm.dept_id,
             attendance_group_id:
-              this.attendancemap[this.ruleForm.attendance_group_id] || 0
+                this.attendancemap[this.ruleForm.attendance_group_id] || 0
           }
           // let role_id = this.role_id
           obj.role_id = []
@@ -262,21 +257,24 @@ export default {
           })
           // this[attr] = false;
         })
-        .catch(_ => {})
+        .catch(_ => {
+        })
     },
     cancelDiag(attr) {
       this.$confirm('确认取消？')
         .then(_ => {
           this[attr] = false
         })
-        .catch(_ => {})
+        .catch(_ => {
+        })
     },
     handleClose(done) {
       this.$confirm('确认关闭？')
         .then(_ => {
           done()
         })
-        .catch(_ => {})
+        .catch(_ => {
+        })
     },
 
     handleSizeChange(val) {
@@ -354,45 +352,48 @@ export default {
 }
 </script>
 <style scoped lang="scss">
-.ActiveStatus {
-  margin-left: 45px;
-}
+  .ActiveStatus {
+    margin-left: 45px;
+  }
 
-.header {
-  /* border: 1px solid black; */
-}
-.innermain {
-  /* border: 1px solid red; */
-}
+  .header {
+    /* border: 1px solid black; */
+  }
 
-.container {
-  border-top: 12px solid #f9f9f9;
-  display: flex;
-  justify-content: flex-start;
-  /*overflow: auto;*/
-  /*border: 1px solid black;*/
-}
-.main-container {
-  /* border: 1px solid red; */
-}
-.outdiv {
-  height: 95vh;
-  background-color: #f9f9f9;
-}
+  .innermain {
+    /* border: 1px solid red; */
+  }
 
-.categorystyle {
-  /*border: 1px solid green;*/
-  width:500px;
-}
+  .container {
+    border-top: 12px solid #f9f9f9;
+    display: flex;
+    justify-content: flex-start;
+    /*overflow: auto;*/
+    /*border: 1px solid black;*/
+  }
 
-.goodsstyle {
-  /*width: 40vw;*/
-  /*border: 1px solid black*/
-  margin-left: 10px;
-  margin-right: 10px;
-  flex:1;
-  overflow: auto;
-  box-shadow: 4px 5px 6px 0px rgba(182, 168, 168, 0.75);
+  .main-container {
+    /* border: 1px solid red; */
+  }
 
-}
+  .outdiv {
+    height: 95vh;
+    background-color: #f9f9f9;
+  }
+
+  .categorystyle {
+    /*border: 1px solid green;*/
+    width: 500px;
+  }
+
+  .goodsstyle {
+    /*width: 40vw;*/
+    /*border: 1px solid black*/
+    margin-left: 10px;
+    margin-right: 10px;
+    flex: 1;
+    overflow: auto;
+    box-shadow: 4px 5px 6px 0px rgba(182, 168, 168, 0.75);
+
+  }
 </style>
