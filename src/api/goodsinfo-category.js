@@ -9,20 +9,11 @@ export function getGoodsCategory(token) {
   })
 }
 
-// export function addGoodsCategory(data) {
-//   return request({
-//     url: '/api/v1/admin-goods/save-category',
-//     method: 'post',
-//     data: qs.stringify(data)
-//   })
-// }
-
-
-
-export function addGoodsCategory(obj) {
+export function addGoodsCategory(data) {
   return request({
     url: '/api/v1/admin-goods/save-category',
-    method: 'get',
-    params: obj
+    method: 'post',
+    data: qs.stringify(data)
   })
 }
+

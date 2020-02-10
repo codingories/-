@@ -139,15 +139,7 @@ export default {
       console.log(tab, event)
     },
     hasPermission(permission) {
-      console.log('permission')
-      console.log(permission)
       const flag = false
-      // for (let i of this.buttonfunctionlist) {
-      //   console.log(i);
-      //   if (i === permission) {
-      //     flag = true;
-      //   }
-      // }
       return flag
     },
     getbuttonmenus() {
@@ -155,8 +147,6 @@ export default {
       const obj = { access_token }
 
       getMenus(obj).then(success => {
-        console.log('getMenus')
-        console.log(success.data)
         const controllist = success.data
       })
     },
@@ -186,7 +176,6 @@ export default {
       }
     },
     editUsers() {
-      console.log(123)
       if (this.checkedList.length === 0) {
         this.$alert('未勾选，请选择一个选项')
           .then(() => {
@@ -205,7 +194,6 @@ export default {
     },
     getDepartment() {
       const obj = { access_token: this.access_token }
-      console.log(obj)
       getDpet(obj).then(res => {
         this.deptList = res.data
       })
@@ -214,11 +202,7 @@ export default {
       this.$confirm('确认提交？')
         .then(_ => {
           console.log(_)
-          console.log('1233211')
-          // console.log(this.ruleForm);
-          // console.log(this.userid);
 
-          // console.log(this.ruleForm);
           const obj = {
             access_token: this.access_token,
             id: this.userid,
@@ -236,26 +220,10 @@ export default {
           }
           // let role_id = this.role_id
           obj.role_id = []
-          console.log(obj)
-
-          // let obj = {
-          //   access_token: this.access_token,
-          //   id: this.userid,
-          //   username: this.username,
-          //   name: this.ruleForm.personName,
-          //   dept_id: this.ruleForm.dept_id
-          // };
-
-          console.log('objobjobj1234')
-          console.log(obj)
-          // let obj = { id: 38, username: "guwq", dept_id: 9, name: "顾文取" };
-          // obj.access_token = this.access_token;
 
           saveuserinfo(obj).then(success => {
-            // console.log(success);
             location.reload()
           })
-          // this[attr] = false;
         })
         .catch(_ => {
         })
@@ -297,7 +265,6 @@ export default {
         num: this.pageSize
       }
 
-      console.log('access_token_obj->', access_token_obj)
       this.getUsersLoading = true
 
       const list = [
@@ -315,12 +282,7 @@ export default {
       ]
 
       getUsers(access_token_obj).then(success => {
-        console.log('data----->')
-        // this.total = success.data.total;
         this.total = 10
-        console.log(this.pageSize)
-        console.log(success.data.list)
-
         for (const i of success.data.list) {
           const obj = {
             id: '',

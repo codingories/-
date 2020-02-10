@@ -1,7 +1,9 @@
 <template>
   <div>
     <el-aside class="aside">
-      {{goodsCategory}}
+<!--      {{ goodsCategory }}-->
+<!--      <br>-->
+<!--      {{ chosenCategory }}-->
       <el-table
         :data="goodsCategory"
         :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
@@ -9,6 +11,7 @@
         row-key="id"
         border
         default-expand-all
+        @selection-change="handleChosenCategory"
       >
         <el-table-column v-if="chooseFlag" prop="choose" label="编号" type="selection"/>
         <el-table-column prop="text" label="物品分类"/>
@@ -33,7 +36,7 @@
         </div>
       </div>
       <el-dialog :visible.sync="categoryFlag" :before-close="handleClose" title="增加" width="700px">
-        <el-form ref="categoryForm" :model="categoryForm" label-width="100px" >
+        <el-form ref="categoryForm" :model="categoryForm" label-width="100px">
           <el-form-item label="物品类别" prop="kind">
             <el-input v-model="categoryForm.categoryName" placeholder="请请输入需要增加的物品类别"/>
           </el-form-item>
@@ -68,7 +71,8 @@ export default {
         { id: 2, gradename: '中班', ifGraduation: '否' },
         { id: 3, gradename: '大班', ifGraduation: '否' }
       ],
-      goodsCategory: []
+      goodsCategory: [],
+      chosenCategory: []
     }
   },
   created() {
@@ -84,9 +88,6 @@ export default {
       )
     },
     edit() {
-      console.log('111111')
-      //   this.chooseFlag = true;
-      //   this.editshow = false;
       this.$emit('upedit')
     },
     confirmedit() {
@@ -96,8 +97,19 @@ export default {
       this.$emit('upcanceledit')
     },
     addCategory() {
-      this.categoryFlag = true
-      this.categoryForm.categoryName = ''
+      if (this.chosenCategory.length >= 2) {
+        this.$alert('勾选了两个选项及以上，无法进行增加操作')
+      } else if (this.chosenCategory.length === 1) {
+        if (this.chosenCategory[0].parent_id !== 0) {
+          this.$alert('勾选错误,勾选了二级菜单，无法进行增加操作')
+        } else {
+          this.categoryFlag = true
+          this.categoryForm.categoryName = ''
+        }
+      } else {
+        this.categoryFlag = true
+        this.categoryForm.categoryName = ''
+      }
     },
     addUser() {
       this.addCategory = true
@@ -107,36 +119,48 @@ export default {
         .then(_ => {
           done()
         })
-        .catch(_ => {})
+        .catch(_ => {
+        })
     },
     cancelDialog(Flag) {
       this[Flag] = false
     },
     confirmAddCategory(Flag) {
+      // 什么都没勾，默认增加一级菜单
+      if (this.chosenCategory.length === 0) {
+        this.addKind('0')
+        this[Flag] = false
+      } else if (this.chosenCategory.length === 1) {
+        // 勾了一级菜单，为其增加二级菜单
+        const id = this.chosenCategory[0].id
+        this.addKind(id)
+        this[Flag] = false
+      }
+    },
+    addKind(id) {
       const obj = {}
       obj.access_token = this.access_token
       obj.name = this.categoryForm.categoryName
-      obj.parent_id = '6'
-      console.log(obj)
+      obj.parent_id = id
       addGoodsCategory(obj).then(
         res => {
           console.log(res)
-          // location.reload()
+          location.reload()
         }
       )
-      this[Flag] = false
+    },
+    handleChosenCategory(val) {
+      this.chosenCategory = val
     }
   }
 }
+
 </script>
 
 <style scoped>
   .edit {
-    /* margin-top: 40px; */
-    /* border: 1px solid green; */
     display: flex;
     justify-content: flex-end;
-    /* border-top: 1px solid black; */
   }
 
   .edit1 {
