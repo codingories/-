@@ -1,7 +1,7 @@
 <template>
   <div class="outdiv">
     <el-container class="container">
-      <category
+      <Category
         :editshow="editshow"
         :choose-flag="chooseFlag"
         class="categorystyle"
@@ -9,7 +9,7 @@
         @upconfirmedit="upconfirmedit"
         @upcanceledit="upcanceledit"
       />
-      <goods class="goodsstyle"/>
+      <Goods class="goodsstyle"/>
     </el-container>
   </div>
 </template>
@@ -32,8 +32,8 @@ import store from '@/store'
 export default {
 
   components: {
-    category: Category,
-    goods: Goods
+    Category,
+    Goods
   },
   mixins: [buttonpermission],
   data() {
@@ -349,13 +349,9 @@ export default {
   }
 
   .goodsstyle {
-    /*width: 40vw;*/
-    /*border: 1px solid black*/
     margin-left: 10px;
     margin-right: 10px;
     flex: 1;
     overflow: auto;
-    box-shadow: 4px 5px 6px 0px rgba(182, 168, 168, 0.75);
-
   }
 </style>

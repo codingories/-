@@ -1,8 +1,9 @@
 <template>
   <div>
     <el-main class="main">
+<!--      {{ goodsList }}-->
       <el-header class="header">
-        <el-button type="primary">新增</el-button>
+        <el-button type="primary" @click="xxx">新增</el-button>
         <el-form ref="ruleForm" :model="ruleForm" :rules="rules" class="searchstyle">
           <el-form-item prop="personName" class="setInline">
             <el-input v-model="ruleForm.personName" placeholder="请填写需要查询的内容"/>
@@ -15,17 +16,30 @@
           <el-table
             id="goodlist"
             ref="multipleTable"
-            :data="gradeInfoTable"
+            :data="goodsList"
             style="width: 100%"
             @selection-change="handleSelection"
           >
+
             <el-table-column prop="choose" label="编号" type="selection"/>
             <el-table-column prop="id" label="序号"/>
-            <el-table-column prop="school" label="条形码"/>
-            <el-table-column prop="school" label="商品名"/>
-            <el-table-column prop="school" label="商品品牌"/>
-            <el-table-column prop="school" label="规格"/>
-            <el-table-column prop="school" label="图片"/>
+            <el-table-column prop="code" label="条形码"/>
+            <el-table-column prop="goodsName" label="商品名"/>
+            <el-table-column prop="manuName" label="商品品牌"/>
+            <el-table-column prop="spec" label="规格"/>
+            <el-table-column prop="img" label="图片">
+              <template slot-scope="scope">
+                <span style="margin-left: 10px">
+                  <el-popover
+                    placement="right"
+                    trigger="hover"
+                  >
+                    <span slot="reference">图片</span>
+                    <img :src="scope.row.img" alt="图片" style="max-height: 500px;max-width: 500px">
+                  </el-popover>
+                </span>
+              </template>
+            </el-table-column>
             <el-table-column prop="school" label="操作	">
               <template slot-scope="scope">
                 <el-button
@@ -37,7 +51,7 @@
                 <el-button
                   size="mini"
                   type="primary"
-                  @click="DeleteGood(scope.$index, scope.row)"
+                  @click="editGoods(scope.$index, scope.row)"
                 >编辑
                 </el-button>
               </template>
@@ -50,7 +64,9 @@
 </template>
 
 <script>
+import { getGoodsList, addGoods, saveGoods } from '@/api/goods'
 import store from '@/store'
+
 export default {
   components: {},
   data() {
@@ -94,18 +110,20 @@ export default {
         phone: [{ required: true, message: '请填写工号', trigger: 'change' }],
         dept: [{ required: true, message: '请选择部门', trigger: 'change' }]
       },
-      gradeInfoTable: [
-        { id: 1, gradename: '小班', ifGraduation: '否' },
-        { id: 2, gradename: '中班', ifGraduation: '否' },
-        { id: 3, gradename: '大班', ifGraduation: '否' }
+      goodsList: [
+        // { id: 1, gradename: '小班', ifGraduation: '否' },
+        // { id: 2, gradename: '中班', ifGraduation: '否' },
+        // { id: 3, gradename: '大班', ifGraduation: '否' }
       ]
     }
+  },
+  created() {
+    this.fetchGoodsList()
   },
   methods: {
     handleSelection(val) {
       this.checkedList = val
       if (this.checkedList.length === 1) {
-        console.log(this.checkedList)
         this.ruleForm.dept = this.checkedList[0].dept
         this.ruleForm.personName = this.checkedList[0].name
         this.ruleForm.JobNumber = this.checkedList[0].workno
@@ -119,7 +137,6 @@ export default {
 
         const tempdept = this.checkedList[0].dept
         if (typeof tempdept === 'string') {
-          console.log('这个是string')
           this.ruleForm.dept_id = this.deptList.filter(
             v => v.dept_name === tempdept
           )[0].id
@@ -127,23 +144,45 @@ export default {
         // this.dept_id = this.checkedList[0].dept;
 
         this.position = this.checkedList[0].position
-
-        console.log(this.role_id)
-
-        console.log(
-          this.userid,
-          this.username,
-          this.role_id,
-          this.dept_id,
-          this.position,
-          this.attendance_group_id
-        )
-
-        //         role_id: "",
-        // dept_id: "",
-        // position: "",
-        // attendance_group_id: "",
       }
+    },
+    fetchGoodsList() {
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.key_words = ''
+      getGoodsList(obj).then(
+        res => {
+          this.goodsList = res.data.list.reverse()
+        }
+      )
+    },
+    xxx() {
+      console.log('xxx')
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.code = 'aaaaa'
+      addGoods(obj).then(
+        res => {
+          console.log(res)
+        }
+      )
+    },
+    DeleteGood() {
+      console.log('--')
+    },
+    editGoods(index, row) {
+      console.log('123321')
+      console.log(index, row)
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.id = 1
+      obj.goodsName = '测试修改一'
+      obj.trademark = '测试品牌'
+      saveGoods(obj).then(
+        res=>{
+          console.log(res)
+        }
+      )
     }
   }
 }

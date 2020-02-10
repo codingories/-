@@ -17,3 +17,52 @@ export function addGoodsCategory(data) {
   })
 }
 
+export function deleteGoodsCategory(data) {
+  console.log(data)
+  return request({
+    url: '/api/v1/admin-goods/del-category',
+    method: 'get',
+    // params: data
+    params: data
+  })
+}
+
+// export function changeCategoryOrder(data) {
+//   return request({
+//     url: '/api/v1/admin-goods/order-category',
+//     method: 'post',
+//     data: qs.stringify(data)
+//   })
+// }
+
+// export function sortCategoryOrder(params) {
+//   return request({
+//     url: '/api/v1/admin-goods/order-category',
+//     method: 'get',
+//     params
+//   })
+// }
+
+export function sortCategoryOrder(data) {
+  return request({
+    url: '/api/v1/admin-goods/order-category',
+    method: 'post',
+    data: qs.stringify(data)
+  })
+}
+
+// export function sortCategoryOrder(params) {
+//   return request({
+//     url: '/api/v1/admin-goods/order-category',
+//     method: 'get',
+//     params
+//   })
+// }
+
+// export function sortmenu(params) {
+//   return request({
+//     url: '/api/v1/admin-menu/sort',
+//     method: 'get',
+//     params
+//   })
+// }

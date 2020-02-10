@@ -25,8 +25,8 @@
           <div>
             <el-button type="primary" size="small" @click="addCategory">增加</el-button>
             <el-button type="success" size="small">修改</el-button>
-            <el-button type="danger" size="small">删除</el-button>
-            <el-button type="primary" size="small">上移</el-button>
+            <el-button type="danger" size="small" @click="deleteCategory">删除</el-button>
+            <el-button type="primary" size="small" @click="moveUpCategory">上移</el-button>
             <el-button type="primary" size="small">下移</el-button>
           </div>
           <el-button-group class="editbutton">
@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import { getGoodsCategory, addGoodsCategory } from '@/api/goodsinfo-category'
+import { getGoodsCategory, addGoodsCategory, deleteGoodsCategory, sortCategoryOrder } from '@/api/goodsinfo-category'
 import store from '@/store'
 
 export default {
@@ -151,6 +151,42 @@ export default {
     },
     handleChosenCategory(val) {
       this.chosenCategory = val
+    },
+    deleteCategory() {
+      console.log('删除')
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.id = 40
+      console.log(obj)
+      deleteGoodsCategory(obj).then(
+        res => {
+          console.log(res)
+        }
+      )
+    },
+    moveUpCategory() {
+      const menus = []
+      console.log('上移')
+      console.log(this.access_token)
+      const obj = { access_token: '', ids: [] }
+      // console.log(this.goodsCategory.map(v => v.id)) // 第一级的
+      for (const i of this.goodsCategory) {
+        menus.push(i.id)
+        // console.log(i)
+        if (i.children) {
+          for (const j of i.children) {
+            menus.push(j.id)
+          }
+        }
+      }
+      console.log(menus)
+      obj.access_token = this.access_token
+      obj.ids = [6, 9, 17, 18, 19, 20, 34, 7, 8, 15, 16, 10, 11, 21, 23, 25, 26, 12, 13, 14, 22, 24, 27, 28, 29, 30, 31, 32, 33, 35, 36, 37, 38, 40, 39, 43, 44, 45, 46]
+      sortCategoryOrder(obj).then(
+        res => {
+          console.log(res)
+        }
+      )
     }
   }
 }

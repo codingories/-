@@ -130,7 +130,6 @@
         </el-table-column>
         <el-table-column prop="method" label="方式">
           <template slot-scope="scope">
-            <!-- <el-input v-model="editTable[0].method" /> -->
             <el-select v-model="editTable[0].method" placeholder="请选择">
               <el-option
                 v-for="item in methodtable"
@@ -139,11 +138,6 @@
                 :value="item.value"
               >
                 <span style="float: left">{{ item.label }}</span>
-                <!-- <span style="float: right; color: #8492a6; font-size: 13px; line-height:34px">
-                  <svg class="icon">
-                    <use :xlink:href="'#' + item.icon" />
-                  </svg>
-                </span>-->
               </el-option>
             </el-select>
           </template>
@@ -194,14 +188,6 @@
       width="30%"
       :before-close="handleClose"
     >
-      <!-- <el-form ref="form" :model="editMenuList" label-width="80px">
-        <el-form-item label="菜单名称">
-          <el-input v-model="editMenuList.menuName" />
-        </el-form-item>
-        <el-form-item label="菜单链接">
-          <el-input v-model="editMenuList.menuLink" />
-        </el-form-item>
-      </el-form>-->
       <span slot="footer" class="dialog-footer">
         <el-button @click="choosesecondmenu">二级菜单</el-button>
         <el-button type="primary" @click="choosethirdmenu">三级菜单</el-button>
@@ -226,68 +212,7 @@ export default {
       secondrowid: "",
       thirdmenuflag: false,
       secondmenuflag: false,
-      options1: [
-        {
-          value: "calendar",
-          label: "calendar",
-          icon: "el-calendar"
-        },
-        {
-          value: "dashboard",
-          label: "dashboard",
-          icon: "el-dashboard"
-        },
-        {
-          value: "example",
-          label: "example",
-          icon: "el-example"
-        },
-        {
-          value: "eye-open",
-          label: "eye-open",
-          icon: "el-eye-open"
-        },
-        {
-          value: "eye",
-          label: "eye",
-          icon: "el-eye"
-        },
-        {
-          value: "form",
-          label: "form",
-          icon: "el-form"
-        },
-        {
-          value: "link",
-          label: "link",
-          icon: "el-link"
-        },
-        {
-          value: "nested",
-          label: "nested",
-          icon: "el-nested"
-        },
-        {
-          value: "password",
-          label: "password",
-          icon: "el-password"
-        },
-        {
-          value: "table",
-          label: "table",
-          icon: "el-table"
-        },
-        {
-          value: "tree",
-          label: "tree",
-          icon: "el-tree"
-        },
-        {
-          value: "user",
-          label: "user",
-          icon: "el-user"
-        }
-      ],
+      options1: [s],
       value1: "",
       editTable: [
         {
