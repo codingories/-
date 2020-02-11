@@ -9,7 +9,7 @@ export function getGoodsCategory(token) {
   })
 }
 
-export function addGoodsCategory(data) {
+export function dealGoodsCategory(data) {
   return request({
     url: '/api/v1/admin-goods/save-category',
     method: 'post',

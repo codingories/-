@@ -36,7 +36,6 @@
     <el-button v-if="hasPermission('删除')" type="info" @click="deleteUser">删除</el-button>
 
     <el-dialog :visible.sync="editUsersShow" :before-close="handleClose" title="编辑用户" width="700px">
-      <!-- <h4>{{ruleForm}}</h4> -->
       <el-form
         ref="ruleForm"
         :model="ruleForm"
@@ -44,7 +43,6 @@
         label-width="100px"
         class="demo-ruleForm"
       >
-        <!-- :inline="true" -->
 
         <el-form-item label="姓名" prop="personName" class="setInline">
           <el-input v-model="ruleForm.personName" placeholder="请填写姓名"/>

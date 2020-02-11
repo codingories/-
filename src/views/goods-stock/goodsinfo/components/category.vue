@@ -1,9 +1,9 @@
 <template>
   <div>
     <el-aside class="aside">
-<!--      {{ goodsCategory }}-->
-<!--      <br>-->
-<!--      {{ chosenCategory }}-->
+      {{ goodsCategory }}
+      <!--      <br>-->
+      <!--      {{ chosenCategory }}-->
       <el-table
         :data="goodsCategory"
         :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
@@ -24,7 +24,7 @@
         <div class="edit1">
           <div>
             <el-button type="primary" size="small" @click="addCategory">增加</el-button>
-            <el-button type="success" size="small">修改</el-button>
+            <el-button type="success" size="small" @click="xxx">修改</el-button>
             <el-button type="danger" size="small" @click="deleteCategory">删除</el-button>
             <el-button type="primary" size="small" @click="moveUpCategory">上移</el-button>
             <el-button type="primary" size="small">下移</el-button>
@@ -35,22 +35,39 @@
           </el-button-group>
         </div>
       </div>
-      <el-dialog :visible.sync="categoryFlag" :before-close="handleClose" title="增加" width="700px">
+      <el-dialog :visible.sync="addCategoryFlag" :before-close="handleClose" title="增加" width="700px">
         <el-form ref="categoryForm" :model="categoryForm" label-width="100px">
           <el-form-item label="物品类别" prop="kind">
-            <el-input v-model="categoryForm.categoryName" placeholder="请请输入需要增加的物品类别"/>
+            <el-input v-model="categoryForm.addCategoryName" placeholder="请请输入需要增加的物品类别"/>
           </el-form-item>
         </el-form>
-        <el-button type="success" @click="cancelDialog('categoryFlag')">取消</el-button>
-        <el-button type="primary" @click="confirmAddCategory('categoryFlag')">确认</el-button>
+        <el-button type="success" @click="cancelDialog('addCategoryFlag')">取消</el-button>
+        <el-button type="primary" @click="confirmAddCategory('addCategoryFlag')">确认</el-button>
       </el-dialog>
-
     </el-aside>
+
+    <el-dialog :visible.sync="editCategoryFlag" :before-close="handleClose" title="编辑" width="700px">
+      <el-form ref="categoryForm" :model="categoryForm" label-width="100px">
+        <el-form-item label="物品类别" prop="kind">
+          <el-input v-model="categoryForm.addCategoryName" placeholder="请输入需要修改的物品类别名称"/>
+        </el-form-item>
+      </el-form>
+      <el-button type="success" @click="cancelDialog('editCategoryFlag')">取消</el-button>
+      <el-button type="primary" @click="confirmEditCategory('editCategoryFlag')">确认</el-button>
+    </el-dialog>
+
+    <el-dialog :visible.sync="deleteCategoryFlag" :before-close="handleClose" title="提示" width="700px">
+      <span>确认需要删除吗？</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="success" @click="cancelDialog('deleteCategoryFlag')">取消</el-button>
+        <el-button type="primary" @click="confirmDeleteCategory('deleteCategoryFlag')">确认</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getGoodsCategory, addGoodsCategory, deleteGoodsCategory, sortCategoryOrder } from '@/api/goodsinfo-category'
+import { getGoodsCategory, dealGoodsCategory, deleteGoodsCategory, sortCategoryOrder } from '@/api/goodsinfo-category'
 import store from '@/store'
 
 export default {
@@ -61,16 +78,14 @@ export default {
   },
   data() {
     return {
+      editCategoryFlag:false,
+      deleteCategoryFlag: false,
       categoryForm: {
-        categoryName: ''
+        addCategoryName: '',
       },
-      categoryFlag: false,
+      addCategoryFlag: false,
       access_token: store.getters.access_token,
-      gradeInfoTable: [
-        { id: 1, gradename: '小班', ifGraduation: '否' },
-        { id: 2, gradename: '中班', ifGraduation: '否' },
-        { id: 3, gradename: '大班', ifGraduation: '否' }
-      ],
+      gradeInfoTable: [],
       goodsCategory: [],
       chosenCategory: []
     }
@@ -103,12 +118,12 @@ export default {
         if (this.chosenCategory[0].parent_id !== 0) {
           this.$alert('勾选错误,勾选了二级菜单，无法进行增加操作')
         } else {
-          this.categoryFlag = true
-          this.categoryForm.categoryName = ''
+          this.addCategoryFlag = true
+          this.categoryForm.addCategoryName = ''
         }
       } else {
-        this.categoryFlag = true
-        this.categoryForm.categoryName = ''
+        this.addCategoryFlag = true
+        this.categoryForm.addCategoryName = ''
       }
     },
     addUser() {
@@ -132,6 +147,7 @@ export default {
         this[Flag] = false
       } else if (this.chosenCategory.length === 1) {
         // 勾了一级菜单，为其增加二级菜单
+        console.log('11111')
         const id = this.chosenCategory[0].id
         this.addKind(id)
         this[Flag] = false
@@ -140,11 +156,10 @@ export default {
     addKind(id) {
       const obj = {}
       obj.access_token = this.access_token
-      obj.name = this.categoryForm.categoryName
+      obj.name = this.categoryForm.addCategoryName
       obj.parent_id = id
-      addGoodsCategory(obj).then(
+      dealGoodsCategory(obj).then(
         res => {
-          console.log(res)
           location.reload()
         }
       )
@@ -153,40 +168,64 @@ export default {
       this.chosenCategory = val
     },
     deleteCategory() {
-      console.log('删除')
-      const obj = {}
-      obj.access_token = this.access_token
-      obj.id = 40
-      console.log(obj)
-      deleteGoodsCategory(obj).then(
-        res => {
-          console.log(res)
-        }
-      )
+      this.deleteCategoryFlag = true
+    },
+    confirmDeleteCategory() {
+      const ids = this.chosenCategory.map(v => v.id)
+      ids.forEach(v => {
+        const obj = {}
+        obj.access_token = this.access_token
+        obj.id = v
+        deleteGoodsCategory(obj).then(
+          res => {
+            this.$alert('删除成功!')
+            location.reload()
+          },
+          error => {
+            this.$alert('删除失败')
+          }
+        )
+      })
     },
     moveUpCategory() {
       const menus = []
-      console.log('上移')
-      console.log(this.access_token)
-      const obj = { access_token: '', ids: [] }
-      // console.log(this.goodsCategory.map(v => v.id)) // 第一级的
       for (const i of this.goodsCategory) {
         menus.push(i.id)
-        // console.log(i)
         if (i.children) {
           for (const j of i.children) {
             menus.push(j.id)
           }
         }
       }
-      console.log(menus)
       obj.access_token = this.access_token
       obj.ids = [6, 9, 17, 18, 19, 20, 34, 7, 8, 15, 16, 10, 11, 21, 23, 25, 26, 12, 13, 14, 22, 24, 27, 28, 29, 30, 31, 32, 33, 35, 36, 37, 38, 40, 39, 43, 44, 45, 46]
       sortCategoryOrder(obj).then(
         res => {
-          console.log(res)
         }
       )
+    },
+    xxx() {
+      if (this.chosenCategory.length === 0) {
+        this.$alert('请勾选要修改的项')
+      } else if (this.chosenCategory.length > 1) {
+        this.$alert('只能只能勾选一项，请勿多勾选')
+      } else {
+        this.editCategoryFlag = true
+      }
+    },
+    confirmEditCategory(Flag) {
+      this.categoryForm.addCategoryName = this.chosenCategory[0].id
+      const id = this.chosenCategory[0].id
+      let obj = {}
+      obj.access_token = this.access_token
+      obj.name = this.categoryForm.addCategoryName
+      obj.id = id
+      dealGoodsCategory(obj).then(
+        res => {
+          location.reload()
+        }
+      )
+      this[Flag] = false
     }
   }
 }

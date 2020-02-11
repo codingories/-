@@ -212,7 +212,7 @@ export default {
       secondrowid: "",
       thirdmenuflag: false,
       secondmenuflag: false,
-      options1: [s],
+      options1: [],
       value1: "",
       editTable: [
         {
