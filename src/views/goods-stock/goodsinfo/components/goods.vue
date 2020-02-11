@@ -1,9 +1,9 @@
 <template>
   <div>
     <el-main class="main">
-<!--      {{ goodsList }}-->
+      <!--      {{ goodsList }}-->
       <el-header class="header">
-        <el-button type="primary" @click="xxx">新增</el-button>
+        <el-button type="primary" @click="addGood">新增</el-button>
         <el-form ref="ruleForm" :model="ruleForm" :rules="rules" class="searchstyle">
           <el-form-item prop="personName" class="setInline">
             <el-input v-model="ruleForm.personName" placeholder="请填写需要查询的内容"/>
@@ -18,9 +18,7 @@
             ref="multipleTable"
             :data="goodsList"
             style="width: 100%"
-            @selection-change="handleSelection"
           >
-
             <el-table-column prop="choose" label="编号" type="selection"/>
             <el-table-column prop="id" label="序号"/>
             <el-table-column prop="code" label="条形码"/>
@@ -48,18 +46,28 @@
                   @click="DeleteGood(scope.$index, scope.row)"
                 >详情
                 </el-button>
-                <el-button
-                  size="mini"
-                  type="primary"
-                  @click="editGoods(scope.$index, scope.row)"
-                >编辑
-                </el-button>
               </template>
             </el-table-column>
           </el-table>
         </div>
       </el-main>
     </el-main>
+    <el-dialog
+      :visible.sync="addGoodDialogFlag"
+      :before-close="handleClose"
+      title="请输入条形码"
+      width="30%">
+      <el-form ref="codeForm" :model="codeForm" :rules="codeFormRules" label-width="80px" >
+        <el-form-item label="条形码" prop="code">
+          <el-input v-model="codeForm.code"/>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addGoodDialogFlag = false">取 消</el-button>
+        <el-button type="primary" @click="confirmAddGood('codeForm')">确 定</el-button>
+      </span>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -71,6 +79,16 @@ export default {
   components: {},
   data() {
     return {
+      codeForm: {
+        code: ''
+      },
+      codeFormRules: {
+        code: [
+          { required: true, message: '请输入条形码', trigger: 'blur' },
+          { min: 1, message: '不能为空', trigger: 'blur' }
+        ]
+      },
+      addGoodDialogFlag: false,
       access_token: store.getters.access_token,
       ruleForm: {
         personName: '',
@@ -110,41 +128,36 @@ export default {
         phone: [{ required: true, message: '请填写工号', trigger: 'change' }],
         dept: [{ required: true, message: '请选择部门', trigger: 'change' }]
       },
-      goodsList: [
-        // { id: 1, gradename: '小班', ifGraduation: '否' },
-        // { id: 2, gradename: '中班', ifGraduation: '否' },
-        // { id: 3, gradename: '大班', ifGraduation: '否' }
-      ]
+      goodsList: []
     }
   },
   created() {
     this.fetchGoodsList()
   },
   methods: {
-    handleSelection(val) {
-      this.checkedList = val
-      if (this.checkedList.length === 1) {
-        this.ruleForm.dept = this.checkedList[0].dept
-        this.ruleForm.personName = this.checkedList[0].name
-        this.ruleForm.JobNumber = this.checkedList[0].workno
-        this.ruleForm.phone = this.checkedList[0].mobile
-        // this.ruleForm.dept_id = this.checkedList[0].mobile;
-        this.userid = this.checkedList[0].id
-        this.username = this.checkedList[0].username
-
-        this.role_id = this.checkedList[0].role.map(v => this.rolemap[v])
-        this.ruleForm.attendance_group_id = this.checkedList[0].attendance_group
-
-        const tempdept = this.checkedList[0].dept
-        if (typeof tempdept === 'string') {
-          this.ruleForm.dept_id = this.deptList.filter(
-            v => v.dept_name === tempdept
-          )[0].id
+    confirmAddGood(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          const obj = {}
+          obj.access_token = this.access_token
+          obj.code = this.codeForm.code
+          addGoods(obj).then(
+            res => {
+              this.$alert('提交成功')
+            }
+          )
+          this.addGoodDialogFlag = false
+        } else {
+          return false
         }
-        // this.dept_id = this.checkedList[0].dept;
-
-        this.position = this.checkedList[0].position
-      }
+      })
+    },
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done()
+        })
+        .catch(_ => {})
     },
     fetchGoodsList() {
       const obj = {}
@@ -156,16 +169,16 @@ export default {
         }
       )
     },
-    xxx() {
-      console.log('xxx')
-      const obj = {}
-      obj.access_token = this.access_token
-      obj.code = 'aaaaa'
-      addGoods(obj).then(
-        res => {
-          console.log(res)
-        }
-      )
+    addGood() {
+      this.addGoodDialogFlag = true
+      // const obj = {}
+      // obj.access_token = this.access_token
+      // obj.code = this.codeForm.code
+      // // addGoods(obj).then(
+      // //   res => {
+      // //     console.log(res)
+      // //   }
+      // // )
     },
     DeleteGood() {
       console.log('--')
@@ -179,7 +192,7 @@ export default {
       obj.goodsName = '测试修改一'
       obj.trademark = '测试品牌'
       saveGoods(obj).then(
-        res=>{
+        res => {
           console.log(res)
         }
       )
