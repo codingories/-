@@ -208,20 +208,23 @@ export default {
       if (this.chosenCategory.length === 0) {
         this.$alert('请勾选要修改的项')
       } else if (this.chosenCategory.length > 1) {
-        this.$alert('只能只能勾选一项，请勿多勾选')
+        this.$alert('只能勾选一项进行编辑，请勿多勾选')
       } else {
         this.editCategoryFlag = true
+        this.categoryForm.addCategoryName = this.chosenCategory[0].text
       }
     },
     confirmEditCategory(Flag) {
-      this.categoryForm.addCategoryName = this.chosenCategory[0].id
       const id = this.chosenCategory[0].id
+      const parent_id = this.chosenCategory[0].parent_id
       let obj = {}
       obj.access_token = this.access_token
       obj.name = this.categoryForm.addCategoryName
       obj.id = id
+      obj.parent_id = parent_id
       dealGoodsCategory(obj).then(
         res => {
+          this.$alert('修改成功!')
           location.reload()
         }
       )
