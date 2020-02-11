@@ -319,23 +319,18 @@ export default {
   }
 
   .header {
-    /* border: 1px solid black; */
   }
 
   .innermain {
-    /* border: 1px solid red; */
   }
 
   .container {
     border-top: 12px solid #f9f9f9;
     display: flex;
     justify-content: flex-start;
-    /*overflow: auto;*/
-    /*border: 1px solid black;*/
   }
 
   .main-container {
-    /* border: 1px solid red; */
   }
 
   .outdiv {
@@ -344,7 +339,6 @@ export default {
   }
 
   .categorystyle {
-    /*border: 1px solid green;*/
     width: 500px;
   }
 

@@ -194,7 +194,7 @@ export default {
     box-shadow: 4px 5px 6px 0px rgba(182, 168, 168, 0.75);
     /* border-right: 10px solid #f9f9f9; */
     margin-right: 10px;
-    height: 500px;
+    max-height: 90vh;
     width: 100%;
   }
 
