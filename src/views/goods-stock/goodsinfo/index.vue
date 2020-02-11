@@ -9,7 +9,8 @@
         @upconfirmedit="upconfirmedit"
         @upcanceledit="upcanceledit"
       />
-      <Goods class="goodsstyle"/>
+      <Goods v-show="ifGoodsShowFlag" class="wrapper" @changeFlag="changeFlag"/>
+      <Detail v-show="!ifGoodsShowFlag" class="wrapper" @changeFlag="changeFlag"/>
     </el-container>
   </div>
 </template>
@@ -17,14 +18,17 @@
 <script>
 import Category from './components/category'
 import Goods from './components/goods'
+import Detail from './components/detail'
 
 export default {
   components: {
     Category,
-    Goods
+    Goods,
+    Detail
   },
   data() {
     return {
+      ifGoodsShowFlag: true,
       editshow: true,
       chooseFlag: false
     }
@@ -41,6 +45,10 @@ export default {
     upcanceledit() {
       this.editshow = true
       this.chooseFlag = false
+    },
+    changeFlag() {
+      console.log(222)
+      this.ifGoodsShowFlag = !this.ifGoodsShowFlag
     }
   }
 
@@ -76,7 +84,7 @@ export default {
     width: 500px;
   }
 
-  .goodsstyle {
+  .wrapper {
     margin-left: 10px;
     margin-right: 10px;
     flex: 1;

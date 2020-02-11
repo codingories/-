@@ -4,7 +4,7 @@
       <!--      {{ goodsList }}-->
       <el-header class="header">
         <el-button type="primary" @click="addGood">新增</el-button>
-        <el-form ref="ruleForm" :model="ruleForm" :rules="rules" class="searchstyle">
+        <el-form ref="ruleForm" :model="ruleForm" class="searchstyle">
           <el-form-item prop="personName" class="setInline">
             <el-input v-model="ruleForm.personName" placeholder="请填写需要查询的内容"/>
           </el-form-item>
@@ -43,7 +43,7 @@
                 <el-button
                   size="mini"
                   type="primary"
-                  @click="DeleteGood(scope.$index, scope.row)"
+                  @click="toDetail(scope.$index, scope.row)"
                 >详情
                 </el-button>
               </template>
@@ -101,33 +101,6 @@ export default {
         gender: '1',
         role: ''
       },
-      rules: {
-        status: [{ required: true, message: '选择状态', trigger: 'change' }],
-        roles: [{ required: true, message: '选择角色', trigger: 'change' }],
-        confirmPassword: [
-          {
-            required: true,
-            // message: "请重复填写密码",
-            trigger: 'change',
-            validator: this.validatorRepeatPassword
-          }
-        ],
-        password: [
-          {
-            required: true,
-            message: '请填写密码',
-            trigger: 'change'
-          }
-        ],
-        personName: [
-          { required: true, message: '请填写姓名', trigger: 'change' }
-        ],
-        JobNumber: [
-          { required: true, message: '请填写工号', trigger: 'change' }
-        ],
-        phone: [{ required: true, message: '请填写工号', trigger: 'change' }],
-        dept: [{ required: true, message: '请选择部门', trigger: 'change' }]
-      },
       goodsList: []
     }
   },
@@ -171,21 +144,12 @@ export default {
     },
     addGood() {
       this.addGoodDialogFlag = true
-      // const obj = {}
-      // obj.access_token = this.access_token
-      // obj.code = this.codeForm.code
-      // // addGoods(obj).then(
-      // //   res => {
-      // //     console.log(res)
-      // //   }
-      // // )
     },
-    DeleteGood() {
+    toDetail() {
       console.log('--')
+      this.$emit('changeFlag')
     },
     editGoods(index, row) {
-      console.log('123321')
-      console.log(index, row)
       const obj = {}
       obj.access_token = this.access_token
       obj.id = 1
