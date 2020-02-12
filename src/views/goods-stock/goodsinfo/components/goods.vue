@@ -145,9 +145,8 @@ export default {
     addGood() {
       this.addGoodDialogFlag = true
     },
-    toDetail() {
-      console.log('--')
-      this.$emit('changeFlag')
+    toDetail(index, row) {
+      this.$emit('changeFlag', row.id)
     },
     editGoods(index, row) {
       const obj = {}

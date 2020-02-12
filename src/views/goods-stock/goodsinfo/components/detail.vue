@@ -18,13 +18,13 @@
           <el-input v-model="detailForm.code" placeholder="请填写条形码"/>
         </el-form-item>
         <el-form-item label="商品名" >
-          <el-input placeholder="请填写商品名"/>
+          <el-input v-model="detailForm.goodsName" placeholder="请填写商品名"/>
         </el-form-item>
         <el-form-item label="品牌名称" >
-          <el-input />
+          <el-input v-model="detailForm.menuName" placeholder="请填写商品规格"/>
         </el-form-item>
-        <el-form-item label="规格" >
-          <el-input/>
+        <el-form-item label="规格" placeholder="请填写规格">
+          <el-input v-model="detailForm.spec" placeholder="请填写商品规格"/>
         </el-form-item>
         <el-form-item label="品牌" >
           <el-input/>
@@ -40,8 +40,8 @@
         </el-form-item>
         <el-form-item label="图片" >
           <el-image
+            :src="detailForm.img"
             class = "imgStyle"
-            src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"
             fit="fit"/>
         </el-form-item>
         <el-form-item label="条码图片" >
@@ -65,13 +65,54 @@
   </div>
 </template>
 <script>
+import { getGoodDetail } from '@/api/goods-detail'
+import store from '@/store'
+
 export default {
+  props: {
+    id: {
+      type: String,
+      required: true
+    }
+  },
   data() {
     return {
       detailForm: {
-        username: ''
-      }
+        username: '',
+        code: '',
+        goodsName: '',
+        menuName: '',
+        spec: '',
+        img: ''
+      },
+      access_token: store.getters.access_token
     }
+  },
+  watch: {
+    id(val) {
+      console.log('这里是watch')
+      console.log(val)
+      const access_token = this.access_token
+      const id = val
+      const obj = { id, access_token }
+      getGoodDetail(obj).then(success => {
+        console.log('234')
+        const obj = success.data[0]
+        console.log(obj)
+        this.detailForm.code = obj.code
+        this.detailForm.goodsName = obj.goodsName
+        this.detailForm.menuName = obj.manuName
+        this.detailForm.spec = obj.spec
+        this.detailForm.img = obj.img
+        console.log(this.detailForm)
+      }, fail => {
+        console.log(fail)
+      })
+    }
+  },
+  created() {
+    console.log('这是detail页面')
+    console.log(this.id)
   },
   methods: {
     goBack() {

@@ -10,7 +10,7 @@
         @upcanceledit="upcanceledit"
       />
       <Goods v-show="ifGoodsShowFlag" class="wrapper" @changeFlag="changeFlag"/>
-      <Detail v-show="!ifGoodsShowFlag" class="wrapper" @changeFlag="changeFlag"/>
+      <Detail v-show="!ifGoodsShowFlag" :id="id" class="wrapper" @changeFlag="changeFlag"/>
     </el-container>
   </div>
 </template>
@@ -28,6 +28,7 @@ export default {
   },
   data() {
     return {
+      id: '0',
       ifGoodsShowFlag: true,
       editshow: true,
       chooseFlag: false
@@ -46,8 +47,10 @@ export default {
       this.editshow = true
       this.chooseFlag = false
     },
-    changeFlag() {
-      console.log(222)
+    changeFlag(id) {
+      if (id) {
+        this.id = id.toString()
+      }
       this.ifGoodsShowFlag = !this.ifGoodsShowFlag
     }
   }

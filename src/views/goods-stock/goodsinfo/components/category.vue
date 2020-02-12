@@ -1,9 +1,6 @@
 <template>
   <div>
     <el-aside class="aside">
-      {{ goodsCategory }}
-      <!--      <br>-->
-      <!--      {{ chosenCategory }}-->
       <el-table
         :data="goodsCategory"
         :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
