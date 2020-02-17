@@ -21,7 +21,7 @@
         <div class="edit1">
           <div>
             <el-button type="primary" size="small" @click="addCategory">增加</el-button>
-            <el-button type="success" size="small" @click="xxx">修改</el-button>
+            <el-button type="success" size="small" @click="editCategory">修改</el-button>
             <el-button type="danger" size="small" @click="deleteCategory">删除</el-button>
             <el-button type="primary" size="small" @click="moveUpCategory">上移</el-button>
             <el-button type="primary" size="small">下移</el-button>
@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import { getGoodsCategory, dealGoodsCategory, deleteGoodsCategory, sortCategoryOrder } from '@/api/goodsinfo-category'
+import { getGoodsCategory, dealGoodsCategory, deleteGoodsCategory, sortCategoryOrder } from '@/api/goodsInfo/goodsinfo-category'
 import store from '@/store'
 
 export default {
@@ -201,7 +201,7 @@ export default {
         }
       )
     },
-    xxx() {
+    editCategory() {
       if (this.chosenCategory.length === 0) {
         this.$alert('请勾选要修改的项')
       } else if (this.chosenCategory.length > 1) {

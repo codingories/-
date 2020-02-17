@@ -6,13 +6,33 @@
       @click="goBack"
     >返回
     </el-button>
+    {{ detailForm }}
+    <hr>
+    {{ categoryOption }}
     <div>
       <el-form :model="detailForm" label-width="100px">
         <el-form-item label="分类" prop="kind">
-          <el-input v-model="detailForm.username" placeholder="请填写分类"/>
+          <!--          <el-input v-model="detailForm.username" placeholder="请填写分类"/>-->
+          <el-select v-model="detailForm.feature" placeholder="请填写分类" value="">
+            <el-option
+              v-for="item in categoryOption"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+              <span v-if="item.layer===0" style="float: left">{{ item.label }}</span>
+              <span v-if="item.layer===1" style="float: left; color: #8492a6; font-size: 13px; margin-left:2em">{{ item.label }}</span>
+
+            </el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="特性" prop="character">
-          <el-input v-model="detailForm.character" placeholder="请填写特性"/>
+        <el-form-item label="特性" prop="feature">
+          <el-select v-model="detailForm.feature" placeholder="请填写特性" value="">
+            <el-option
+              v-for="item in featureOption"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"/>
+          </el-select>
         </el-form-item>
         <el-form-item label="条形码" prop="code">
           <el-input v-model="detailForm.code" placeholder="请填写条形码"/>
@@ -65,8 +85,9 @@
   </div>
 </template>
 <script>
-import { getGoodDetail } from '@/api/goods-detail'
+import { getGoodDetail } from '@/api/goodsInfo/goods-detail'
 import store from '@/store'
+import { getGoodsCategory } from '../../../../api/goodsInfo/goods-detail'
 
 export default {
   props: {
@@ -77,7 +98,18 @@ export default {
   },
   data() {
     return {
+      categoryOption: [
+
+      ],
+      featureOption: [{
+        value: '1',
+        label: '易耗品'
+      }, {
+        value: '2',
+        label: '耐耗品'
+      }],
       detailForm: {
+        feature: '',
         username: '',
         code: '',
         goodsName: '',
@@ -113,8 +145,41 @@ export default {
   created() {
     console.log('这是detail页面')
     console.log(this.id)
+    this.getCategory()
   },
   methods: {
+    getCategory() {
+      const obj = { 'access_token': this.access_token }
+      getGoodsCategory(obj).then(
+        res => {
+          console.log('fff')
+          console.log(res.data)
+          res.data.forEach(
+            value => {
+              const obj = {}
+              obj.value = value.id
+              obj.label = value.text
+              obj.layer = 0
+              this.categoryOption.push(obj)
+              if (value.children) {
+                console.log('有哈子')
+                console.log(value.children)
+                value.children.forEach(
+                  v => {
+                    const obj = {}
+                    obj.value = v.id
+                    obj.label = v.text
+                    obj.layer = 1
+                    this.categoryOption.push(obj)
+                  }
+                )
+              }
+            }
+          )
+          // this.categoryOption = res.data
+        }
+      )
+    },
     goBack() {
       this.$emit('changeFlag')
     }

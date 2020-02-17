@@ -65,7 +65,7 @@
   </div>
 </template>
 <script>
-import { getGoodDetail } from '@/api/goods-detail'
+import { getGoodDetail } from '@/api/goodsInfo/goods-detail'
 import store from '@/store'
 
 export default {

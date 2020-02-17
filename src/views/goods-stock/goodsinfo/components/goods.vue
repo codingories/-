@@ -135,7 +135,7 @@ export default {
     fetchGoodsList() {
       const obj = {}
       obj.access_token = this.access_token
-      obj.key_words = ''
+      obj.key_words = '大球类'
       getGoodsList(obj).then(
         res => {
           this.goodsList = res.data.list.reverse()

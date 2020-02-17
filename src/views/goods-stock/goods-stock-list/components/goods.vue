@@ -101,7 +101,7 @@ export default {
         gender: '1',
         role: ''
       },
-      goodsList: []
+      goodsList: [],
     }
   },
   created() {

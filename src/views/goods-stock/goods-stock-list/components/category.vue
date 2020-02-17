@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { getGoodsCategory, dealGoodsCategory, deleteGoodsCategory, sortCategoryOrder } from '@/api/goodsinfo-category'
+import { getGoodsCategory, dealGoodsCategory, deleteGoodsCategory, sortCategoryOrder } from '@/api/goodsInfo/goodsinfo-category'
 import store from '@/store'
 
 export default {
