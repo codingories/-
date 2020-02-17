@@ -7,10 +7,9 @@
     >返回
     </el-button>
     <div>
-      <el-form :model="detailForm" label-width="100px">
+      <el-form ref="detailForm" :model="detailForm" :rules="detailFormRules" label-width="100px">
         <el-form-item label="分类" prop="kind">
-          <!--          <el-input v-model="detailForm.username" placeholder="请填写分类"/>-->
-          <el-select v-model="detailForm.feature" placeholder="请填写分类" value="">
+          <el-select v-model="detailForm.kind" placeholder="请填写分类" value="">
             <el-option
               v-for="item in categoryOption"
               :key="item.value"
@@ -33,7 +32,7 @@
         <el-form-item label="条形码" prop="code">
           <el-input v-model="detailForm.code" placeholder="请填写条形码"/>
         </el-form-item>
-        <el-form-item label="商品名">
+        <el-form-item label="商品名" prop="goodsName">
           <el-input v-model="detailForm.goodsName" placeholder="请填写商品名"/>
         </el-form-item>
         <el-form-item label="商标/品牌名称">
@@ -42,17 +41,17 @@
         <el-form-item label="规格" placeholder="请填写规格">
           <el-input v-model="detailForm.spec" placeholder="请填写商品规格"/>
         </el-form-item>
-        <el-form-item label="品牌">
-          <el-input/>
+        <el-form-item label="品牌" prop="trademark">
+          <el-input v-model="detailForm.trademark" placeholder="请填写品牌"/>
         </el-form-item>
         <el-form-item label="原产地">
-          <el-input/>
+          <el-input v-model="detailForm.ycg" placeholder="请填写原产地"/>
         </el-form-item>
         <el-form-item label="备注信息">
-          <el-input/>
+          <el-input v-model="detailForm.note" placeholder="请填写备注信息"/>
         </el-form-item>
         <el-form-item label="参考价格(单位:元)">
-          <el-input/>
+          <el-input v-model="detailForm.price" placeholder="请填写价格(元)"/>
         </el-form-item>
         <el-form-item label="图片">
           <el-image
@@ -67,12 +66,12 @@
             fit="fit"/>
         </el-form-item>
         <el-form-item label="备注">
-          <el-input/>
+          <el-input v-model="detailForm.remark" placeholder="请填写备注"/>
         </el-form-item>
         <el-button
           size="small"
           type="primary"
-          @click="goBack"
+          @click="submit('detailForm')"
         >提交
         </el-button>
 
@@ -81,9 +80,8 @@
   </div>
 </template>
 <script>
-import { getGoodDetail } from '@/api/goodsInfo/goods-detail'
 import store from '@/store'
-import { getGoodsCategory } from '../../../../api/goodsInfo/goods-detail'
+import { getGoodsCategory, getGoodDetail, saveGoods } from '../../../../api/goodsInfo/goods-detail'
 
 export default {
   props: {
@@ -103,15 +101,32 @@ export default {
         label: '耐耗品'
       }],
       detailForm: {
+        kind: '',
         feature: '',
         username: '',
         code: '',
         goodsName: '',
         menuName: '',
         spec: '',
-        img: ''
+        img: '',
+        trademark: '',
+        ycg: '',
+        note: '',
+        price: '',
+        remark: ''
       },
-      access_token: store.getters.access_token
+      access_token: store.getters.access_token,
+      detailFormRules: {
+        feature: [
+          { required: true, message: '特性不能为空', trigger: 'blur' }
+        ],
+        goodsName: [
+          { required: true, message: '商品名不能为空', trigger: 'blur' }
+        ],
+        trademark: [
+          { required: true, message: '品牌不能为空', trigger: 'blur' }
+        ]
+      }
     }
   },
   watch: {
@@ -170,6 +185,39 @@ export default {
     },
     goBack() {
       this.$emit('changeFlag')
+    },
+    submit(formName) {
+      console.log('submit')
+      console.log(formName)
+      // console.log(this.detailForm)
+      // const obj = {}
+      // const list = ['access_token', 'id', 'category_id', 'goodsName', 'manuName', 'goodsType', 'spec', 'trademark', 'sptmImg', 'img', 'ycg', 'note', 'price', 'feature', 'remark']
+      // list.forEach(v => { obj[v] = '' })
+      // console.log(obj)
+      // obj.access_token = this.access_token
+      // obj.id = this.id
+      // obj.goodsName = this.
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          // alert('submit!')
+          const obj = this.detailForm
+          obj.access_token = this.access_token
+          obj.id = this.id
+          console.log(obj)
+          saveGoods(obj).then(
+            res => {
+              this.$alert('提交修改成功')
+              location.reload()
+            },
+            fail => {
+              this.$alert('提交失败')
+            }
+          )
+        } else {
+          this.$alert('请填写完成必要信息')
+          return false
+        }
+      })
     }
   }
 }

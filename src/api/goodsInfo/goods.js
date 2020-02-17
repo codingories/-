@@ -9,11 +9,11 @@ export function getGoodsList(token) {
   })
 }
 
-export function addGoods(token) {
+export function addGoods(data) {
   return request({
-    url: '/api/v1/admin-goods/goods-list',
-    method: 'get',
-    params: token
+    url: '/api/v1/admin-goods/add-goods',
+    method: 'post',
+    data: qs.stringify(data)
   })
 }
 

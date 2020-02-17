@@ -1,7 +1,6 @@
 <template>
   <div>
     <el-main class="main">
-      <!--      {{ goodsList }}-->
       <el-header class="header">
         <el-button type="primary" @click="addGood">新增</el-button>
         <el-form ref="ruleForm" :model="ruleForm" class="searchstyle">
@@ -72,7 +71,7 @@
 </template>
 
 <script>
-import { getGoodsList, addGoods, saveGoods } from '@/api/goods'
+import { getGoodsList, addGoods, saveGoods } from '@/api/goodsInfo/goods'
 import store from '@/store'
 
 export default {

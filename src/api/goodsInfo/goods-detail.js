@@ -16,3 +16,11 @@ export function getGoodsCategory(token) {
     params: token
   })
 }
+
+export function saveGoods(data) {
+  return request({
+    url: '/api/v1/admin-goods/save-goods',
+    method: 'post',
+    data: qs.stringify(data)
+  })
+}

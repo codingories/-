@@ -72,7 +72,7 @@
 </template>
 
 <script>
-import { getGoodsList, addGoods, saveGoods } from '@/api/goods'
+import { getGoodsList, addGoods, saveGoods } from '@/api/goodsInfo/goods'
 import store from '@/store'
 
 export default {
@@ -138,6 +138,8 @@ export default {
       obj.key_words = '大球类'
       getGoodsList(obj).then(
         res => {
+          console.log('获取goods类别')
+          console.log(res)
           this.goodsList = res.data.list.reverse()
         }
       )
