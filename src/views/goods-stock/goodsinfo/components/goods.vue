@@ -1,6 +1,7 @@
 <template>
   <div>
     <el-main class="main">
+      <h4>这是goods.vue</h4>
       <!--      {{ goodsList }}-->
       <el-header class="header">
         <el-button type="primary" @click="addGood">新增</el-button>
@@ -51,6 +52,17 @@
           </el-table>
         </div>
       </el-main>
+      <div class="block">
+        <span class="demonstration">完整功能</span>
+        <el-pagination
+          :current-page="currentPage"
+          :page-sizes="pageSize"
+          :page-size="pageSizeDefault"
+          :total="totalPage"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentPageChange"/>
+      </div>
     </el-main>
     <el-dialog
       :visible.sync="addGoodDialogFlag"
@@ -82,6 +94,10 @@ export default {
       codeForm: {
         code: ''
       },
+      pageSize: [10, 20, 100],
+      pageSizeDefault: 10,
+      totalPage: 150,
+      currentPage: 1,
       codeFormRules: {
         code: [
           { required: true, message: '请输入条形码', trigger: 'blur' },
@@ -108,6 +124,22 @@ export default {
     this.fetchGoodsList()
   },
   methods: {
+    handleSizeChange(val) {
+      // console.log(`每页 ${val} 条`)
+      // this.pageSizeDefault = val
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.page = 1
+      obj.num = val
+      this.useGetGoodsList(obj)
+    },
+    handleCurrentPageChange(val) {
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.page = val
+      obj.num = this.pageSizeDefault
+      this.useGetGoodsList(obj)
+    },
     confirmAddGood(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -117,6 +149,7 @@ export default {
           addGoods(obj).then(
             res => {
               this.$alert('提交成功')
+              location.reload()
             }
           )
           this.addGoodDialogFlag = false
@@ -135,12 +168,15 @@ export default {
     fetchGoodsList() {
       const obj = {}
       obj.access_token = this.access_token
-      obj.key_words = '大球类'
+      obj.page = 1
+      obj.num = 10
+      this.useGetGoodsList(obj)
+    },
+    useGetGoodsList(obj){
       getGoodsList(obj).then(
         res => {
-          console.log('获取goods类别')
-          console.log(res)
-          this.goodsList = res.data.list.reverse()
+          this.totalPage = res.data.total
+          this.goodsList = res.data.list
         }
       )
     },

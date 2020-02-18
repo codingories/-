@@ -1,5 +1,6 @@
 <template>
   <div class="wrapper">
+    <h4>这是detail.vue</h4>
     <el-button
       size="mini"
       type="primary"
@@ -140,11 +141,10 @@ export default {
         console.log('234')
         const obj = success.data[0]
         console.log(obj)
-        this.detailForm.code = obj.code
-        this.detailForm.goodsName = obj.goodsName
-        this.detailForm.menuName = obj.manuName
-        this.detailForm.spec = obj.spec
-        this.detailForm.img = obj.img
+        const list = ['code', 'goodsName', 'manuName', 'spec', 'img', 'feature', 'trademark', 'goodsType', 'ycg', 'note', 'price']
+        list.forEach(v => {
+          this.detailForm[v] = obj[v]
+        })
         console.log(this.detailForm)
       }, fail => {
         console.log(fail)

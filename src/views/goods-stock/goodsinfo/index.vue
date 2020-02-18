@@ -85,6 +85,7 @@ export default {
 
   .categorystyle {
     width: 500px;
+    /*border: 10px solid red;*/
   }
 
   .wrapper {

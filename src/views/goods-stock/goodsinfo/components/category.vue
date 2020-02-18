@@ -60,6 +60,7 @@
         <el-button type="primary" @click="confirmDeleteCategory('deleteCategoryFlag')">确认</el-button>
       </span>
     </el-dialog>
+
   </div>
 </template>
 
@@ -75,22 +76,23 @@ export default {
   },
   data() {
     return {
-      editCategoryFlag:false,
+      editCategoryFlag: false,
       deleteCategoryFlag: false,
       categoryForm: {
-        addCategoryName: '',
+        addCategoryName: ''
       },
       addCategoryFlag: false,
       access_token: store.getters.access_token,
       gradeInfoTable: [],
       goodsCategory: [],
-      chosenCategory: []
+      chosenCategory: [],
     }
   },
   created() {
     this.getCategory()
   },
   methods: {
+
     getCategory() {
       const obj = { 'access_token': this.access_token }
       getGoodsCategory(obj).then(
@@ -214,7 +216,7 @@ export default {
     confirmEditCategory(Flag) {
       const id = this.chosenCategory[0].id
       const parent_id = this.chosenCategory[0].parent_id
-      let obj = {}
+      const obj = {}
       obj.access_token = this.access_token
       obj.name = this.categoryForm.addCategoryName
       obj.id = id
@@ -245,15 +247,12 @@ export default {
 
   .aside {
     min-width: 500px;
-    max-width: 800px;
     overflow: auto;
     max-height: 90vh;
-    /* max-width: 85vh; */
-
     background-color: white;
     border-left: 10px solid #f9f9f9;
     margin-right: 10px;
-    box-shadow: 4px 5px 6px 0px rgba(182, 168, 168, 0.75);
+    box-shadow: 4px 5px 6px 0 rgba(182, 168, 168, 0.75);
     z-index: 1;
   }
 
