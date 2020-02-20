@@ -3,7 +3,7 @@
     <h4>物品仓储列表显示stockGoodsList</h4>
     <el-main class="main">
       <el-header class="header">
-        <el-button type="primary" @click="addGood">新增</el-button>
+        <el-button type="primary" @click="jumpTo">新增</el-button>
         <el-form ref="ruleForm" :model="ruleForm" class="searchstyle">
           <el-form-item prop="personName" class="setInline">
             <el-input v-model="ruleForm.personName" placeholder="请填写需要查询的内容"/>
@@ -157,8 +157,11 @@ export default {
         }
       )
     },
-    addGood() {
-      this.addGoodDialogFlag = true
+    jumpTo() {
+      console.log(this.$router)
+      this.$router.replace('/goods-stock-in')
+      // this.$router.push('/home')
+      // this.addGoodDialogFlag = true
     },
     toDetail(index, row) {
       this.$emit('changeFlag', row.id)

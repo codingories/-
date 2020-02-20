@@ -2,6 +2,7 @@
   <div>
     <el-main class="main">
       <h4>这是goods.vue</h4>
+      {{ row }}
       <!--      {{ goodsList }}-->
       <el-header class="header">
         <el-button type="primary" @click="addGood">新增</el-button>
@@ -88,6 +89,21 @@ import store from '@/store'
 
 export default {
   components: {},
+  props: {
+    row: {
+      required: true,
+      type: Array
+    }
+  },
+  watch: {
+    row(val) {
+      // console.log(123, '我是row', val)
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.category_id = val
+      this.useGetGoodsList(obj)
+    }
+  },
   data() {
     return {
       codeForm: {
@@ -169,7 +185,7 @@ export default {
       obj.num = 10
       this.useGetGoodsList(obj)
     },
-    useGetGoodsList(obj){
+    useGetGoodsList(obj) {
       getGoodsList(obj).then(
         res => {
           this.totalPage = res.data.total

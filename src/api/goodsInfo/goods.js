@@ -9,6 +9,15 @@ export function getGoodsList(token) {
   })
 }
 
+// export function getGoodsList(data) {
+//   return request({
+//     url: '/api/v1/admin-goods/goods-list',
+//     method: 'post',
+//     data: qs.stringify(data)
+//   })
+// }
+
+
 export function addGoods(data) {
   return request({
     url: '/api/v1/admin-goods/add-goods',

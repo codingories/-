@@ -8,8 +8,9 @@
         @upedit="upedit"
         @upconfirmedit="upconfirmedit"
         @upcanceledit="upcanceledit"
+        @click:GetRow="sendRowToGoods"
       />
-      <Goods v-show="ifGoodsShowFlag" class="wrapper" @changeFlag="changeFlag"/>
+      <Goods v-show="ifGoodsShowFlag" :row="row" class="wrapper" @changeFlag="changeFlag" />
       <Detail v-show="!ifGoodsShowFlag" :id="id" class="wrapper" @changeFlag="changeFlag"/>
     </el-container>
   </div>
@@ -31,7 +32,8 @@ export default {
       id: '0',
       ifGoodsShowFlag: true,
       editshow: true,
-      chooseFlag: false
+      chooseFlag: false,
+      row: []
     }
   },
   methods: {
@@ -52,6 +54,17 @@ export default {
         this.id = id.toString()
       }
       this.ifGoodsShowFlag = !this.ifGoodsShowFlag
+    },
+    sendRowToGoods(row) {
+      const ids = []
+      ids.push(row.id)
+      if (row.children) {
+        ids.push(...row.children.map(v => v.id))
+      }
+      console.log('row')
+      console.log(row)
+      // ids = row.map(v=>v.id)
+      this.row = ids
     }
   }
 
@@ -89,6 +102,7 @@ export default {
   }
 
   .wrapper {
+    border: 1px solid red;
     margin-left: 10px;
     margin-right: 10px;
     flex: 1;

@@ -1,6 +1,7 @@
 <template>
   <div>
     <el-aside class="aside">
+      {{ goodsCategory }}
       <el-table
         :data="goodsCategory"
         :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
@@ -11,11 +12,17 @@
         @selection-change="handleChosenCategory"
       >
         <el-table-column v-if="chooseFlag" prop="choose" label="编号" type="selection"/>
-        <el-table-column prop="text" label="物品分类"/>
+        <el-table-column prop="text" label="物品分类">
+          <template slot-scope="scope">
+            <div class="categoryItemStyle" @click="sendRowItem(scope.row)">
+              {{ scope.row.text }}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column prop="name" width="80px" label="排序号"/>
       </el-table>
       <div v-if="editshow" class="edit">
-        <el-button type="primary" class="editbutton" size="small" @click="edit">编辑</el-button>
+        <el-button type="primary" class="editButton" size="small" @click="edit">编辑</el-button>
       </div>
       <div v-else class="edit">
         <div class="edit1">
@@ -26,7 +33,7 @@
             <el-button type="primary" size="small" @click="moveUpCategory">上移</el-button>
             <el-button type="primary" size="small">下移</el-button>
           </div>
-          <el-button-group class="editbutton">
+          <el-button-group class="editButton">
             <el-button type="primary" icon="el-icon-check" size="small" @click="confirmedit"/>
             <el-button type="primary" icon="el-icon-close" size="small" @click="canceledit"/>
           </el-button-group>
@@ -85,7 +92,7 @@ export default {
       access_token: store.getters.access_token,
       gradeInfoTable: [],
       goodsCategory: [],
-      chosenCategory: [],
+      chosenCategory: []
     }
   },
   created() {
@@ -146,7 +153,6 @@ export default {
         this[Flag] = false
       } else if (this.chosenCategory.length === 1) {
         // 勾了一级菜单，为其增加二级菜单
-        console.log('11111')
         const id = this.chosenCategory[0].id
         this.addKind(id)
         this[Flag] = false
@@ -228,6 +234,9 @@ export default {
         }
       )
       this[Flag] = false
+    },
+    sendRowItem(row) {
+      this.$emit('click:GetRow', row)
     }
   }
 }
@@ -235,6 +244,12 @@ export default {
 </script>
 
 <style scoped>
+  .categoryItemStyle {
+    display: inline-block;
+    width: 80%;
+    cursor: pointer;
+  }
+
   .edit {
     display: flex;
     justify-content: flex-end;
@@ -256,8 +271,7 @@ export default {
     z-index: 1;
   }
 
-  .editbutton {
-    /* border: 1px solid red; */
+  .editButton {
     margin-right: 10px;
     margin-bottom: 10px;
   }
