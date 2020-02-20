@@ -1,5 +1,6 @@
 <template>
   <div class="app-container">
+    {{warehouseForm}}
     <div v-if="pageShowFlag" class="firstPageStyle">
       <h2>{{ title1 }}</h2>
       <el-button type="primary" @click="stockIn">入库</el-button>
@@ -37,18 +38,18 @@
           <el-select v-model="warehouseForm.warehouse" placeholder="请选择仓库" value="">
             <el-option
               v-for="(i,index) in warehouseList"
-              :label="i.warehouseName"
-              :value="i.warehouseName"
+              :label="i.name"
+              :value="i.id"
               :key="index"
             />
           </el-select>
         </el-form-item>
         <el-form-item label="供应商" prop="dept" class="setInline">
-          <el-select v-model="warehouseForm.supplies" placeholder="请选择供应商" value="">
+          <el-select v-model="warehouseForm.suppliers" placeholder="请选择供应商" value="">
             <el-option
               v-for="(i,index) in suppliersList"
-              :label="i.supplier"
-              :value="i.supplier"
+              :label="i.name"
+              :value="i.id"
               :key="index"
             />
           </el-select>
@@ -57,8 +58,8 @@
           <el-select v-model="warehouseForm.purchasingMethod" placeholder="请选择采购方式" value="">
             <el-option
               v-for="(i,index) in purchasingMethodList"
-              :label="i.purchasingMethod"
-              :value="i.purchasingMethod"
+              :label="i.mode"
+              :value="i.id"
               :key="index"
             />
           </el-select>
@@ -71,6 +72,8 @@
           <el-input v-model="ruleForm.personName" placeholder="物品编号" style="width:400px"/>
         </el-form-item>
         <el-button type="primary">添加</el-button>
+        <el-button type="success">选择</el-button>
+
       </el-form>
       <el-table
         ref="multipleTable"
@@ -115,7 +118,7 @@
         />
       </div>
       <section class="footer">
-        <el-button type="primary">入库</el-button>
+        <el-button type="primary" @click="xxx">入库</el-button>
         <el-button type="danger">取消</el-button>
       </section>
     </div>
@@ -124,9 +127,13 @@
 </template>
 
 <script>
+import { getWarehouseList, getSupplierList } from '@/api/goods-stock-in/goods-stock-in.js'
+import store from '@/store'
+
 export default {
   data() {
     return {
+      access_token: store.getters.access_token,
       pageShowFlag: true,
       backPageFlag: false,
       title1: '入库情况',
@@ -139,29 +146,17 @@ export default {
       },
       currentPage: 1,
       total: 10,
-      warehouseList: [
-        {
-          warehouseName: '仓库一'
-        },
-        {
-          warehouseName: '仓库二'
-        }
-      ],
-      suppliersList: [
-        {
-          supplier: '供应商一'
-        },
-        {
-          supplier: '供应商二'
-        }
-      ],
+      warehouseList: [],
+      suppliersList: [],
       purchasingMethodList: [
         {
-          purchasingMethod: '采购方式一'
+          id: 1,
+          mode: '集中采购'
         },
         {
-          purchasingMethod: '采购方式二'
-        }
+          id: 2,
+          mode: '自行采购'
+        },
       ],
       ruleForm: {
         personName: '',
@@ -173,14 +168,12 @@ export default {
         status: '',
         gender: '1',
         role: ''
-      },
-
+      }
     }
   },
   watch: {
     warehouseForm: {
       handler(newValue, oldValue) {
-        // console.log(newValue.warehouse);
         if (newValue.warehouse === '') {
           this.backPageFlag = false
         } else {
@@ -191,8 +184,43 @@ export default {
       immediate: false
     }
   },
+  created() {
+    this.useGetWarehouseList()
+    this.useGetSupplierList()
+  },
 
   methods: {
+    xxx() {
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.warehouses_id = this.warehouseForm.warehouse
+      obj.supplier_id = this.warehouseForm.suppliers
+      obj.mode = this.warehouseForm.purchasingMethod
+      console.log(obj)
+      console.log('开始ruku')
+    },
+    useGetWarehouseList(){
+      const obj = {}
+      obj.access_token = this.access_token
+      getWarehouseList(obj).then(
+        res => {
+          this.warehouseList = res.data
+        }
+      )
+    },
+
+    // getSupplierList
+    useGetSupplierList() {
+      const obj = {}
+      obj.access_token = this.access_token
+      getSupplierList(obj).then(
+        res => {
+          console.log('---')
+          console.log(res)
+          this.suppliersList = res.data
+        }
+      )
+    },
     stockIn() {
       this.pageShowFlag = !this.pageShowFlag
     },
