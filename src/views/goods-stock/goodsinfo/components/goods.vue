@@ -53,7 +53,6 @@
         </div>
       </el-main>
       <div class="block">
-        <span class="demonstration">完整功能</span>
         <el-pagination
           :current-page="currentPage"
           :page-sizes="pageSize"
@@ -125,8 +124,6 @@ export default {
   },
   methods: {
     handleSizeChange(val) {
-      // console.log(`每页 ${val} 条`)
-      // this.pageSizeDefault = val
       const obj = {}
       obj.access_token = this.access_token
       obj.page = 1

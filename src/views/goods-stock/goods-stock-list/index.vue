@@ -4,37 +4,39 @@
       <Category
         class="categorystyle"
       />
-<!--      <Goods v-show="ifGoodsShowFlag" class="wrapper" @changeFlag="changeFlag"/>-->
+      <stockGoodsList v-show="ifGoodsShowFlag" class="wrapper" @changeFlag="changeFlag"/>
 <!--      <Detail v-show="!ifGoodsShowFlag" :id="id" class="wrapper" @changeFlag="changeFlag"/>-->
     </el-container>
   </div>
 </template>
 
 <script>
-import {
-  getWarehouseList,
-  getSupplierList,
-  addStocks,
-  getWarehouseActionList,
-  queryGoodsList,
-  addOutAction
-} from '@/api/goods-stock-list.js'
+// import {
+//   getWarehouseList,
+//   getSupplierList,
+//   addStocks,
+//   getWarehouseActionList,
+//   queryGoodsList,
+//   addOutAction
+// } from '@/api/goods-stock-list/goods-stock-list.js'
 
 import Category from './components/category'
-import Goods from './components/goods'
+import stockGoodsList from './components/stockGoodsList'
 import Detail from './components/detail'
 
 import store from '@/store'
 export default {
   components: {
     Category,
-    Goods,
+    stockGoodsList,
     Detail
   },
   data() {
     return {
       title: '物品仓储列表',
-      access_token: store.getters.access_token
+      access_token: store.getters.access_token,
+      ifGoodsShowFlag: 'true',
+      changeFlag: 'true'
     }
   },
   created() {
@@ -43,7 +45,7 @@ export default {
     // this.useAddStocks()
     // this.useGetWarehouseActionList()
     // this.useQueryGoodsList()
-    this.useAddOutAction()
+    // this.useAddOutAction()
   },
   methods: {
     getList() {
@@ -112,6 +114,11 @@ export default {
 }
 </script>
 <style scoped>
+.container {
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: row;
+}
 .setInline {
   display: inline-block;
 }
@@ -121,4 +128,10 @@ export default {
 /* #goodlist {
   border: 2px solid blue;
 } */
+  .wrapper{
+    margin-left: 10px;
+    margin-right: 10px;
+    flex: 1;
+    overflow: auto;
+  }
 </style>

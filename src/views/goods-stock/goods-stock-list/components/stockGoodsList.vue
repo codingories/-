@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h4>物品仓储列表显示stockGoodsList</h4>
     <el-main class="main">
       <el-header class="header">
         <el-button type="primary" @click="addGood">新增</el-button>
@@ -15,39 +16,27 @@
           <el-table
             id="goodlist"
             ref="multipleTable"
-            :data="goodsList"
+            :data="stocksGoodsList"
             style="width: 100%"
           >
             <el-table-column prop="choose" label="编号" type="selection"/>
             <el-table-column prop="id" label="序号"/>
-            <el-table-column prop="code" label="条形码"/>
+            <el-table-column prop="goods_code" label="条形码"/>
             <el-table-column prop="goodsName" label="商品名"/>
-            <el-table-column prop="manuName" label="商品品牌"/>
             <el-table-column prop="spec" label="规格"/>
-            <el-table-column prop="img" label="图片">
-              <template slot-scope="scope">
-                <span style="margin-left: 10px">
-                  <el-popover
-                    placement="right"
-                    trigger="hover"
-                  >
-                    <span slot="reference">图片</span>
-                    <img :src="scope.row.img" alt="图片" style="max-height: 500px;max-width: 500px">
-                  </el-popover>
-                </span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="school" label="操作	">
-              <template slot-scope="scope">
-                <el-button
-                  size="mini"
-                  type="primary"
-                  @click="toDetail(scope.$index, scope.row)"
-                >详情
-                </el-button>
-              </template>
-            </el-table-column>
+            <el-table-column prop="warehouse_name" label="仓库名"/>
+            <el-table-column prop="goods_num" label="数量"/>
           </el-table>
+        </div>
+        <div class="block">
+          <el-pagination
+            :current-page="currentPage"
+            :page-sizes="pageSize"
+            :page-size="pageSizeDefault"
+            :total="totalPage"
+            layout="total, sizes, prev, pager, next, jumper"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentPageChange"/>
         </div>
       </el-main>
     </el-main>
@@ -72,12 +61,18 @@
 
 <script>
 import { getGoodsList, addGoods, saveGoods } from '@/api/goodsInfo/goods'
+import { getStocksGoodsList } from '@/api/goods-stock-list/stockGoodsList'
+
 import store from '@/store'
 
 export default {
   components: {},
   data() {
     return {
+      currentPage: 1,
+      pageSize: [10, 20, 50],
+      pageSizeDefault: 10,
+      totalPage: 150,
       codeForm: {
         code: ''
       },
@@ -100,13 +95,27 @@ export default {
         gender: '1',
         role: ''
       },
-      goodsList: [],
+      stocksGoodsList: [],
     }
   },
   created() {
-    this.fetchGoodsList()
+    this.fetchStocksGoodsList()
   },
   methods: {
+    handleSizeChange(val) {
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.page = 1
+      obj.num = val
+      this.useGetStocksGoodsList(obj)
+    },
+    handleCurrentPageChange(val) {
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.page = val
+      obj.num = this.pageSizeDefault
+      this.useGetStocksGoodsList(obj)
+    },
     confirmAddGood(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -131,13 +140,20 @@ export default {
         })
         .catch(_ => {})
     },
-    fetchGoodsList() {
+    fetchStocksGoodsList(){
       const obj = {}
       obj.access_token = this.access_token
-      obj.key_words = ''
-      getGoodsList(obj).then(
+      obj.page = 1
+      obj.num = 10
+      this.useGetStocksGoodsList(obj)
+    },
+    useGetStocksGoodsList(obj) {
+      getStocksGoodsList(obj).then(
         res => {
-          this.goodsList = res.data.list.reverse()
+          console.log('res')
+          console.log(res)
+          this.totalPage = res.data.total
+          this.stocksGoodsList = res.data.list
         }
       )
     },

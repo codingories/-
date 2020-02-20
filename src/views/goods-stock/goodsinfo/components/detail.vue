@@ -9,8 +9,8 @@
     </el-button>
     <div>
       <el-form ref="detailForm" :model="detailForm" :rules="detailFormRules" label-width="100px">
-        <el-form-item label="分类" prop="kind">
-          <el-select v-model="detailForm.kind" placeholder="请填写分类" value="">
+        <el-form-item label="分类" prop="category_id">
+          <el-select v-model="detailForm.category_id" placeholder="请填写分类" value="">
             <el-option
               v-for="item in categoryOption"
               :key="item.value"
@@ -95,14 +95,14 @@ export default {
     return {
       categoryOption: [],
       featureOption: [{
-        value: '1',
+        value: 1,
         label: '易耗品'
       }, {
-        value: '2',
+        value: 2,
         label: '耐耗品'
       }],
       detailForm: {
-        kind: '',
+        category_id: '',
         feature: '',
         username: '',
         code: '',
@@ -132,20 +132,16 @@ export default {
   },
   watch: {
     id(val) {
-      console.log('这里是watch')
-      console.log(val)
       const access_token = this.access_token
-      const id = val
-      const obj = { id, access_token }
+      const obj = { id: val, access_token }
       getGoodDetail(obj).then(success => {
-        console.log('234')
-        const obj = success.data[0]
-        console.log(obj)
-        const list = ['code', 'goodsName', 'manuName', 'spec', 'img', 'feature', 'trademark', 'goodsType', 'ycg', 'note', 'price']
+        const obj = success.data
+        const list = ['category_id', 'code', 'goodsName', 'manuName', 'spec', 'img', 'feature', 'trademark', 'goodsType', 'ycg', 'note', 'price']
         list.forEach(v => {
-          this.detailForm[v] = obj[v]
+          if (obj[v]) {
+            this.detailForm[v] = obj[v]
+          }
         })
-        console.log(this.detailForm)
       }, fail => {
         console.log(fail)
       })
