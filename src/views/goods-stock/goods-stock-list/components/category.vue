@@ -11,7 +11,13 @@
         @selection-change="handleChosenCategory"
       >
         <el-table-column prop="choose" label="编号" type="selection"/>
-        <el-table-column prop="text" label="物品分类"/>
+        <el-table-column prop="text" label="物品分类">
+          <template slot-scope="scope">
+            <div class="categoryItemStyle" @click="sendRowItem(scope.row)">
+              {{ scope.row.text }}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column prop="name" width="80px" label="排序号"/>
       </el-table>
 
@@ -204,15 +210,6 @@ export default {
 </script>
 
 <style scoped>
-  .edit {
-    display: flex;
-    justify-content: flex-end;
-  }
-
-  .edit1 {
-    display: flex;
-    justify-content: space-between;
-  }
 
   .aside {
     min-width: 500px;
@@ -228,9 +225,9 @@ export default {
     z-index: 1;
   }
 
-  .editbutton {
-    /* border: 1px solid red; */
-    margin-right: 10px;
-    margin-bottom: 10px;
+  .categoryItemStyle {
+    display: inline-block;
+    width: 80%;
+    cursor: pointer;
   }
 </style>

@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import { getGoodsList, addGoods, saveGoods } from '@/api/goodsInfo/goods'
+// import { getGoodsList, addGoods, saveGoods } from '@/api/goodsInfo/goods'
 import { getStocksGoodsList } from '@/api/goods-stock-list/stockGoodsList'
 
 import store from '@/store'
