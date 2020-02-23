@@ -3,8 +3,9 @@
     <el-container class="container">
       <Category
         class="categorystyle"
+        @click:GetRow="sendRowToGoods"
       />
-      <stockGoodsList v-show="ifGoodsShowFlag" class="wrapper" @changeFlag="changeFlag"/>
+      <stockGoodsList :row="row" v-show="ifGoodsShowFlag" class="wrapper" @changeFlag="changeFlag"/>
 <!--      <Detail v-show="!ifGoodsShowFlag" :id="id" class="wrapper" @changeFlag="changeFlag"/>-->
     </el-container>
   </div>
@@ -36,7 +37,8 @@ export default {
       title: '物品仓储列表',
       access_token: store.getters.access_token,
       ifGoodsShowFlag: 'true',
-      changeFlag: 'true'
+      changeFlag: 'true',
+      row: []
     }
   },
   created() {
@@ -108,6 +110,16 @@ export default {
           console.log(res.data)
         }
       )
+    },
+    sendRowToGoods(row) {
+      const ids = []
+      ids.push(row.id)
+      if (row.children) {
+        ids.push(...row.children.map(v => v.id))
+      }
+      console.log('row')
+      console.log(row)
+      this.row = ids
     }
   }
 

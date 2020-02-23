@@ -1,18 +1,18 @@
 <template>
   <div class="app-container">
-    {{warehouseForm}}
     <div v-if="pageShowFlag" class="firstPageStyle">
       <h2>{{ title1 }}</h2>
+      <h3>调用接口:/api/v1/admin-stocks/warehouse-action-list,入库操作列表</h3>
       <el-button type="primary" @click="stockIn">入库</el-button>
       <el-table
-        ref="gradeInfoTable"
-        :data="gradeInfoTable"
+        ref="warehouseActionList"
+        :data="warehouseActionList"
         style="width: 100%"
         @selection-change="handleSelection"
       >
-        <el-table-column prop="choose" label="入库物品" />
-        <el-table-column prop="id" label="入库时间" />
-        <el-table-column prop="school" label="仓库名" />
+        <el-table-column prop="barcode" label="入库物品" />
+        <el-table-column prop="created_at" label="入库时间" />
+        <el-table-column prop="name" label="仓库名" />
         <el-table-column prop="grade" label="入库数量" />
         <el-table-column prop="class" label="操作时间" />
       </el-table>
@@ -69,25 +69,26 @@
     <div v-if="backPageFlag" class="secondPageStylePartTwo">
       <el-form ref="warehouseForm" :model="warehouseForm" label-width="100px" class="goodsCode">
         <el-form-item label="物品编码" prop="dept" class="setInline">
-          <el-input v-model="ruleForm.personName" placeholder="物品编号" style="width:400px"/>
+          <el-input v-model="codeForm.code" placeholder="物品编号" style="width:400px"/>
         </el-form-item>
-        <el-button type="primary">添加</el-button>
-        <el-button type="success">选择</el-button>
-
+        <el-button type="primary" @click="addByCode">添加</el-button>
+        <el-button type="success" @click="chooseShowFlag">选择</el-button>
       </el-form>
+      <h5>{{ codeForm.code }}</h5>
+      <h5>{{ codeList }}</h5>
+      <h4>添加用​/api​/v1​/admin-goods​/goods-list,物品列表,查询条码</h4>
+      <!--      <h4>物品列表:/api/v1/admin-goods/goods-list</h4>-->
       <el-table
         ref="multipleTable"
-        :data="gradeInfoTable"
+        :data="GoodsList"
         style="width: 100%"
         @selection-change="handleSelection"
       >
-        <el-table-column prop="choose" label="序号" />
-        <el-table-column prop="id" label="编码" />
-        <el-table-column prop="school" label="物品名称" />
-        <el-table-column prop="grade" label="品牌" />
-        <el-table-column prop="class" label="分类" />
-        <el-table-column prop="class" label="单价" />
-        <el-table-column prop="class" label="单位" />
+        <el-table-column prop="id" label="序号" />
+        <el-table-column prop="code" label="条码" />
+        <el-table-column prop="goodsName" label="物品名称" />
+        <el-table-column prop="trademark" label="品牌" />
+        <el-table-column prop="spec" label="规格" />
         <el-table-column prop="number" label="数量" width="200">
           <template slot-scope="scope">
             <el-input-number
@@ -100,7 +101,7 @@
         </el-table-column>
         <el-table-column prop="class" label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" type="danger" @click="DeleteGood(scope.$index, scope.row)">删除</el-button>
+            <el-button size="mini" type="danger" @click="deleteGood(scope.$index, scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -118,27 +119,56 @@
         />
       </div>
       <section class="footer">
-        <el-button type="primary" @click="xxx">入库</el-button>
+        <el-button type="primary" @click="inStock">入库</el-button>
         <el-button type="danger">取消</el-button>
       </section>
     </div>
-
+    <el-dialog
+      :visible.sync="dialogVisible"
+      :before-close="handleClose"
+      title="选择"
+      width="70%">
+      <el-container class="container">
+        <Category
+          class="categorystyle"
+          @click:GetRow="sendRowToGoods"
+        />
+        <Goods :row="row" class="wrapper" @update:codeList="updateCodeList"/>
+      </el-container>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addByChoose">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getWarehouseList, getSupplierList } from '@/api/goods-stock-in/goods-stock-in.js'
+import { getWarehouseList, getSupplierList, getWarehouseActionList, getGoodsList } from '@/api/goods-stock-in/goods-stock-in.js'
 import store from '@/store'
+import Category from './components/category'
+import Goods from './components/goods'
 
 export default {
+  components: {
+    Category,
+    Goods
+  },
   data() {
     return {
+      codeList: [],
+      codeForm: {
+        code: ''
+      },
+      GoodsList: [],
+      row: [],
+      dialogVisible: false,
       access_token: store.getters.access_token,
       pageShowFlag: true,
       backPageFlag: false,
       title1: '入库情况',
       title2: '入库操作',
-      gradeInfoTable: [],
+      warehouseActionList: [],
       warehouseForm: {
         warehouse: '',
         suppliers: '',
@@ -156,7 +186,7 @@ export default {
         {
           id: 2,
           mode: '自行采购'
-        },
+        }
       ],
       ruleForm: {
         personName: '',
@@ -187,10 +217,78 @@ export default {
   created() {
     this.useGetWarehouseList()
     this.useGetSupplierList()
+    this.useGetWarehouseActionList()
   },
 
   methods: {
-    xxx() {
+    addminusvalue(val) {
+      console.log(val)
+    },
+    updateCodeList(codeList) {
+      this.codeList = codeList
+    },
+    addByChoose() {
+      console.log('addByChoose')
+      console.log(this.codeList)
+      this.codeList.forEach(
+        code => {
+          const obj = {}
+          obj.access_token = this.access_token
+          obj.code = code
+          this.useGetGoodsList(obj)
+        }
+      )
+      this.dialogVisible = false
+    },
+    addByCode() {
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.code = this.codeForm.code
+      console.log('进行添加')
+      console.log(obj)
+      this.useGetGoodsList(obj)
+    },
+    useGetGoodsList(obj) {
+      getGoodsList(obj).then(
+        res => {
+          console.log('33333333')
+          const obj = res.data.list[0]
+          obj.number = 1
+          // console.log(obj.id)
+          const id = obj.id
+          console.log()
+          const list = this.GoodsList.map(v => v.id)
+          let index = list.indexOf(id)
+          if (index !== -1) {
+            this.GoodsList[index].number += 1
+          } else {
+            this.GoodsList.push(obj)
+          }
+        }
+      )
+    },
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done()
+        })
+        .catch(_ => {})
+    },
+    chooseShowFlag() {
+      this.dialogVisible = true
+      console.log('chooseShowFlag')
+    },
+    useGetWarehouseActionList() {
+      const access_token = this.access_token
+      getWarehouseActionList({ access_token }).then(
+        res => {
+          console.log('res----')
+          this.warehouseActionList = res.data
+          console.log(res.data)
+        }
+      )
+    },
+    inStock() {
       const obj = {}
       obj.access_token = this.access_token
       obj.warehouses_id = this.warehouseForm.warehouse
@@ -199,7 +297,7 @@ export default {
       console.log(obj)
       console.log('开始ruku')
     },
-    useGetWarehouseList(){
+    useGetWarehouseList() {
       const obj = {}
       obj.access_token = this.access_token
       getWarehouseList(obj).then(
@@ -244,12 +342,32 @@ export default {
       this.usersInfoTable = []
       this.fetchUsersData()
     },
-
+    sendRowToGoods(row) {
+      const ids = []
+      ids.push(row.id)
+      if (row.children) {
+        ids.push(...row.children.map(v => v.id))
+      }
+      console.log('row')
+      console.log(row)
+      this.row = ids
+    },
+    deleteGood(index, row) {
+      console.log(index, row)
+      console.log(this.GoodsList)
+      console.log(this.GoodsList.length)
+      this.GoodsList.splice(index, 1)
+    }
   }
 }
 
 </script>
 <style lang = 'scss' scoped>
+  .container {
+    border-top: 12px solid #f9f9f9;
+    display: flex;
+    justify-content: flex-start;
+  }
   .setInline {
     display: inline-block;
   }
@@ -275,5 +393,12 @@ export default {
   }
   .goodsCode {
     margin-left: -20px;
+  }
+
+  .wrapper {
+    margin-left: 10px;
+    margin-right: 10px;
+    flex: 1;
+    overflow: auto;
   }
 </style>

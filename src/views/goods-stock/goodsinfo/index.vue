@@ -63,7 +63,6 @@ export default {
       }
       console.log('row')
       console.log(row)
-      // ids = row.map(v=>v.id)
       this.row = ids
     }
   }
@@ -102,7 +101,6 @@ export default {
   }
 
   .wrapper {
-    border: 1px solid red;
     margin-left: 10px;
     margin-right: 10px;
     flex: 1;

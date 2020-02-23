@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-aside class="aside">
-      {{ goodsCategory }}
+<!--      {{ goodsCategory }}-->
       <el-table
         :data="goodsCategory"
         :tree-props="{children: 'children', hasChildren: 'hasChildren'}"

@@ -17,6 +17,22 @@ export function getSupplierList(token) {
   })
 }
 
+export function getGoodsList(data) {
+  return request({
+    url: '/api/v1/admin-goods/goods-list',
+    method: 'post',
+    data: qs.stringify(data)
+  })
+}
+
+export function getWarehouseActionList(token) {
+  return request({
+    url: '/api/v1/admin-stocks/warehouse-action-list',
+    method: 'get',
+    params: token
+  })
+}
+
 // export function getSupplierList(data) {
 //   return request({
 //     url: '/api/v1/admin-stocks/supplier-list',

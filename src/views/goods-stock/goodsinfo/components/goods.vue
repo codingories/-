@@ -1,8 +1,8 @@
 <template>
   <div>
     <el-main class="main">
-      <h4>这是goods.vue</h4>
-      {{ row }}
+<!--      <h4>这是goods.vue</h4>-->
+<!--      {{ row }}-->
       <!--      {{ goodsList }}-->
       <el-header class="header">
         <el-button type="primary" @click="addGood">新增</el-button>
@@ -79,7 +79,6 @@
         <el-button type="primary" @click="confirmAddGood('codeForm')">确 定</el-button>
       </span>
     </el-dialog>
-
   </div>
 </template>
 
@@ -100,7 +99,7 @@ export default {
       // console.log(123, '我是row', val)
       const obj = {}
       obj.access_token = this.access_token
-      obj.category_id = val
+      obj.category_id = val.toString()
       this.useGetGoodsList(obj)
     }
   },
