@@ -14,6 +14,7 @@
       </el-header>
       <el-main class="innermain">
         <div>
+          {{stocksGoodsList}}
           <el-table
             id="goodlist"
             ref="multipleTable"
@@ -24,6 +25,7 @@
             <el-table-column prop="id" label="序号"/>
             <el-table-column prop="goods_code" label="条形码"/>
             <el-table-column prop="goodsName" label="商品名"/>
+<!--            <el-table-column prop="trademark" label="商品品牌"/>-->
             <el-table-column prop="spec" label="规格"/>
             <el-table-column prop="warehouse_name" label="仓库名"/>
             <el-table-column prop="goods_num" label="数量"/>

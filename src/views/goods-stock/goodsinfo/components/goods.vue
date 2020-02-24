@@ -25,7 +25,7 @@
             <el-table-column prop="id" label="序号"/>
             <el-table-column prop="code" label="条形码"/>
             <el-table-column prop="goodsName" label="商品名"/>
-            <el-table-column prop="manuName" label="商品品牌"/>
+            <el-table-column prop="trademark" label="商品品牌"/>
             <el-table-column prop="spec" label="规格"/>
             <el-table-column prop="img" label="图片">
               <template slot-scope="scope">

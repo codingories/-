@@ -3,6 +3,7 @@
     <div v-if="pageShowFlag" class="firstPageStyle">
       <h2>{{ title1 }}</h2>
       <h3>调用接口:/api/v1/admin-stocks/warehouse-action-list,入库操作列表</h3>
+      {{warehouseActionList}}
       <el-button type="primary" @click="stockIn">入库</el-button>
       <el-table
         ref="warehouseActionList"
@@ -144,7 +145,7 @@
 </template>
 
 <script>
-import { getWarehouseList, getSupplierList, getWarehouseActionList, getGoodsList } from '@/api/goods-stock-in/goods-stock-in.js'
+import { getWarehouseList, getSupplierList, getWarehouseActionList, getGoodsList,addStocks } from '@/api/goods-stock-in/goods-stock-in.js'
 import store from '@/store'
 import Category from './components/category'
 import Goods from './components/goods'
@@ -249,23 +250,27 @@ export default {
       this.useGetGoodsList(obj)
     },
     useGetGoodsList(obj) {
-      getGoodsList(obj).then(
-        res => {
-          console.log('33333333')
-          const obj = res.data.list[0]
-          obj.number = 1
-          // console.log(obj.id)
-          const id = obj.id
-          console.log()
-          const list = this.GoodsList.map(v => v.id)
-          let index = list.indexOf(id)
-          if (index !== -1) {
-            this.GoodsList[index].number += 1
-          } else {
-            this.GoodsList.push(obj)
+      if(obj.code === ''){
+        return
+      }else {
+        getGoodsList(obj).then(
+          res => {
+            console.log('33333333')
+            const obj = res.data.list[0]
+            obj.number = 1
+            // console.log(obj.id)
+            const id = obj.id
+            console.log()
+            const list = this.GoodsList.map(v => v.id)
+            let index = list.indexOf(id)
+            if (index !== -1) {
+              this.GoodsList[index].number += 1
+            } else {
+              this.GoodsList.push(obj)
+            }
           }
-        }
-      )
+        )
+      }
     },
     handleClose(done) {
       this.$confirm('确认关闭？')
@@ -293,9 +298,17 @@ export default {
       obj.access_token = this.access_token
       obj.warehouses_id = this.warehouseForm.warehouse
       obj.supplier_id = this.warehouseForm.suppliers
+      obj.barcode = this.GoodsList.map(v => v.code).toString()
       obj.mode = this.warehouseForm.purchasingMethod
-      console.log(obj)
-      console.log('开始ruku')
+      obj.storage_num = this.GoodsList.map(v => v.number).toString()
+      addStocks(obj).then(res => {
+        console.log(res)
+        this.$alert('入库成功')
+        location.reload()
+      },
+      () => {
+        this.$alert('入库失败, 请检查参数')
+      })
     },
     useGetWarehouseList() {
       const obj = {}

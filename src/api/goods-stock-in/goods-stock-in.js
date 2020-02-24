@@ -25,6 +25,15 @@ export function getGoodsList(data) {
   })
 }
 
+export function addStocks(data) {
+  return request({
+    url: '/api/v1/admin-stocks/add-stocks',
+    method: 'post',
+    data: qs.stringify(data)
+  })
+}
+
+
 export function getWarehouseActionList(token) {
   return request({
     url: '/api/v1/admin-stocks/warehouse-action-list',

@@ -1,85 +1,85 @@
-import request from "@/utils/request";
-import qs from "qs";
+import request from '@/utils/request'
+import qs from 'qs'
 
 export function getRoles(params) {
   return request({
-    url: "/api/v1/admin-role/index",
-    method: "get",
+    url: '/api/v1/admin-role/index',
+    method: 'get',
     params
-  });
+  })
 }
 
 export function getTotalMenuList(params) {
   return request({
-    url: "/api/v1/admin-menu/index",
-    method: "get",
+    url: '/api/v1/admin-menu/index',
+    method: 'get',
     params
-  });
+  })
 }
 
 export function authorizeRoles(data) {
   return request({
-    url: "/api/v1/admin-role/save",
-    method: "post",
+    url: '/api/v1/admin-role/save',
+    method: 'post',
     data: qs.stringify(data)
-  });
+  })
 }
 
 export function delRoles(params) {
   return request({
-    url: "/api/v1/admin-role/del",
-    method: "get",
+    url: '/api/v1/admin-role/del',
+    method: 'get',
     params
-  });
+  })
 }
 
 export function getRoleInfo(params) {
   return request({
-    url: "/api/v1/admin-role/show",
-    method: "get",
+    url: '/api/v1/admin-role/show',
+    method: 'get',
     params
-  });
+  })
 }
 
 export function frozenRole(params) {
   return request({
-    url: "/api/v1/admin-role/activate",
-    method: "get",
+    url: '/api/v1/admin-role/activate',
+    method: 'get',
     params
-  });
+  })
 }
 
 export function distributeUser(params) {
-  console.log("params");
-  console.log(params);
+  console.log('params')
+  console.log(params)
   return request({
-    url: "/api/v1/admin-role/distribute-user",
-    method: "post",
+    url: '/api/v1/admin-role/distribute-user',
+    method: 'post',
     // params
     data: qs.stringify(params)
-  });
+  })
 }
 // /api/v1/attendance_adjust/set
 
 export function setAttendance(params) {
-  console.log("params");
-  console.log(params);
+  console.log('params')
+  console.log(params)
   return request({
-    url: "/api/v1/attendance_adjust/set",
-    method: "post",
+    url: '/api/v1/attendance_adjust/set',
+    method: 'post',
     data: qs.stringify(params)
-  });
+  })
 }
 
 export function getUsers(params) {
-  console.log("params");
-  console.log(params);
+  console.log('params')
+  console.log(params)
   return request({
-    url: "/api/v1/admin-role/user-list",
-    method: "get",
-    headers: { "content-type": "application/json" },
+    url: '/api/v1/admin-role/user-list',
+    method: 'get',
+    headers: { 'content-type': 'application/json' },
     params
-  });
+  })
 }
 
 // request.put(
