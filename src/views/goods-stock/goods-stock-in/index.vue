@@ -2,8 +2,8 @@
   <div class="app-container">
     <div v-if="pageShowFlag" class="firstPageStyle">
       <h2>{{ title1 }}</h2>
-      <h3>调用接口:/api/v1/admin-stocks/warehouse-action-list,入库操作列表</h3>
-      {{warehouseActionList}}
+<!--      <h3>调用接口:/api/v1/admin-stocks/warehouse-action-list,入库操作列表</h3>-->
+<!--      {{warehouseActionList}}-->
       <el-button type="primary" @click="stockIn">入库</el-button>
       <el-table
         ref="warehouseActionList"
@@ -11,11 +11,11 @@
         style="width: 100%"
         @selection-change="handleSelection"
       >
-        <el-table-column prop="barcode" label="入库物品" />
+        <el-table-column prop="goods_name" label="入库物品" />
+        <el-table-column prop="barcode" label="条形码" />
         <el-table-column prop="created_at" label="入库时间" />
         <el-table-column prop="name" label="仓库名" />
-        <el-table-column prop="grade" label="入库数量" />
-        <el-table-column prop="class" label="操作时间" />
+        <el-table-column prop="storage_num" label="入库数量" />
       </el-table>
 
       <div class="block">
@@ -131,7 +131,7 @@
       width="70%">
       <el-container class="container">
         <Category
-          class="categorystyle"
+          class="categoryStyle"
           @click:GetRow="sendRowToGoods"
         />
         <Goods :row="row" class="wrapper" @update:codeList="updateCodeList"/>
@@ -145,7 +145,7 @@
 </template>
 
 <script>
-import { getWarehouseList, getSupplierList, getWarehouseActionList, getGoodsList,addStocks } from '@/api/goods-stock-in/goods-stock-in.js'
+import { getWarehouseList, getSupplierList, getWarehouseActionList, getGoodsList, addStocks } from '@/api/goods-stock-in/goods-stock-in.js'
 import store from '@/store'
 import Category from './components/category'
 import Goods from './components/goods'
@@ -380,6 +380,7 @@ export default {
     border-top: 12px solid #f9f9f9;
     display: flex;
     justify-content: flex-start;
+    height: 50vh;
   }
   .setInline {
     display: inline-block;
@@ -414,4 +415,7 @@ export default {
     flex: 1;
     overflow: auto;
   }
+  /*.categoryStyle {*/
+  /*  overflow: auto;*/
+  /*}*/
 </style>

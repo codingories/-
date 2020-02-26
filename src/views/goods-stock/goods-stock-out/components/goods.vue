@@ -1,47 +1,59 @@
 <template>
   <div>
-<!--    <h4>物品仓储列表显示stockGoodsList</h4>-->
-<!--    {{row}}-->
     <el-main class="main">
-      <el-header class="header">
-        <el-button type="primary" @click="jumpTo">新增</el-button>
-        <el-form ref="ruleForm" :model="ruleForm" class="searchstyle">
-          <el-form-item prop="personName" class="setInline">
-            <el-input v-model="ruleForm.personName" placeholder="请填写需要查询的内容"/>
-          </el-form-item>
-        </el-form>
-        <el-button type="primary">查询</el-button>
-      </el-header>
+<!--      <h4>这是goods.vue</h4>-->
+<!--      {{ row }}-->
+      <!--      {{ goodsList }}-->
       <el-main class="innermain">
         <div>
-<!--          {{stocksGoodsList}}-->
           <el-table
             id="goodlist"
             ref="multipleTable"
-            :data="stocksGoodsList"
+            :data="goodsList"
             style="width: 100%"
+            @selection-change="handleSelectionChange"
           >
             <el-table-column prop="choose" label="编号" type="selection"/>
-            <el-table-column prop="id" label="序号"/>
-            <el-table-column prop="goods_code" label="条形码"/>
+            <el-table-column prop="code" label="条形码"/>
             <el-table-column prop="goodsName" label="商品名"/>
-<!--            <el-table-column prop="trademark" label="商品品牌"/>-->
+            <el-table-column prop="trademark" label="商品品牌"/>
             <el-table-column prop="spec" label="规格"/>
-            <el-table-column prop="warehouse_name" label="仓库名"/>
-            <el-table-column prop="goods_num" label="数量"/>
+            <el-table-column prop="img" label="图片">
+              <template slot-scope="scope">
+                <span style="margin-left: 10px">
+                  <el-popover
+                    placement="right"
+                    trigger="hover"
+                  >
+                    <span slot="reference">图片</span>
+                    <img :src="scope.row.img" alt="图片" style="max-height: 500px;max-width: 500px">
+                  </el-popover>
+                </span>
+              </template>
+            </el-table-column>
+<!--            <el-table-column prop="school" label="操作	">-->
+<!--              <template slot-scope="scope">-->
+<!--                <el-button-->
+<!--                  size="mini"-->
+<!--                  type="primary"-->
+<!--                  @click="toDetail(scope.$index, scope.row)"-->
+<!--                >详情-->
+<!--                </el-button>-->
+<!--              </template>-->
+<!--            </el-table-column>-->
           </el-table>
         </div>
-        <div class="block">
-          <el-pagination
-            :current-page="currentPage"
-            :page-sizes="pageSize"
-            :page-size="pageSizeDefault"
-            :total="totalPage"
-            layout="total, sizes, prev, pager, next, jumper"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentPageChange"/>
-        </div>
       </el-main>
+      <div class="block">
+        <el-pagination
+          :current-page="currentPage"
+          :page-sizes="pageSize"
+          :page-size="pageSizeDefault"
+          :total="totalPage"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentPageChange"/>
+      </div>
     </el-main>
     <el-dialog
       :visible.sync="addGoodDialogFlag"
@@ -58,43 +70,30 @@
         <el-button type="primary" @click="confirmAddGood('codeForm')">确 定</el-button>
       </span>
     </el-dialog>
-
   </div>
 </template>
 
 <script>
-// import { getGoodsList, addGoods, saveGoods } from '@/api/goodsInfo/goods'
-import { getStocksGoodsList } from '@/api/goods-stock-list/stockGoodsList'
-
+import { getGoodsList, addGoods, saveGoods } from '@/api/goodsInfo/goods'
 import store from '@/store'
 
 export default {
+  components: {},
   props: {
     row: {
       required: true,
       type: Array
     }
   },
-  watch: {
-    row(val) {
-      console.log(223, '我是row', val)
-      const obj = {}
-      obj.access_token = this.access_token
-      console.log(val)
-      obj.category_id = val.toString()
-      this.useGetStocksGoodsList(obj)
-    }
-  },
-  components: {},
   data() {
     return {
-      currentPage: 1,
-      pageSize: [10, 20, 50],
-      pageSizeDefault: 10,
-      totalPage: 150,
       codeForm: {
         code: ''
       },
+      pageSize: [10, 20, 100],
+      pageSizeDefault: 10,
+      totalPage: 150,
+      currentPage: 1,
       codeFormRules: {
         code: [
           { required: true, message: '请输入条形码', trigger: 'blur' },
@@ -114,26 +113,43 @@ export default {
         gender: '1',
         role: ''
       },
-      stocksGoodsList: [],
+      goodsList: []
+    }
+  },
+  watch: {
+    row(val) {
+      // console.log(123, '我是row', val)
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.category_id = val.toString()
+      this.useGetGoodsList(obj)
     }
   },
   created() {
-    this.fetchStocksGoodsList()
+    this.fetchGoodsList()
   },
   methods: {
+    handleSelectionChange(val) {
+      this.multipleSelection = val
+      const list = val.map(v => {
+        return v.code
+      })
+      console.log(list)
+      this.$emit('update:codeList', list)
+    },
     handleSizeChange(val) {
       const obj = {}
       obj.access_token = this.access_token
       obj.page = 1
       obj.num = val
-      this.useGetStocksGoodsList(obj)
+      this.useGetGoodsList(obj)
     },
     handleCurrentPageChange(val) {
       const obj = {}
       obj.access_token = this.access_token
       obj.page = val
       obj.num = this.pageSizeDefault
-      this.useGetStocksGoodsList(obj)
+      this.useGetGoodsList(obj)
     },
     confirmAddGood(formName) {
       this.$refs[formName].validate((valid) => {
@@ -144,6 +160,7 @@ export default {
           addGoods(obj).then(
             res => {
               this.$alert('提交成功')
+              location.reload()
             }
           )
           this.addGoodDialogFlag = false
@@ -159,28 +176,23 @@ export default {
         })
         .catch(_ => {})
     },
-    fetchStocksGoodsList(){
+    fetchGoodsList() {
       const obj = {}
       obj.access_token = this.access_token
       obj.page = 1
       obj.num = 10
-      this.useGetStocksGoodsList(obj)
+      this.useGetGoodsList(obj)
     },
-    useGetStocksGoodsList(obj) {
-      getStocksGoodsList(obj).then(
+    useGetGoodsList(obj) {
+      getGoodsList(obj).then(
         res => {
-          console.log('res')
-          console.log(res)
           this.totalPage = res.data.total
-          this.stocksGoodsList = res.data.list
+          this.goodsList = res.data.list
         }
       )
     },
-    jumpTo() {
-      console.log(this.$router)
-      this.$router.replace('/goods-stock-in')
-      // this.$router.push('/home')
-      // this.addGoodDialogFlag = true
+    addGood() {
+      this.addGoodDialogFlag = true
     },
     toDetail(index, row) {
       this.$emit('changeFlag', row.id)

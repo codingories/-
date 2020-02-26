@@ -63,24 +63,24 @@
       <h4>选择的接口调用:/api/v1/admin-role/user-list</h4>
       <h2>领用物品</h2>
       <div class="secondpage">
-        <el-form ref="warehouseform" :model="warehouseform" label-width="100px" class="goodscode">
+        <el-form :model="warehouseform" label-width="100px" class="goodscode">
           <el-form-item label="物品编码" prop="dept" class="setInline">
-            <el-input v-model="ruleForm.personName" placeholder="物品编号" style="width:400px"/>
+            <el-input v-model="codeForm.code" placeholder="物品编号" style="width:400px"/>
           </el-form-item>
-          <el-button type="primary">手工选择</el-button>
+          <el-button type="primary" @click="addByCode">添加</el-button>
+          <el-button type="success" @click="changeChooseShowFlag">选择</el-button>
         </el-form>
         <el-table
           ref="multipleTable"
-          :data="gradeInfoTable"
+          :data="GoodsList"
           style="width: 100%"
           @selection-change="handleSelection"
         >
-          <el-table-column prop="choose" label="序号"/>
-          <el-table-column prop="id" label="编码"/>
-          <el-table-column prop="school" label="物品"/>
-          <el-table-column prop="grade" label="品牌"/>
-          <el-table-column prop="class" label="类别"/>
-          <el-table-column prop="class" label="规格"/>
+          <el-table-column prop="id" label="序号"/>
+          <el-table-column prop="code" label="条码" />
+          <el-table-column prop="goodsName" label="物品名称" />
+          <el-table-column prop="trademark" label="品牌" />
+          <el-table-column prop="spec" label="规格" />
           <el-table-column prop="number" label="数量" width="200">
             <template slot-scope="scope">
               <el-input-number
@@ -91,11 +91,11 @@
               />
             </template>
           </el-table-column>
-          <el-table-column prop="class" label="操作">
-            <template slot-scope="scope">
-              <el-button size="mini" type="danger" @click="DeleteGood(scope.$index, scope.row)">删除</el-button>
-            </template>
-          </el-table-column>
+          <!--          <el-table-column prop="class" label="操作">-->
+          <!--            <template slot-scope="scope">-->
+          <!--              <el-button size="mini" type="danger" @click="DeleteGood(scope.$index, scope.row)">删除</el-button>-->
+          <!--            </template>-->
+          <!--          </el-table-column>-->
         </el-table>
 
         <div class="block">
@@ -111,7 +111,7 @@
           />
         </div>
         <section class="footer">
-          <el-button type="primary">领用</el-button>
+          <el-button type="primary" @click="receiveGoods">领用</el-button>
           <el-button type="danger">取消</el-button>
         </section>
       </div>
@@ -189,6 +189,23 @@
         </section>
       </div>
     </div>
+    <el-dialog
+      :visible.sync="dialogVisible"
+      :before-close="handleClose"
+      title="选择"
+      width="70%">
+      <el-container class="container">
+        <Category
+          class="categoryStyle"
+          @click:GetRow="sendRowToGoods"
+        />
+        <Goods :row="row" class="wrapper" @update:codeList="updateCodeList"/>
+      </el-container>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addByChoose">确 定</el-button>
+      </span>
+    </el-dialog>
 
     <el-dialog :visible.sync="chooseShowFlag" :before-close="handleClose" title="选择领用人" width="400px">
       <div class="receiverStyle">
@@ -212,486 +229,635 @@
 </template>
 
 <script>
-  import {
-    getUsers,
-    getDpet,
-    getRoles,
-    getAttendance,
-    saveuserinfo,
-    getMenus
-  } from '@/api/UserManagement.js'
+import {
+  getUsers,
+  getDpet,
+  getRoles,
+  getAttendance,
+  saveuserinfo,
+  getMenus
+} from '@/api/UserManagement.js'
+import { getGoodsList } from '@/api/goods-stock-in/goods-stock-in.js'
 
-  import buttonpermission from '@/mixins/buttonpermission.js'
+import buttonpermission from '@/mixins/buttonpermission.js'
 
-  import { getUserList, getOutActionList } from '@/api/goods-stock-out.js'
+import { getUserList, getOutActionList, addOutAction } from '@/api/goods-stock-out.js'
 
-  import store from '@/store'
+import store from '@/store'
+import Category from './components/category'
+import Goods from './components/goods'
 
-  export default {
-    mixins: [buttonpermission],
-    data() {
-      return {
-        i: 0,
-        outActionList: [],
-        userList: [],
-        defaultProps: {
-          children: 'children',
-          label: 'name'
-        },
-        chooseShowFlag: false,
-        pageFlag: 'true',
-        pageFlag1: 'false',
-        pageFlag2: 'false',
-        title: '出库详情',
-        buttonPermission: store.getters.buttonPermission,
-        gradeInfoTable: [
-          { id: 1, gradename: '小班', ifGraduation: '否' },
-          { id: 2, gradename: '中班', ifGraduation: '否' },
-          { id: 3, gradename: '大班', ifGraduation: '否' }
+export default {
+  components: {
+    Category,
+    Goods
+  },
+  mixins: [buttonpermission],
+  data() {
+    return {
+      codeForm: {
+        code: ''
+      },
+      row: [],
+      dialogVisible: false,
+      GoodsList: [],
+      i: 0,
+      outActionList: [],
+      userList: [],
+      defaultProps: {
+        children: 'children',
+        label: 'name'
+      },
+      chooseShowFlag: false,
+      pageFlag: 'true',
+      pageFlag1: 'false',
+      pageFlag2: 'false',
+      title: '出库详情',
+      buttonPermission: store.getters.buttonPermission,
+      gradeInfoTable: [
+        { id: 1, gradename: '小班', ifGraduation: '否' },
+        { id: 2, gradename: '中班', ifGraduation: '否' },
+        { id: 3, gradename: '大班', ifGraduation: '否' }
+      ],
+      receiverTable: [{ department: '', receiver: '', search: '' }],
+      gradeInfoTable1: [{ id: 1, gradename: '小班', ifGraduation: '否' }],
+      warehouseform: {
+        warehouse: '',
+        suppliers: '',
+        purchasingmethod: ''
+      },
+      GoodsList: [],
+      attendancemap: {},
+      rolemap: {},
+      deptList: [],
+      userid: '',
+      username: '',
+      role_id: [],
+      dept_id: 0,
+      position: '',
+      attendance_group_id: '',
+      ruleForm: {
+        personName: '',
+        JobNumber: '',
+        phone: '',
+        dept_id: '',
+        password: '',
+        confirmPassword: '',
+        status: '',
+        gender: '1',
+        role: ''
+      },
+      rules: {
+        status: [{ required: true, message: '选择状态', trigger: 'change' }],
+        roles: [{ required: true, message: '选择角色', trigger: 'change' }],
+        confirmPassword: [
+          {
+            required: true,
+            // message: "请重复填写密码",
+            trigger: 'change',
+            validator: this.validatorRepeatPassword
+          }
         ],
-        receiverTable: [{ department: '', receiver: '', search: '' }],
-        gradeInfoTable1: [{ id: 1, gradename: '小班', ifGraduation: '否' }],
-        warehouseform: {
-          warehouse: '',
-          suppliers: '',
-          purchasingmethod: ''
-        },
-
-        attendancemap: {},
-        rolemap: {},
-        deptList: [],
-        userid: '',
-        username: '',
-        role_id: [],
-        dept_id: 0,
-        position: '',
-        attendance_group_id: '',
-        ruleForm: {
-          personName: '',
-          JobNumber: '',
-          phone: '',
-          dept_id: '',
-          password: '',
-          confirmPassword: '',
-          status: '',
-          gender: '1',
-          role: ''
-        },
-        rules: {
-          status: [{ required: true, message: '选择状态', trigger: 'change' }],
-          roles: [{ required: true, message: '选择角色', trigger: 'change' }],
-          confirmPassword: [
-            {
-              required: true,
-              // message: "请重复填写密码",
-              trigger: 'change',
-              validator: this.validatorRepeatPassword
-            }
-          ],
-          password: [
-            {
-              required: true,
-              message: '请填写密码',
-              trigger: 'change'
-            }
-          ],
-          personName: [
-            { required: true, message: '请填写姓名', trigger: 'change' }
-          ],
-          JobNumber: [
-            { required: true, message: '请填写工号', trigger: 'change' }
-          ],
-          phone: [{ required: true, message: '请填写工号', trigger: 'change' }],
-          dept: [{ required: true, message: '请选择部门', trigger: 'change' }]
-        },
-        total: 10,
-        pageSizes: 10,
-        pageSize: 10,
-        currentPage: 1,
-        userTableTitle: [
-          { label: '选择', prop: 'choose', type: 'selection' },
-          { label: 'id', prop: 'id' },
-          { label: '年级名称', prop: 'gradename' },
-          { label: '是否毕业年', prop: 'ifGraduation' },
-          { label: '操作', prop: 'handle', type: 'selection' }
+        password: [
+          {
+            required: true,
+            message: '请填写密码',
+            trigger: 'change'
+          }
         ],
-        access_token: store.getters.access_token,
-        getUsersLoading: false,
-        usersInfoTable: [],
-        currentPage: 1,
-        checkedList: [],
-        editUsersShow: false
+        personName: [
+          { required: true, message: '请填写姓名', trigger: 'change' }
+        ],
+        JobNumber: [
+          { required: true, message: '请填写工号', trigger: 'change' }
+        ],
+        phone: [{ required: true, message: '请填写工号', trigger: 'change' }],
+        dept: [{ required: true, message: '请选择部门', trigger: 'change' }]
+      },
+      total: 10,
+      pageSizes: 10,
+      pageSize: 10,
+      currentPage: 1,
+      userTableTitle: [
+        { label: '选择', prop: 'choose', type: 'selection' },
+        { label: 'id', prop: 'id' },
+        { label: '年级名称', prop: 'gradename' },
+        { label: '是否毕业年', prop: 'ifGraduation' },
+        { label: '操作', prop: 'handle', type: 'selection' }
+      ],
+      access_token: store.getters.access_token,
+      getUsersLoading: false,
+      usersInfoTable: [],
+      currentPage: 1,
+      checkedList: [],
+      editUsersShow: false
+    }
+  },
+
+  computed: {
+    tableHeader: function() {
+      return this.getTableHeader(this.tableYear, this.tableMonth)
+    }
+    // buttonfunctionlist: function() {
+    //   // for(let i of this.mocklist)
+    //   let k;
+    //   let title = this.tilte;
+    //   for (let i of this.mocklist) {
+    //     k = i.children.filter(v => v.title === this.title);
+    //   }
+    //   let buttonlist = k[0].children.map(v => v.title);
+    //   return buttonlist;
+    // }
+  },
+  watch: {},
+
+  created() {
+    // this.getbuttonmenus()
+    // this.fetchUsersData()
+    // this.getRolesList()
+    // this.getAttendanceList()
+    // this.getDepartment()
+    this.useGetOutActionList()
+  },
+
+  methods: {
+    receiveGoods() {
+      console.log(this.GoodsList)
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.barcode = this.GoodsList.map(v => v.code).toString()
+      obj.out_num = this.GoodsList.map(v => v.number).toString()
+      obj.approver_id = this.receiverTable[0].id
+      console.log(obj)
+      addOutAction(obj).then(res => {
+        console.log(res)
+        this.$alert('出库成功')
+        location.reload()
+      },
+      () => {
+        this.$alert('出库失败, 请检查参数')
+      })
+
+      // console.log(this.GoodsList.map(v => v.code))
+      // console.log(this.GoodsList.map(v => v.out_num))
+
+      // const obj = {}
+      // obj.access_token = this.access_token
+      // obj.warehouses_id = this.warehouseForm.warehouse
+      // obj.supplier_id = this.warehouseForm.suppliers
+      // obj.barcode = this.GoodsList.map(v => v.code).toString()
+      // obj.mode = this.warehouseForm.purchasingMethod
+      // obj.storage_num = this.GoodsList.map(v => v.number).toString()
+      // addStocks(obj).then(res => {
+      //     console.log(res)
+      //     this.$alert('入库成功')
+      //     location.reload()
+      //   },
+      //   () => {
+      //     this.$alert('入库失败, 请检查参数')
+      //   })
+    },
+    changeChooseShowFlag() {
+      this.dialogVisible = true
+      console.log('chooseShowFlag')
+    },
+    addminusvalue(val) {
+      console.log(val)
+    },
+    addByCode() {
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.code = this.codeForm.code
+      console.log('进行添加')
+      console.log(obj)
+      this.useGetgoodsList(obj)
+    },
+    useGetgoodsList(obj) {
+      if (obj.code === '') {
+        return
+      } else {
+        getGoodsList(obj).then(
+          res => {
+            console.log('33333333')
+            const obj = res.data.list[0]
+            console.log(obj)
+            obj.number = 1
+            // console.log(obj.id)
+            const id = obj.id
+            const list = this.GoodsList.map(v => v.id)
+            const index = list.indexOf(id)
+            if (index !== -1 && this.GoodsList.length !== 0) {
+              console.log('-1-1-1')
+              this.GoodsList[index].number += 1
+            } else {
+              console.log('pushpushpush')
+              this.GoodsList.push(obj)
+            }
+          }
+        )
       }
     },
-
-    computed: {
-      tableHeader: function() {
-        return this.getTableHeader(this.tableYear, this.tableMonth)
+    updateCodeList(codeList) {
+      this.codeList = codeList
+    },
+    addByChoose() {
+      console.log('addByChoose')
+      console.log(this.codeList)
+      this.codeList.forEach(
+        code => {
+          const obj = {}
+          obj.access_token = this.access_token
+          obj.code = code
+          console.log('objobjobj')
+          console.log(obj)
+          this.useGetGoodsList(obj)
+        }
+      )
+      this.dialogVisible = false
+    },
+    useGetGoodsList(obj) {
+      if (obj.code === '') {
+        return
+      } else {
+        getGoodsList(obj).then(
+          res => {
+            console.log('33333333')
+            console.log(res.data)
+            const obj = res.data.list[0]
+            obj.number = 1
+            // console.log(obj.id)
+            const id = obj.id
+            console.log('this.GoodsList')
+            console.log(this.GoodsList)
+            const list = this.GoodsList.map(v => v.id)
+            const index = list.indexOf(id)
+            if (index !== -1) {
+              this.GoodsList[index].number += 1
+            } else {
+              this.GoodsList.push(obj)
+            }
+            console.log('GoodsList')
+            console.log(this.GoodsList)
+          }
+        )
       }
-      // buttonfunctionlist: function() {
-      //   // for(let i of this.mocklist)
-      //   let k;
-      //   let title = this.tilte;
-      //   for (let i of this.mocklist) {
-      //     k = i.children.filter(v => v.title === this.title);
-      //   }
-      //   let buttonlist = k[0].children.map(v => v.title);
-      //   return buttonlist;
+    },
+    useGetOutActionList() {
+      const obj = {}
+      obj.access_token = this.access_token
+      getOutActionList(obj).then(
+        res => {
+          console.log(res)
+          this.outActionList = res.data.list
+        }
+      )
+    },
+    singlePick(data, checked, node) {
+      this.i++
+      if (this.i % 2 === 0) {
+        if (checked) {
+          this.$refs.receiverTree.setCheckedNodes([])
+          this.$refs.receiverTree.setCheckedNodes([data])
+          // 交叉点击节点
+        } else {
+          this.$refs.receiverTree.setCheckedNodes([])
+          // 点击已经选中的节点，置空
+        }
+      }
+
+      // if (pickList.length !== 0){
+      //   console.log(pickList[0])
+      //   console.log(pickList[1])
       // }
     },
-    watch: {},
+    cancelreceiver() {
+      this.chooseShowFlag = false
+      this.$refs.receiverTree.setCheckedKeys([])
+    },
+    confirmReceiver() {
+      // console.log('data')
+      // const pickList = this.$refs.receiverTree.getCheckedNodes()
+      // console.log('pickList')
+      // console.log(pickList)
 
-    created() {
-      // this.getbuttonmenus()
-      // this.fetchUsersData()
-      // this.getRolesList()
-      // this.getAttendanceList()
-      // this.getDepartment()
-      this.useGetOutActionList()
+      const totalList = this.$refs.receiverTree
+        .getHalfCheckedNodes()
+        .concat(this.$refs.receiverTree.getCheckedNodes())
+
+      console.log('totalList')
+      console.log(totalList)
+
+      const department = totalList[0].name
+      const receiver = totalList[1].name
+      console.log(department, receiver)
+      this.receiverTable[0].department = department
+      this.receiverTable[0].receiver = receiver
+      this.receiverTable[0].id = totalList[1].id
+      this.chooseShowFlag = false
+    },
+    chooseReceiver() {
+      console.log(111)
+      this.chooseShowFlag = true
+      const obj = { access_token: this.access_token }
+      getUserList(obj).then(
+        res => {
+          console.log(res.data)
+          const obj = JSON.stringify(res.data).replace(
+            /"name":null/g,
+            '"name":"其他"'
+          ).replace(/"id":null/g, '"id":999')
+            .replace(/"pid":null/g, '"pid":999')
+          this.userList = JSON.parse(obj)
+        }
+      )
+    },
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done()
+        })
+        .catch(_ => {
+        })
+    },
+    receive() {
+      console.log('123')
+      this.pageFlag = !this.pageFlag
+      this.pageFlag1 = !this.pageFlag1
+    },
+    distribute() {
+      this.pageFlag = !this.pageFlag
+      this.pageFlag2 = !this.pageFlag2
+    },
+    goback1() {
+      this.pageFlag = !this.pageFlag
+      this.pageFlag1 = !this.pageFlag1
+    },
+    goback2() {
+      this.pageFlag = !this.pageFlag
+      this.pageFlag2 = !this.pageFlag2
+    },
+    hasPermission(permission) {
+      console.log('permission')
+      console.log(permission)
+      let flag = false
+      for (const i of this.buttonfunctionlist) {
+        if (i === permission) {
+          flag = true
+        }
+      }
+      return flag
+    },
+    getbuttonmenus() {
+      const access_token = this.access_token
+      const obj = { access_token }
+
+      getMenus(obj).then(success => {
+        console.log('getMenus')
+        console.log(success.data)
+        const controllist = success.data
+      })
+    },
+    getAttendanceList() {
+      const access_token = this.access_token
+      const obj = { access_token }
+      getAttendance(obj).then(success => {
+        for (const i of success.data) {
+          this.$set(this.attendancemap, i.name, i.id)
+        }
+      })
+    },
+    getRolesList() {
+      const access_token = this.access_token
+      const obj = { access_token }
+      getRoles(obj).then(success => {
+        for (const i of success.data) {
+          this.$set(this.rolemap, i.name, i.id)
+        }
+      })
+    },
+    validatorRepeatPassword(rule, value, callback) {
+      if (value === '') {
+        callback(new Error('请重复输入密码'))
+      } else if (value !== this.ruleForm.password) {
+        callback(new Error('两次密码输入不同'))
+      }
+    },
+    editUsers() {
+      console.log(123)
+      if (this.checkedList.length === 0) {
+        this.$alert('未勾选，请选择一个选项')
+          .then(() => {
+          })
+          .catch(() => {
+          })
+      } else if (this.checkedList.length >= 2) {
+        this.$alert('只能选择一个选项')
+          .then(() => {
+          })
+          .catch(() => {
+          })
+      } else {
+        this.editUsersShow = true
+      }
+    },
+    getDepartment() {
+      const obj = { access_token: this.access_token }
+      console.log(obj)
+      getDpet(obj).then(res => {
+        this.deptList = res.data
+      })
+    },
+    confirmEditUsers(attr) {
+      this.$confirm('确认提交？')
+        .then(_ => {
+          console.log(_)
+          console.log('1233211')
+          // console.log(this.ruleForm);
+          // console.log(this.userid);
+
+          // console.log(this.ruleForm);
+          const obj = {
+            access_token: this.access_token,
+            id: this.userid,
+            username: this.username,
+            name: this.ruleForm.personName,
+            workno: this.ruleForm.JobNumber,
+            gender: this.ruleForm.gender,
+            mobile: this.ruleForm.phone,
+            password: this.ruleForm.password,
+            repassword: this.ruleForm.confirmPassword,
+            role_id: this.role_id,
+            dept_id: this.ruleForm.dept_id,
+            attendance_group_id:
+                this.attendancemap[this.ruleForm.attendance_group_id] || 0
+          }
+          // let role_id = this.role_id
+          obj.role_id = []
+          console.log(obj)
+
+          // let obj = {
+          //   access_token: this.access_token,
+          //   id: this.userid,
+          //   username: this.username,
+          //   name: this.ruleForm.personName,
+          //   dept_id: this.ruleForm.dept_id
+          // };
+
+          console.log('objobjobj1234')
+          console.log(obj)
+          // let obj = { id: 38, username: "guwq", dept_id: 9, name: "顾文取" };
+          // obj.access_token = this.access_token;
+
+          saveuserinfo(obj).then(success => {
+            // console.log(success);
+            location.reload()
+          })
+          // this[attr] = false;
+        })
+        .catch(_ => {
+        })
+    },
+    cancelDiag(attr) {
+      this.$confirm('确认取消？')
+        .then(_ => {
+          this[attr] = false
+        })
+        .catch(_ => {
+        })
+    },
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done()
+        })
+        .catch(_ => {
+        })
     },
 
-    methods: {
-      useGetOutActionList() {
-        const obj = {}
-        obj.access_token = this.access_token
-        getOutActionList(obj).then(
-          res => {
-            console.log(res)
-            this.outActionList = res.data.list
-          }
+    handleSelection(val) {
+      this.checkedList = val
+      if (this.checkedList.length === 1) {
+        console.log(this.checkedList)
+        this.ruleForm.dept = this.checkedList[0].dept
+        this.ruleForm.personName = this.checkedList[0].name
+        this.ruleForm.JobNumber = this.checkedList[0].workno
+        this.ruleForm.phone = this.checkedList[0].mobile
+        // this.ruleForm.dept_id = this.checkedList[0].mobile;
+        this.userid = this.checkedList[0].id
+        this.username = this.checkedList[0].username
+
+        this.role_id = this.checkedList[0].role.map(v => this.rolemap[v])
+        this.ruleForm.attendance_group_id = this.checkedList[0].attendance_group
+
+        const tempdept = this.checkedList[0].dept
+        if (typeof tempdept === 'string') {
+          console.log('这个是string')
+          this.ruleForm.dept_id = this.deptList.filter(
+            v => v.dept_name === tempdept
+          )[0].id
+        }
+        // this.dept_id = this.checkedList[0].dept;
+
+        this.position = this.checkedList[0].position
+
+        console.log(this.role_id)
+
+        console.log(
+          this.userid,
+          this.username,
+          this.role_id,
+          this.dept_id,
+          this.position,
+          this.attendance_group_id
         )
-      },
-      singlePick(data, checked, node) {
-        this.i++
-        if (this.i % 2 === 0) {
-          if (checked) {
-            this.$refs.receiverTree.setCheckedNodes([])
-            this.$refs.receiverTree.setCheckedNodes([data])
-            // 交叉点击节点
-          } else {
-            this.$refs.receiverTree.setCheckedNodes([])
-            // 点击已经选中的节点，置空
-          }
-        }
 
-        // if (pickList.length !== 0){
-        //   console.log(pickList[0])
-        //   console.log(pickList[1])
-        // }
-      },
-      cancelreceiver() {
-        this.chooseShowFlag = false
-        this.$refs.receiverTree.setCheckedKeys([])
-      },
-      confirmReceiver() {
-        // console.log('data')
-        // const pickList = this.$refs.receiverTree.getCheckedNodes()
-        // console.log('pickList')
-        // console.log(pickList)
-
-        const totalList = this.$refs.receiverTree
-          .getHalfCheckedNodes()
-          .concat(this.$refs.receiverTree.getCheckedNodes())
-        const department = totalList[0].name
-        const receiver = totalList[1].name
-        console.log(department, receiver)
-        this.receiverTable[0].department = department
-        this.receiverTable[0].receiver = receiver
-        this.chooseShowFlag = false
-      },
-      chooseReceiver() {
-        console.log(111)
-        this.chooseShowFlag = true
-        const obj = { access_token: this.access_token }
-        getUserList(obj).then(
-          res => {
-            console.log(res.data)
-            const obj = JSON.stringify(res.data).replace(
-              /"name":null/g,
-              '"name":"其他"'
-            ).replace(/"id":null/g, '"id":999')
-              .replace(/"pid":null/g, '"pid":999')
-            this.userList = JSON.parse(obj)
-          }
-        )
-      },
-      handleClose(done) {
-        this.$confirm('确认关闭？')
-          .then(_ => {
-            done()
-          })
-          .catch(_ => {
-          })
-      },
-      receive() {
-        console.log('123')
-        this.pageFlag = !this.pageFlag
-        this.pageFlag1 = !this.pageFlag1
-      },
-      distribute() {
-        this.pageFlag = !this.pageFlag
-        this.pageFlag2 = !this.pageFlag2
-      },
-      goback1() {
-        this.pageFlag = !this.pageFlag
-        this.pageFlag1 = !this.pageFlag1
-      },
-      goback2() {
-        this.pageFlag = !this.pageFlag
-        this.pageFlag2 = !this.pageFlag2
-      },
-      hasPermission(permission) {
-        console.log('permission')
-        console.log(permission)
-        let flag = false
-        for (const i of this.buttonfunctionlist) {
-          if (i === permission) {
-            flag = true
-          }
-        }
-        return flag
-      },
-      getbuttonmenus() {
-        const access_token = this.access_token
-        const obj = { access_token }
-
-        getMenus(obj).then(success => {
-          console.log('getMenus')
-          console.log(success.data)
-          const controllist = success.data
-        })
-      },
-      getAttendanceList() {
-        const access_token = this.access_token
-        const obj = { access_token }
-        getAttendance(obj).then(success => {
-          for (const i of success.data) {
-            this.$set(this.attendancemap, i.name, i.id)
-          }
-        })
-      },
-      getRolesList() {
-        const access_token = this.access_token
-        const obj = { access_token }
-        getRoles(obj).then(success => {
-          for (const i of success.data) {
-            this.$set(this.rolemap, i.name, i.id)
-          }
-        })
-      },
-      validatorRepeatPassword(rule, value, callback) {
-        if (value === '') {
-          callback(new Error('请重复输入密码'))
-        } else if (value !== this.ruleForm.password) {
-          callback(new Error('两次密码输入不同'))
-        }
-      },
-      editUsers() {
-        console.log(123)
-        if (this.checkedList.length === 0) {
-          this.$alert('未勾选，请选择一个选项')
-            .then(() => {
-            })
-            .catch(() => {
-            })
-        } else if (this.checkedList.length >= 2) {
-          this.$alert('只能选择一个选项')
-            .then(() => {
-            })
-            .catch(() => {
-            })
-        } else {
-          this.editUsersShow = true
-        }
-      },
-      getDepartment() {
-        const obj = { access_token: this.access_token }
-        console.log(obj)
-        getDpet(obj).then(res => {
-          this.deptList = res.data
-        })
-      },
-      confirmEditUsers(attr) {
-        this.$confirm('确认提交？')
-          .then(_ => {
-            console.log(_)
-            console.log('1233211')
-            // console.log(this.ruleForm);
-            // console.log(this.userid);
-
-            // console.log(this.ruleForm);
-            const obj = {
-              access_token: this.access_token,
-              id: this.userid,
-              username: this.username,
-              name: this.ruleForm.personName,
-              workno: this.ruleForm.JobNumber,
-              gender: this.ruleForm.gender,
-              mobile: this.ruleForm.phone,
-              password: this.ruleForm.password,
-              repassword: this.ruleForm.confirmPassword,
-              role_id: this.role_id,
-              dept_id: this.ruleForm.dept_id,
-              attendance_group_id:
-                this.attendancemap[this.ruleForm.attendance_group_id] || 0
-            }
-            // let role_id = this.role_id
-            obj.role_id = []
-            console.log(obj)
-
-            // let obj = {
-            //   access_token: this.access_token,
-            //   id: this.userid,
-            //   username: this.username,
-            //   name: this.ruleForm.personName,
-            //   dept_id: this.ruleForm.dept_id
-            // };
-
-            console.log('objobjobj1234')
-            console.log(obj)
-            // let obj = { id: 38, username: "guwq", dept_id: 9, name: "顾文取" };
-            // obj.access_token = this.access_token;
-
-            saveuserinfo(obj).then(success => {
-              // console.log(success);
-              location.reload()
-            })
-            // this[attr] = false;
-          })
-          .catch(_ => {
-          })
-      },
-      cancelDiag(attr) {
-        this.$confirm('确认取消？')
-          .then(_ => {
-            this[attr] = false
-          })
-          .catch(_ => {
-          })
-      },
-      handleClose(done) {
-        this.$confirm('确认关闭？')
-          .then(_ => {
-            done()
-          })
-          .catch(_ => {
-          })
-      },
-
-      handleSelection(val) {
-        this.checkedList = val
-        if (this.checkedList.length === 1) {
-          console.log(this.checkedList)
-          this.ruleForm.dept = this.checkedList[0].dept
-          this.ruleForm.personName = this.checkedList[0].name
-          this.ruleForm.JobNumber = this.checkedList[0].workno
-          this.ruleForm.phone = this.checkedList[0].mobile
-          // this.ruleForm.dept_id = this.checkedList[0].mobile;
-          this.userid = this.checkedList[0].id
-          this.username = this.checkedList[0].username
-
-          this.role_id = this.checkedList[0].role.map(v => this.rolemap[v])
-          this.ruleForm.attendance_group_id = this.checkedList[0].attendance_group
-
-          const tempdept = this.checkedList[0].dept
-          if (typeof tempdept === 'string') {
-            console.log('这个是string')
-            this.ruleForm.dept_id = this.deptList.filter(
-              v => v.dept_name === tempdept
-            )[0].id
-          }
-          // this.dept_id = this.checkedList[0].dept;
-
-          this.position = this.checkedList[0].position
-
-          console.log(this.role_id)
-
-          console.log(
-            this.userid,
-            this.username,
-            this.role_id,
-            this.dept_id,
-            this.position,
-            this.attendance_group_id
-          )
-
-          //         role_id: "",
-          // dept_id: "",
-          // position: "",
-          // attendance_group_id: "",
-        }
-      },
-      handleSizeChange(val) {
-        console.log(`每页 ${val} 条`)
-        this.pageSize = val
-        this.usersInfoTable = []
-        this.fetchUsersData()
-      },
-      handleCurrentChange(val) {
-        console.log(`当前页: ${val}`)
-        this.currentPage = val
-        this.usersInfoTable = []
-        this.fetchUsersData()
-      },
-      fetchUsersData() {
-        const access_token = this.access_token
-        const access_token_obj = {
-          access_token: this.access_token,
-          page: this.currentPage,
-          num: this.pageSize
-        }
-
-        console.log('access_token_obj->', access_token_obj)
-        this.getUsersLoading = true
-
-        const list = [
-          'id',
-          'username',
-          'name',
-          'workno',
-          'email',
-          'mobile',
-          'wechat',
-          'role',
-          'dept',
-          'attendance_group',
-          'leave'
-        ]
-
-        getUsers(access_token_obj).then(success => {
-          this.total = 10
-          console.log(this.pageSize)
-          console.log(success.data.list)
-
-          for (const i of success.data.list) {
-            const obj = {
-              id: '',
-              username: '',
-              name: '',
-              workno: '',
-              email: '',
-              mobile: '',
-              wechat: '',
-              role: '',
-              dept: '',
-              attendance_group: '',
-              leave: ''
-            }
-            for (const j of list) {
-              obj[j] = i[j]
-              if (i['leave'] === 0) {
-                obj['leave'] = '在职'
-              } else {
-                obj['leave'] = '离职'
-              }
-            }
-            this.usersInfoTable.push(obj)
-          }
-          this.getUsersLoading = false
-        })
+        //         role_id: "",
+        // dept_id: "",
+        // position: "",
+        // attendance_group_id: "",
       }
+    },
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`)
+      this.pageSize = val
+      this.usersInfoTable = []
+      this.fetchUsersData()
+    },
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`)
+      this.currentPage = val
+      this.usersInfoTable = []
+      this.fetchUsersData()
+    },
+    fetchUsersData() {
+      const access_token = this.access_token
+      const access_token_obj = {
+        access_token: this.access_token,
+        page: this.currentPage,
+        num: this.pageSize
+      }
+
+      console.log('access_token_obj->', access_token_obj)
+      this.getUsersLoading = true
+
+      const list = [
+        'id',
+        'username',
+        'name',
+        'workno',
+        'email',
+        'mobile',
+        'wechat',
+        'role',
+        'dept',
+        'attendance_group',
+        'leave'
+      ]
+
+      getUsers(access_token_obj).then(success => {
+        this.total = 10
+        console.log(this.pageSize)
+        console.log(success.data.list)
+
+        for (const i of success.data.list) {
+          const obj = {
+            id: '',
+            username: '',
+            name: '',
+            workno: '',
+            email: '',
+            mobile: '',
+            wechat: '',
+            role: '',
+            dept: '',
+            attendance_group: '',
+            leave: ''
+          }
+          for (const j of list) {
+            obj[j] = i[j]
+            if (i['leave'] === 0) {
+              obj['leave'] = '在职'
+            } else {
+              obj['leave'] = '离职'
+            }
+          }
+          this.usersInfoTable.push(obj)
+        }
+        this.getUsersLoading = false
+      })
+    },
+    sendRowToGoods(row) {
+      const ids = []
+      ids.push(row.id)
+      if (row.children) {
+        ids.push(...row.children.map(v => v.id))
+      }
+      console.log('row')
+      console.log(row)
+      this.row = ids
     }
   }
+}
 </script>
 <style scoped>
   .setInline {
@@ -710,6 +876,13 @@
 
   .receiverStyle {
     height: 70vh;
+    overflow: auto;
+  }
+
+  .wrapper {
+    margin-left: 10px;
+    margin-right: 10px;
+    flex: 1;
     overflow: auto;
   }
 

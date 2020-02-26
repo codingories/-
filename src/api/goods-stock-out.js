@@ -18,3 +18,12 @@ export function getOutActionList(token) {
     params: token
   })
 }
+
+
+export function addOutAction(data) {
+  return request({
+    url: '/api/v1/admin-stocks/add-out-action',
+    method: 'post',
+    data: qs.stringify(data)
+  })
+}
