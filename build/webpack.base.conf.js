@@ -34,7 +34,8 @@ module.exports = {
     },
     proxy: {
       "/api/v1/": {
-        target: "http://47.100.124.12/",
+        // target: "http://47.100.124.12/",
+        target: "http://pcxjyey.shseer.com//",
         ws: true,
         changeOrigin: true
       }
