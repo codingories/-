@@ -57,7 +57,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
       template: 'index.html',
       inject: true,
       favicon: resolve('favicon.ico'),
-      title: '考勤系统'
+      title: '懿校通'
     })
   ]
 })
