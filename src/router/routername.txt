@@ -1,0 +1,53 @@
+名称：考勤管理  uri:/attendance
+子类：班级管理  uri:/classes
+子类：考勤汇总  uri:/total-attendance
+子类：单日调整  uri:/single-day
+子类：每日考勤  uri:/everyday-attendance
+子类：多日调整  uri:/several-pages
+子类：考勤规则  uri:/attendance-rule
+
+名称：个人中心     uri:/personal-center
+子类：个人基本信息  uri:/personbasicinfo
+子类：个人信息设置  uri:/auth/setting
+
+
+名称：办公流程	uri:/process-manage
+子类：流程汇总	uri:/template
+子类：我的申请	uri:/emp
+子类：我的审批	uri:/flow
+
+名称：教室物品管理	uri:/classroomgoodsmanage
+
+名称：物品基础管理	uri:/basic-goods
+子类：物品管理	uri:/goodsmanage
+
+名称：报修中心	uri:/repair-records
+子类：报修汇总	uri:/repair-total
+子类：我的报修	uri:/user-repairs
+子类：我的维修	uri:/repair-maintains
+
+
+名称：基础设置	uri:/basic-settings
+子类：学制设置	uri:/grade_names
+子类：年级管理	uri:/grades
+子类：教室管理	uri:/basic-classrooms
+子类：部门管理	uri:/deptmanage
+子类：班级管理	uri:/classes
+
+
+名称：部门管理	uri:/depart-manage
+
+
+名称：后台设置	uri:/backstage
+子类：权限列表	uri:/backstage/authority-management
+子类：用户管理	uri:/backstage/user-management
+子类：角色管理	uri:/backstage/role-management
+子类：菜单管理	uri:/backstage/menu-manage
+
+名称：物品仓储管理	uri:/goods-stock
+子类：入库操作	uri:/goods-stock-in
+子类：出库操作	uri:/goods-stock-out
+子类：物品基础管理	uri:/goodsinfo
+子类：物品仓储列表	uri:/goods-stock-list
+
+

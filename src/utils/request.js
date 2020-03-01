@@ -10,7 +10,7 @@ if (window.location.host === 'mauxiao.eaoinfo.com') {
   axios.defaults.baseURL = 'https://xjyey.auxiao.com'
 } else {
   // axios.defaults.baseURL = '//47.100.124.12' // 这是测试服务器
-  axios.defaults.baseURL = '//pcxjyey.shseer.com' // 这是测试服务器
+  axios.defaults.baseURL = 'https://pcxjyey.shseer.com' // 这是测试服务器
 }
 
 // 创建axios实例
