@@ -95,24 +95,35 @@
     <el-dialog :visible.sync="ruleDetailTableFlag" title="创建">
       <el-form :model="form">
         <el-form-item :label-width="formLabelWidth" label="考勤规则">
-          <el-input v-model="form.name" autocomplete="off"></el-input>
+          <!--          <el-input v-model="form.name" autocomplete="off"></el-input>-->
+          <el-select v-model="form.name">
+            <el-option label="日常规则" value="shanghai"/>
+            <el-option label="值班规则" value="beijing"/>
+          </el-select>
+
         </el-form-item>
-        <el-form-item label="活动性质" :label-width="formLabelWidth">
+        <el-form-item :label-width="formLabelWidth" label="活动性质">
           <el-checkbox-group v-model="form.type">
-            <el-checkbox label="周一" name="type"></el-checkbox>
-            <el-checkbox label="周二" name="type"></el-checkbox>
-            <el-checkbox label="周三" name="type"></el-checkbox>
-            <el-checkbox label="周四" name="type"></el-checkbox>
-            <el-checkbox label="周五" name="type"></el-checkbox>
-            <el-checkbox label="周六" name="type"></el-checkbox>
-            <el-checkbox label="周七" name="type"></el-checkbox>
+            <el-checkbox label="周一" name="type"/>
+            <el-checkbox label="周二" name="type"/>
+            <el-checkbox label="周三" name="type"/>
+            <el-checkbox label="周四" name="type"/>
+            <el-checkbox label="周五" name="type"/>
+            <el-checkbox label="周六" name="type"/>
+            <el-checkbox label="周七" name="type"/>
           </el-checkbox-group>
         </el-form-item>
         <el-form-item :label-width="formLabelWidth" label="上班时间">
-          <el-date-picker v-model="form.date1" type="date" placeholder="选择日期" style="width: 100%;"></el-date-picker>
+          <el-time-picker
+            v-model="form.date1"
+            arrow-control
+            placeholder="任意时间点"/>
         </el-form-item>
         <el-form-item :label-width="formLabelWidth" label="下班时间">
-          <el-date-picker v-model="form.date2" type="date" placeholder="选择日期" style="width: 100%;"></el-date-picker>
+          <el-time-picker
+            v-model="form.date2"
+            arrow-control
+            placeholder="任意时间点"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
