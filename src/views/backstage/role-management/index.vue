@@ -1,6 +1,5 @@
 <template>
   <div class="app-container">
-    <h2>title</h2>
     <!-- <h2>{{buttonPermission}}</h2> -->
     <!-- <h5>{{buttonPermission}}</h5> -->
     <!-- <h5>-------</h5> -->
