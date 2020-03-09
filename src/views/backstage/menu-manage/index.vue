@@ -212,7 +212,10 @@ export default {
       secondrowid: "",
       thirdmenuflag: false,
       secondmenuflag: false,
-      options1: [],
+      options1: [{
+        label:"眼睛",
+        item:"eye"
+      }],
       value1: "",
       editTable: [
         {
