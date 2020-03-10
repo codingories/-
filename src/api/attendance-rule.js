@@ -3,7 +3,7 @@ import qs from 'qs'
 
 export function getAttendanceRule(token) {
   return request({
-    url: '/api/v1/attendances-rule/get-list',
+    url: '/api/v1/attendance-rule/get-list',
     method: 'get',
     params: token
   })
@@ -11,24 +11,31 @@ export function getAttendanceRule(token) {
 
 export function deleteAttendanceRule(data) {
   return request({
-    url: '/api/v1/attendances-rule/delete-rule',
+    url: '/api/v1/attendance-rule/delete-rule',
     method: 'get',
     params: data
   })
 }
 
-export function getItemList(data) {
+export function getItemList(token) {
   return request({
-    url: '/api/v1/attendances-rule/create-rule',
+    url: '/api/v1/attendance-rule/get-item-list',
     method: 'get',
-    params: data
+    params: token
+  })
+}
+export function createRule(data) {
+  return request({
+    url: '/api/v1/attendance-rule/create-rule',
+    method: 'post',
+    data: qs.stringify(data)
   })
 }
 
 
 export function saveRuleItems(data) {
   return request({
-    url: '/api/v1/attendances-rule/save-rule-items',
+    url: '/api/v1/attendance-rule/save-rule-items',
     method: 'post',
     data: qs.stringify(data)
   })

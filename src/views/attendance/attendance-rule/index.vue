@@ -63,7 +63,7 @@
         </header>
         <el-table
           ref="multipleTable"
-          :data="tableData"
+          :data="detailRuleTable"
           tooltip-effect="dark"
           class="ruleTableDetail"
           @selection-change="handleSelectionChange">
@@ -152,24 +152,25 @@
     </el-dialog>
     <el-dialog
       :visible.sync="confirmSubmitRuleDetail"
-      width="30%"
-      :before-close="handleClose">
+      :before-close="handleClose"
+      width="30%">
       <span>确认需要提交吗？</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="confirmSubmitRuleDetail = false">取 消</el-button>
-        <el-button type="primary" @click="xxx">确 定</el-button>
+        <el-button type="primary" @click="confirmAddDetailRule">确 定</el-button>
       </span>
     </el-dialog>
   </section>
 </template>
 <script>
 import dayjs from 'dayjs'
-import { getAttendanceRule, deleteAttendanceRule, getItemList, saveRuleItems } from '@/api/attendance-rule'
+import { getAttendanceRule, deleteAttendanceRule, getItemList, createRule, saveRuleItems } from '@/api/attendance-rule'
 import store from '@/store'
 
 export default {
   data() {
     return {
+      rule_id: 0,
       confirmSubmitRuleDetail: false,
       deleteIds: [],
       deleteDialogShowFlag: false,
@@ -210,24 +211,36 @@ export default {
       // }
       ],
       ruleTableMultipleSelection: [],
-      tableData: [{
-        date: '1',
-        detailRuleName: '周一到周四规则',
-        route: '每:周一、二、三、四',
-        startTime: '7:45',
-        endTime: '16:15'
-      }
+      detailRuleTable: [
+      //   {
+      //   date: '1',
+      //   detailRuleName: '周一到周四规则',
+      //   route: '每:周一、二、三、四',
+      //   startTime: '7:45',
+      //   endTime: '16:15'
+      // }
       ],
       multipleSelection: []
     }
   },
 
   created() {
-    // this.useGetAttendanceRule()
-    this.useGetItemList()
+    this.useGetAttendanceRule()
+    // this.useGetItemList()
   },
 
   methods: {
+    useGetItemList() {
+      console.log('sssss')
+      const obj = {}
+      obj.access_token = this.access_token
+      getItemList(obj).then(
+        res => {
+          console.log('ss')
+          console.log(res)
+        }
+      )
+    },
     handleClose(done) {
       this.$confirm('确认关闭？')
         .then(_ => {
@@ -236,9 +249,6 @@ export default {
         .catch(_ => {})
     },
     confirmDeleteRule() {
-
-
-
       this.deleteDialogShowFlag = false
       // const ids = this.ruleTableMultipleSelection.map(v => v.id)
       const obj = {}
@@ -268,30 +278,51 @@ export default {
         )
       }
     },
-    useGetItemList() {
-      console.log('-----')
-      const obj = {}
-      obj.access_token = this.access_token
-      getItemList(obj).then(
-        res => {
-          console.log('=====')
-          console.log(res)
-        }
-      )
-    },
+    // useCreateRule() {
+    //   console.log('-----')
+    //   const obj = {}
+    //   obj.access_token = this.access_token
+    //   console.log(obj)
+    //   createRule(obj).then(
+    //     res => {
+    //       console.log('=====')
+    //       console.log(res)
+    //     }
+    //   )
+    // },
     useGetAttendanceRule() {
       const access_token = this.access_token
       console.log(access_token)
       getAttendanceRule({ access_token }).then(res => {
         console.log(res.data)
         this.attendanceRuleTableData = res.data
-        this.attendanceRuleTableData.map(
-          v => {
-            v.item = v.item.map(
-              x => x.week_day + ':' + x.start_time + '-' + x.end_time
-            ).join('; ')
+        console.log('hehehe')
+        console.log(res.data)
+        this.attendanceRuleTableData.map(value => {
+          if (!value.item) {
+            value.item = '无'
+          } else {
+            // console.log(value)
+            // console.log(value.item[0])
+            let item = ''
+            for (const i of value.item[0]) {
+              // console.log(i.week_day_str + ':' + i.start_time + ',' + i.end_time)
+              item += i.week_day_str + ':' + i.start_time + ',' + i.end_time+ '; '
+            }
+            // console.log(item)
+            value.item = item
+            // return value.item[0].week_day
           }
-        )
+        })
+
+        // this.attendanceRuleTableData.map(
+        //   v => {
+        //     v.item = v.item.map(
+        //       x => x.week_day + ':' + x.start_time + '-' + x.end_time
+        //     ).join('; ')
+        //   }
+        // )
+
         // {
         //   date: '1',
         //   ruleName: '日常规则',
@@ -303,28 +334,47 @@ export default {
         // }
       })
     },
-    xxx(){
+    confirmAddDetailRule() {
       console.log('jjj')
       const obj = {}
-      obj.detailRuleName = this.form.name
-      obj.week_day = this.form.type.join(',')
+      obj.access_token = this.access_token
+      obj.name = this.form.name
+      const week_dic = { '周一': 1, '周二': 2, '周三': 3, '周四': 4, '周五': 5, '周六': 6, '周七': 7 }
+      // obj.week_day = this.form.type.join(',')
+      // console.log(this.form.type.map(v=>week_dic[v]).join(','))
+      obj.week_day = this.form.type.map(v => week_dic[v]).join(',')
       obj.start_time = dayjs(this.form.date1).format('H:mm')
       obj.end_time = dayjs(this.form.date2).format('H:mm')
+      obj.rule_id = this.rule_id
       console.log(obj)
+      saveRuleItems(obj).then(
+        res => {
+          this.$alert('保存成功')
+          location.reload()
+        }
+      )
       // this.tableData.push(obj)
       this.ruleDetailTableFlag = false
       this.confirmSubmitRuleDetail = false
     },
     toggleRuleDetailFlag() {
+      console.log('zgzmc')
       if (this.ruleNameForm.ruleName) {
-        let obj = {}
-        this.ruleDetailFlag = true
+        const obj = {}
+        // this.ruleDetailFlag = true
         obj.access_token = this.access_token
         obj.rule_name = this.ruleNameForm.ruleName
-        getItemList(obj).then(
+        console.log(obj)
+        createRule(obj).then(
           res => {
             console.log('res-res')
-            console.log(res)
+            console.log(res.data)
+            if (res.data === '规则名称重复，请修改') {
+              this.$alert('规则名称重复，请修改')
+            } else {
+              this.ruleDetailFlag = true
+              this.rule_id = res.data
+            }
           }
         )
         // console.log(obj)
@@ -356,7 +406,7 @@ export default {
       // obj.endTime = dayjs(this.form.date2).format('H:mm')
       // this.tableData.push(obj)
       // this.ruleDetailTableFlag = false
-      console.log('xxxxx')
+      console.log('confirmAddDetailRulexx')
       this.confirmSubmitRuleDetail = true
     }
   }
