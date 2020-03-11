@@ -14,8 +14,8 @@
         :data="attendanceRuleTableData"
         style="width: 100%"
         @selection-change="handleRuleTableSelection">
-        <el-table-column
-          type="selection"/>
+        <!--        <el-table-column-->
+        <!--          type="selection"/>-->
         <el-table-column
           label="序号"
           width="120">
@@ -33,14 +33,14 @@
           label="操作"
           width="120">
           <template slot-scope="scope" >
-            <el-button type="primary">
+            <el-button type="primary" @click="editRule(scope.$index, scope.row)">
               编辑
             </el-button>
           </template>
         </el-table-column>
       </el-table>
     </section>
-    <section v-if="!ruleFlag">
+    <section v-if="mainRuleFlag">
       <section class="ruleName">
         <el-form ref="ruleNameForm" :inline="true" :model="ruleNameForm" :rules="rules">
           <el-form-item label="主规则名称:" prop="ruleName">
@@ -62,9 +62,7 @@
           <el-button type="primary">删除主规则</el-button>
         </header>
         <el-table
-          ref="multipleTable"
           :data="detailRuleTable"
-          tooltip-effect="dark"
           class="ruleTableDetail"
           @selection-change="handleSelectionChange">
           <el-table-column
@@ -101,15 +99,57 @@
         </div>
       </section>
     </section>
+    <section v-if="mainNameFlag">
+      <el-button type="primary" @click="goBackMain">返回</el-button>
+      <h4>主规则名称:{{ mainRuleName }}</h4>
+      <div class="headerStyle">
+        <el-button type="primary" @click="addDetailRule">添加细目规则</el-button>
+        <el-button type="primary" @click="xxx">删除细目规则123</el-button>
+      </div>
+      <div>
+        <el-table
+          ref="detailTable"
+          :data="detailRuleTableData"
+          @selection-change="handleDetailSelectionChange">
+          <el-table-column
+            type="selection"
+            width="155" />
+          <el-table-column
+            prop="name"
+            label="名称"
+            width="120"/>
+          <el-table-column
+            prop="week_day_str"
+            label="应用周期"/>
+          <el-table-column
+            prop="start_time"
+            label="上班时间"/>
+          <el-table-column
+            prop="end_time"
+            label="下班时间"
+            show-overflow-tooltip/>
+          <el-table-column
+            prop="address"
+            label="操作"
+            width="120">
+            <template slot-scope="scope" >
+              <el-button type="primary" @click="editDetailTable(scope.$index, scope.row)">
+                编辑
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div class="bottomButton">
+          <el-button type="primary">确定</el-button>
+          <el-button type="primary">取消</el-button>
+        </div>
+      </div>
+
+    </section>
     <el-dialog :visible.sync="ruleDetailTableFlag" title="创建">
       <el-form :model="form">
         <el-form-item :label-width="formLabelWidth" label="考勤规则">
           <el-input v-model="form.name" autocomplete="off"/>
-          <!--          <el-select v-model="form.name">-->
-          <!--            <el-option label="日常规则" value="shanghai"/>-->
-          <!--            <el-option label="值班规则" value="beijing"/>-->
-          <!--          </el-select>-->
-
         </el-form-item>
         <el-form-item :label-width="formLabelWidth" label="应用周期">
           <el-checkbox-group v-model="form.type">
@@ -140,6 +180,41 @@
         <el-button type="primary" @click="confirmAddRuleDetail">确 定</el-button>
       </div>
     </el-dialog>
+    <el-dialog :visible.sync="editDetailTableFlag" :title="titleName">
+      <el-form :model="detailForm">
+        <el-form-item :label-width="formLabelWidth" label="考勤规则">
+          <el-input v-model="detailForm.name" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item :label-width="formLabelWidth" label="应用周期">
+          <el-checkbox-group v-model="detailForm.weekDay">
+            <el-checkbox label="周一"/>
+            <el-checkbox label="周二"/>
+            <el-checkbox label="周三"/>
+            <el-checkbox label="周四"/>
+            <el-checkbox label="周五"/>
+            <el-checkbox label="周六"/>
+            <el-checkbox label="周七"/>
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item :label-width="formLabelWidth" label="上班时间">
+          <el-time-picker
+            v-model="detailForm.date1"
+            arrow-control
+            placeholder="任意时间点"/>
+        </el-form-item>
+        <el-form-item :label-width="formLabelWidth" label="下班时间">
+          <el-time-picker
+            v-model="detailForm.date2"
+            arrow-control
+            placeholder="任意时间点"/>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="editDetailTableFlag = false">取 消</el-button>
+        <el-button type="primary" @click="confirmAddDetailRuleDetail">确 定</el-button>
+      </div>
+    </el-dialog>
+
     <el-dialog
       :visible.sync="deleteDialogShowFlag"
       :before-close="handleClose"
@@ -170,6 +245,12 @@ import store from '@/store'
 export default {
   data() {
     return {
+      titleName: '编辑',
+      editDetailTableFlag: false,
+      mainRuleName: '',
+      detailRuleTableData: [],
+      mainNameFlag: false,
+      mainRuleFlag: false,
       rule_id: 0,
       confirmSubmitRuleDetail: false,
       deleteIds: [],
@@ -189,6 +270,13 @@ export default {
         // resource: '',
         // desc: ''
       },
+      detailForm: {
+        name: '',
+        weekDay: [],
+        date1: new Date(2016, 9, 10, 7, 40),
+        date2: new Date(2016, 9, 10, 18, 40)
+      },
+
       formLabelWidth: '120px',
       ruleNameForm: {
         ruleName: ''
@@ -199,27 +287,9 @@ export default {
         ]
       },
       ruleFlag: true,
-      attendanceRuleTableData: [
-      // {
-      //   date: '1',
-      //   ruleName: '日常规则',
-      //   name: '星期一、二、三、四: 8:00-16:45; 星期五: 8:00-16:00;星期六、日: 无'
-      // }, {
-      //   date: '2',
-      //   ruleName: '假期规则',
-      //   name: '星期一、二、三、四、五： 8:30-100；星期六、日: 无'
-      // }
-      ],
+      attendanceRuleTableData: [],
       ruleTableMultipleSelection: [],
-      detailRuleTable: [
-      //   {
-      //   date: '1',
-      //   detailRuleName: '周一到周四规则',
-      //   route: '每:周一、二、三、四',
-      //   startTime: '7:45',
-      //   endTime: '16:15'
-      // }
-      ],
+      detailRuleTable: [],
       multipleSelection: []
     }
   },
@@ -230,16 +300,30 @@ export default {
   },
 
   methods: {
-    useGetItemList() {
-      console.log('sssss')
-      const obj = {}
-      obj.access_token = this.access_token
-      getItemList(obj).then(
-        res => {
-          console.log('ss')
-          console.log(res)
-        }
-      )
+
+    // useGetItemList() {
+    //   console.log('sssss')
+    //   const obj = {}
+    //   obj.access_token = this.access_token
+    //   getItemList(obj).then(
+    //     res => {
+    //       console.log('ss')
+    //       console.log(res)
+    //     }
+    //   )
+    // },
+    addDetailRule() {
+      console.log('addDetailRule')
+      this.titleName = '增加'
+      this.detailForm.name = ''
+      this.detailForm.weekDay = []
+      this.editDetailTableFlag = true
+    },
+    editDetailTable(index, row) {
+      this.item_id = row.id
+      this.detailForm.name = row.name
+      this.detailForm.weekDay = row.week_day_str.split(',')
+      this.editDetailTableFlag = true
     },
     handleClose(done) {
       this.$confirm('确认关闭？')
@@ -248,23 +332,78 @@ export default {
         })
         .catch(_ => {})
     },
+    handleDetailSelectionChange(val) {
+      if (val.length >= 2) {
+        this.$refs.detailTable.clearSelection()
+      }
+      console.log(val)
+      // this.detailTable
+    },
+    addRule() {
+
+    },
+    editRule(index, row) {
+      // console.log(row.name)
+      console.log(123123)
+      this.rule_id = row.id
+      this.mainRuleName = row.name
+      this.yyy()
+      this.ruleFlag = !this.ruleFlag
+      this.mainNameFlag = !this.mainNameFlag
+    },
+    yyy(){
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.rule_id = this.rule_id
+      console.log(obj)
+      // console.log(row.id)
+      console.log('--------======-')
+      getItemList(obj).then(
+        res => {
+          // console.log(res)
+          this.detailRuleTableData = res.data
+          this.editDetailTableFlag = false
+        },
+      ).catch(err => {
+        console.log(err)
+        this.detailRuleTableData = []
+      })
+
+    },
+    goBackMain() {
+      this.ruleFlag = !this.ruleFlag
+      this.mainNameFlag = !this.mainNameFlag
+    },
+    confirmAddDetailRuleDetail() {
+      console.log('addDetailRulex')
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.name = this.detailForm.name
+      const week_dic = { '周一': 1, '周二': 2, '周三': 3, '周四': 4, '周五': 5, '周六': 6, '周七': 7 }
+      obj.week_day = this.detailForm.weekDay.map(v => week_dic[v]).join(',')
+      obj.start_time = dayjs(this.detailForm.date1).format('H:mm')
+      obj.end_time = dayjs(this.detailForm.date2).format('H:mm')
+      obj.rule_id = this.rule_id
+      if (this.titleName !== '增加') {
+        obj.item_id = this.item_id
+      }
+      console.log(obj)
+      saveRuleItems(obj).then(
+        res => {
+          this.$alert('保存成功')
+          // location.reload()
+          this.yyy()
+        }
+      )
+      // this.tableData.push(obj)
+      // this.editDetailTableFlag = false
+      // this.confirmSubmitRuleDetail = false
+    },
     confirmDeleteRule() {
       this.deleteDialogShowFlag = false
-      // const ids = this.ruleTableMultipleSelection.map(v => v.id)
       const obj = {}
       obj.access_token = this.access_token
       console.log(this.deleteIds)
-
-      // obj.rule_id = 2
-      // deleteAttendanceRule(obj).then(
-      //   res=>{
-      //     this.$alert('删除成功')
-      //     location.reload()
-      //   },
-      //   fail=>{
-      //     this.$alert('删除失败')
-      //   }
-      // )
       for (const i of this.deleteIds) {
         obj.rule_id = i
         deleteAttendanceRule(obj).then(
@@ -302,46 +441,20 @@ export default {
           if (!value.item) {
             value.item = '无'
           } else {
-            // console.log(value)
-            // console.log(value.item[0])
             let item = ''
             for (const i of value.item[0]) {
-              // console.log(i.week_day_str + ':' + i.start_time + ',' + i.end_time)
-              item += i.week_day_str + ':' + i.start_time + ',' + i.end_time+ '; '
+              item += i.week_day_str + ':' + i.start_time + ',' + i.end_time + '; '
             }
-            // console.log(item)
             value.item = item
-            // return value.item[0].week_day
           }
         })
-
-        // this.attendanceRuleTableData.map(
-        //   v => {
-        //     v.item = v.item.map(
-        //       x => x.week_day + ':' + x.start_time + '-' + x.end_time
-        //     ).join('; ')
-        //   }
-        // )
-
-        // {
-        //   date: '1',
-        //   ruleName: '日常规则',
-        //   name: '星期一、二、三、四: 8:00-16:45; 星期五: 8:00-16:00;星期六、日: 无'
-        // }, {
-        //   date: '2',
-        //   ruleName: '假期规则',
-        //   name: '星期一、二、三、四、五： 8:30-100；星期六、日: 无'
-        // }
       })
     },
     confirmAddDetailRule() {
-      console.log('jjj')
       const obj = {}
       obj.access_token = this.access_token
       obj.name = this.form.name
       const week_dic = { '周一': 1, '周二': 2, '周三': 3, '周四': 4, '周五': 5, '周六': 6, '周七': 7 }
-      // obj.week_day = this.form.type.join(',')
-      // console.log(this.form.type.map(v=>week_dic[v]).join(','))
       obj.week_day = this.form.type.map(v => week_dic[v]).join(',')
       obj.start_time = dayjs(this.form.date1).format('H:mm')
       obj.end_time = dayjs(this.form.date2).format('H:mm')
@@ -358,7 +471,6 @@ export default {
       this.confirmSubmitRuleDetail = false
     },
     toggleRuleDetailFlag() {
-      console.log('zgzmc')
       if (this.ruleNameForm.ruleName) {
         const obj = {}
         // this.ruleDetailFlag = true
@@ -377,7 +489,6 @@ export default {
             }
           }
         )
-        // console.log(obj)
       }
     },
     deleteRuleDialogShow() {
@@ -390,24 +501,22 @@ export default {
     },
     changeRuleFlag() {
       this.ruleFlag = !this.ruleFlag
+      this.mainRuleFlag = !this.mainRuleFlag
       this.ruleDetailFlag = false
     },
     handleRuleTableSelection(val) {
       this.ruleTableMultipleSelection = val
     },
     handleSelectionChange(val) {
+      console.log('1233')
       this.multipleSelection = val
     },
     confirmAddRuleDetail() {
-      // const obj = {}
-      // obj.detailRuleName = this.form.name
-      // obj.route = this.form.type.join(',')
-      // obj.startTime = dayjs(this.form.date1).format('H:mm')
-      // obj.endTime = dayjs(this.form.date2).format('H:mm')
-      // this.tableData.push(obj)
-      // this.ruleDetailTableFlag = false
       console.log('confirmAddDetailRulexx')
       this.confirmSubmitRuleDetail = true
+    },
+    xxx() {
+
     }
   }
 }
