@@ -24,6 +24,15 @@ export function getItemList(token) {
     params: token
   })
 }
+
+export function deleteRuleItem(data) {
+  return request({
+    url: '/api/v1/attendance-rule/delete-rule-item',
+    method: 'get',
+    params: data
+  })
+}
+
 export function createRule(data) {
   return request({
     url: '/api/v1/attendance-rule/create-rule',

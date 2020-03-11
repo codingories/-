@@ -104,8 +104,11 @@
       <h4>主规则名称:{{ mainRuleName }}</h4>
       <div class="headerStyle">
         <el-button type="primary" @click="addDetailRule">添加细目规则</el-button>
-        <el-button type="primary" @click="xxx">删除细目规则123</el-button>
+        <el-button type="primary" @click="deleteDetailRule">删除细目规则123</el-button>
       </div>
+      {{ detailRuleTableData }}
+      <br>
+      {{ delete_id }}
       <div>
         <el-table
           ref="detailTable"
@@ -239,12 +242,13 @@
 </template>
 <script>
 import dayjs from 'dayjs'
-import { getAttendanceRule, deleteAttendanceRule, getItemList, createRule, saveRuleItems } from '@/api/attendance-rule'
+import { getAttendanceRule, deleteAttendanceRule, getItemList, createRule, saveRuleItems, deleteRuleItem } from '@/api/attendance-rule'
 import store from '@/store'
 
 export default {
   data() {
     return {
+      delete_id: 0,
       titleName: '编辑',
       editDetailTableFlag: false,
       mainRuleName: '',
@@ -335,8 +339,11 @@ export default {
     handleDetailSelectionChange(val) {
       if (val.length >= 2) {
         this.$refs.detailTable.clearSelection()
+        this.delete_id = 0
+      } else if (val.length === 1) {
+        this.delete_id = val[0].id
       }
-      console.log(val)
+      // console.log(val)
       // this.detailTable
     },
     addRule() {
@@ -347,11 +354,11 @@ export default {
       console.log(123123)
       this.rule_id = row.id
       this.mainRuleName = row.name
-      this.yyy()
+      this.getDetailRuleData()
       this.ruleFlag = !this.ruleFlag
       this.mainNameFlag = !this.mainNameFlag
     },
-    yyy(){
+    getDetailRuleData() {
       const obj = {}
       obj.access_token = this.access_token
       obj.rule_id = this.rule_id
@@ -368,7 +375,6 @@ export default {
         console.log(err)
         this.detailRuleTableData = []
       })
-
     },
     goBackMain() {
       this.ruleFlag = !this.ruleFlag
@@ -392,7 +398,7 @@ export default {
         res => {
           this.$alert('保存成功')
           // location.reload()
-          this.yyy()
+          this.getDetailRuleData()
         }
       )
       // this.tableData.push(obj)
@@ -515,8 +521,20 @@ export default {
       console.log('confirmAddDetailRulexx')
       this.confirmSubmitRuleDetail = true
     },
-    xxx() {
-
+    deleteDetailRule() {
+      if (this.delete_id === 0) {
+        this.$alert('请勾选需要删除的细目规则')
+      } else {
+        const obj = {}
+        obj.access_token = this.access_token
+        obj.item_id = this.delete_id
+        deleteRuleItem(obj).then(
+          res => {
+            this.$alert('删除成功')
+            this.getDetailRuleData()
+          }
+        )
+      }
     }
   }
 }
