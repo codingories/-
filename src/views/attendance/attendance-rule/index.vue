@@ -45,6 +45,7 @@
     </section>
     <section v-if="mainRuleFlag">
       <section class="ruleName">
+        <el-button type="primary" @click="backMain" class="backStyle">返回</el-button>
         <el-form ref="ruleNameForm" :inline="true" :model="ruleNameForm" :rules="rules">
           <el-form-item label="主规则名称:" prop="ruleName">
             <el-input v-model="ruleNameForm.ruleName" placeholder="输入主规则名"/>
@@ -56,7 +57,6 @@
         <header class="headerStyle">
           <div>
             <el-button type="primary" @click="ruleDetailTableFlag = true">添加细目规则</el-button>
-            <el-button type="primary" @click="changeRuleFlag">返回</el-button>
           </div>
           <el-button type="primary">删除主规则</el-button>
         </header>
@@ -92,10 +92,10 @@
             </template>
           </el-table-column>
         </el-table>
-        <div class="bottomButton">
-          <el-button type="primary">确定</el-button>
-          <el-button type="primary">取消</el-button>
-        </div>
+<!--        <div class="bottomButton">-->
+<!--          <el-button type="primary">确定</el-button>-->
+<!--          <el-button type="primary">取消</el-button>-->
+<!--        </div>-->
       </section>
     </section>
     <section v-if="mainNameFlag">
@@ -141,10 +141,10 @@
             </template>
           </el-table-column>
         </el-table>
-        <div class="bottomButton">
-          <el-button type="primary">确定</el-button>
-          <el-button type="primary">取消</el-button>
-        </div>
+<!--        <div class="bottomButton">-->
+<!--          <el-button type="primary">确定</el-button>-->
+<!--          <el-button type="primary">取消</el-button>-->
+<!--        </div>-->
       </div>
 
     </section>
@@ -403,8 +403,9 @@ export default {
       })
     },
     goBackMain() {
-      this.ruleFlag = !this.ruleFlag
-      this.mainNameFlag = !this.mainNameFlag
+      // this.ruleFlag = !this.ruleFlag
+      // this.mainNameFlag = !this.mainNameFlag
+      location.reload()
     },
     changeMainRuleName() {
       const obj = {}
@@ -546,9 +547,13 @@ export default {
       }
     },
     changeRuleFlag() {
+      console.log('---')
       this.ruleFlag = !this.ruleFlag
       this.mainRuleFlag = !this.mainRuleFlag
       this.ruleDetailFlag = false
+    },
+    backMain(){
+      location.reload()
     },
     handleRuleTableSelection(val) {
       this.ruleTableMultipleSelection = val
@@ -593,13 +598,16 @@ export default {
     box-shadow: 4px 5px 6px 0px rgba(182, 168, 168, 0.75);
   }
   .ruleDetail {
-    margin-top: 15px;
+    margin-top: 35px;
     box-shadow: 4px 5px 6px 0 rgba(182, 168, 168, 0.75);
   }
   .ruleTableDetail {
     width: 100%;
     margin-top: 25px;
     padding: 15px;
+  }
+  .backStyle {
+    margin-bottom: 35px;
   }
   .bottomButton {
     margin-top: 40px;
