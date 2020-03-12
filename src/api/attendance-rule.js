@@ -41,6 +41,14 @@ export function createRule(data) {
   })
 }
 
+export function changeName(data) {
+  return request({
+    url: '/api/v1/attendance-rule/rename-rule',
+    method: 'post',
+    data: qs.stringify(data)
+  })
+}
+
 
 export function saveRuleItems(data) {
   return request({

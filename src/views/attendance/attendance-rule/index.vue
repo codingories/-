@@ -14,8 +14,8 @@
         :data="attendanceRuleTableData"
         style="width: 100%"
         @selection-change="handleRuleTableSelection">
-        <!--        <el-table-column-->
-        <!--          type="selection"/>-->
+        <el-table-column
+          type="selection"/>
         <el-table-column
           label="序号"
           width="120">
@@ -31,10 +31,13 @@
         <el-table-column
           prop="address"
           label="操作"
-          width="120">
+          width="240">
           <template slot-scope="scope" >
             <el-button type="primary" @click="editRule(scope.$index, scope.row)">
               编辑
+            </el-button>
+            <el-button type="warning" @click="useChangeName(scope.$index, scope.row)">
+              改名
             </el-button>
           </template>
         </el-table-column>
@@ -47,7 +50,6 @@
             <el-input v-model="ruleNameForm.ruleName" placeholder="输入主规则名"/>
           </el-form-item>
           <el-button type="primary" @click="toggleRuleDetailFlag">确认</el-button>
-          <!--          {{ ruleNameForm.ruleName }}-->
         </el-form>
       </section>
       <section v-if="ruleDetailFlag" class="ruleDetail">
@@ -56,9 +58,6 @@
             <el-button type="primary" @click="ruleDetailTableFlag = true">添加细目规则</el-button>
             <el-button type="primary" @click="changeRuleFlag">返回</el-button>
           </div>
-          <!--          <el-button type="primary">返回</el-button>-->
-          <!--          <el-button type="primary">确定</el-button>-->
-          <!--          <el-button type="primary">取消</el-button>-->
           <el-button type="primary">删除主规则</el-button>
         </header>
         <el-table
@@ -104,11 +103,11 @@
       <h4>主规则名称:{{ mainRuleName }}</h4>
       <div class="headerStyle">
         <el-button type="primary" @click="addDetailRule">添加细目规则</el-button>
-        <el-button type="primary" @click="deleteDetailRule">删除细目规则123</el-button>
+        <el-button type="primary" @click="deleteDetailRule">删除细目规则</el-button>
       </div>
-      {{ detailRuleTableData }}
-      <br>
-      {{ delete_id }}
+      <!--      {{ detailRuleTableData }}-->
+      <!--      <br>-->
+      <!--      {{ delete_id }}-->
       <div>
         <el-table
           ref="detailTable"
@@ -162,7 +161,7 @@
             <el-checkbox label="周四" name="type"/>
             <el-checkbox label="周五" name="type"/>
             <el-checkbox label="周六" name="type"/>
-            <el-checkbox label="周七" name="type"/>
+            <el-checkbox label="周天" name="type"/>
           </el-checkbox-group>
         </el-form-item>
         <el-form-item :label-width="formLabelWidth" label="上班时间">
@@ -184,11 +183,11 @@
       </div>
     </el-dialog>
     <el-dialog :visible.sync="editDetailTableFlag" :title="titleName">
-      <el-form :model="detailForm">
-        <el-form-item :label-width="formLabelWidth" label="考勤规则">
+      <el-form ref="detailForm" :model="detailForm" :rules="detailFormRules">
+        <el-form-item :label-width="formLabelWidth" label="考勤规则1" prop="name">
           <el-input v-model="detailForm.name" autocomplete="off"/>
         </el-form-item>
-        <el-form-item :label-width="formLabelWidth" label="应用周期">
+        <el-form-item :label-width="formLabelWidth" label="应用周期" prop="weekDay">
           <el-checkbox-group v-model="detailForm.weekDay">
             <el-checkbox label="周一"/>
             <el-checkbox label="周二"/>
@@ -196,7 +195,7 @@
             <el-checkbox label="周四"/>
             <el-checkbox label="周五"/>
             <el-checkbox label="周六"/>
-            <el-checkbox label="周七"/>
+            <el-checkbox label="周天"/>
           </el-checkbox-group>
         </el-form-item>
         <el-form-item :label-width="formLabelWidth" label="上班时间">
@@ -238,16 +237,44 @@
         <el-button type="primary" @click="confirmAddDetailRule">确 定</el-button>
       </span>
     </el-dialog>
+    <el-dialog
+      :visible.sync="changeMainNameFlag"
+      :before-close="handleClose"
+      title="请输入需要修改的名称"
+      width="30%">
+      <el-form ref="nameForm" :model="nameForm" label-width="100px">
+        <el-form-item label="主规则名称">
+          <el-input v-model="nameForm.name"/>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="changeMainNameFlag = false">取 消</el-button>
+        <el-button type="primary" @click="changeMainRuleName">确 定</el-button>
+      </span>
+    </el-dialog>
   </section>
 </template>
 <script>
 import dayjs from 'dayjs'
-import { getAttendanceRule, deleteAttendanceRule, getItemList, createRule, saveRuleItems, deleteRuleItem } from '@/api/attendance-rule'
+import { getAttendanceRule, deleteAttendanceRule, getItemList, createRule, saveRuleItems, deleteRuleItem, changeName } from '@/api/attendance-rule'
 import store from '@/store'
 
 export default {
   data() {
     return {
+      nameForm: {
+        name: ''
+      },
+      detailFormRules: {
+        name: [
+          { required: true, message: '请输入名称，不能为空', trigger: 'blur' }
+          // { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+        ],
+        weekDay: [
+          { type: 'array', required: true, message: '请至少选择一个', trigger: 'change' }
+        ]
+      },
+      changeMainNameFlag: false,
       delete_id: 0,
       titleName: '编辑',
       editDetailTableFlag: false,
@@ -326,6 +353,7 @@ export default {
     editDetailTable(index, row) {
       this.item_id = row.id
       this.detailForm.name = row.name
+      console.log(row.week_day_str)
       this.detailForm.weekDay = row.week_day_str.split(',')
       this.editDetailTableFlag = true
     },
@@ -350,8 +378,6 @@ export default {
 
     },
     editRule(index, row) {
-      // console.log(row.name)
-      console.log(123123)
       this.rule_id = row.id
       this.mainRuleName = row.name
       this.getDetailRuleData()
@@ -380,12 +406,26 @@ export default {
       this.ruleFlag = !this.ruleFlag
       this.mainNameFlag = !this.mainNameFlag
     },
+    changeMainRuleName() {
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.rule_id = this.rule_id
+      obj.name = this.nameForm.name
+      // this.getDetailRuleData()
+      changeName(obj).then(
+        res => {
+          console.log(res)
+          location.reload()
+          this.changeMainNameFlag = false
+        }
+      )
+    },
     confirmAddDetailRuleDetail() {
       console.log('addDetailRulex')
       const obj = {}
       obj.access_token = this.access_token
       obj.name = this.detailForm.name
-      const week_dic = { '周一': 1, '周二': 2, '周三': 3, '周四': 4, '周五': 5, '周六': 6, '周七': 7 }
+      const week_dic = { '周一': 1, '周二': 2, '周三': 3, '周四': 4, '周五': 5, '周六': 6, '周天': 7 }
       obj.week_day = this.detailForm.weekDay.map(v => week_dic[v]).join(',')
       obj.start_time = dayjs(this.detailForm.date1).format('H:mm')
       obj.end_time = dayjs(this.detailForm.date2).format('H:mm')
@@ -460,7 +500,7 @@ export default {
       const obj = {}
       obj.access_token = this.access_token
       obj.name = this.form.name
-      const week_dic = { '周一': 1, '周二': 2, '周三': 3, '周四': 4, '周五': 5, '周六': 6, '周七': 7 }
+      const week_dic = { '周一': 1, '周二': 2, '周三': 3, '周四': 4, '周五': 5, '周六': 6, '周天': 7 }
       obj.week_day = this.form.type.map(v => week_dic[v]).join(',')
       obj.start_time = dayjs(this.form.date1).format('H:mm')
       obj.end_time = dayjs(this.form.date2).format('H:mm')
@@ -535,6 +575,11 @@ export default {
           }
         )
       }
+    },
+    useChangeName(index, row) {
+      this.rule_id = row.id
+      this.mainRuleName = row.name
+      this.changeMainNameFlag = true
     }
   }
 }
