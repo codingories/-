@@ -2,10 +2,10 @@
   <div class="app-container">
     <h2>当前是考勤组管理页面</h2>
     <!-- <h2>{{RawGroupData}}</h2> -->
-<!--    <h4>{{ attendanceGroupList }}</h4>-->
+    <!--    <h4>{{ attendanceGroupList }}</h4>-->
     <h3>考勤组展示1</h3>
     <div class="topButtonStyle">
-      <el-button type="primary">添加考勤组</el-button>
+      <el-button type="primary" @click="addAttendanceGroup">添加考勤组</el-button>
       <el-button type="primary">选择考勤组</el-button>
     </div>
 
@@ -56,13 +56,34 @@
       <el-table-column prop="name" label="姓名" width="180"/>
       <el-table-column prop="attendance_group_id" label="考勤组"/>
     </el-table>
+    <el-dialog
+      :visible.sync="addGroupDialogFlag"
+      :before-close="handleClose"
+      title="添加考勤组"
+      width="60%">
+      <el-form ref="attendanceGroupForm" :model="attendanceGroupForm" :rules="rules" label-width="100px">
+        <el-form-item label="考勤组名称" prop="name">
+          <el-input v-model="attendanceGroupForm.name"/>
+        </el-form-item>
+        <el-form-item label="考勤规则" prop="rule">
+          <el-select v-model="attendanceGroupForm.rule" placeholder="请选择考勤规则">
+            <el-option v-for="(item,i) in selectList" :label="item.name" :value="item.id" :key="i"/>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addGroupDialogFlag = false">取 消</el-button>
+        <el-button type="primary" @click="xxx">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getGroups } from '@/api/AttendanceGroup'
+import { getGroups, getSelectList, saveGroup } from '@/api/AttendanceGroup'
 import { chooseAttendanceGroup } from '@/api/chooseAttendance'
 import { getAttendanceGroups } from '@/api/attendance-manage'
+// import {  getSelectList } from '@/api/attendance-rule'
 
 import store from '@/store'
 export default {
@@ -73,7 +94,21 @@ export default {
       attendanceGroupList: [],
       addAttendance: [],
       multipleSelection: [],
-      access_token: store.getters.access_token
+      access_token: store.getters.access_token,
+      addGroupDialogFlag: false,
+      attendanceGroupForm: {
+        name: '',
+        rule: ''
+      },
+      selectList: [],
+      rules: {
+        name: [
+          { required: true, message: '请输入考勤组名称', trigger: 'blur' },
+        ],
+        rule: [
+          { required: true, message: '请选择考勤规则', trigger: 'change' }
+        ],
+      }
     }
   },
 
@@ -81,7 +116,7 @@ export default {
     tableHeader: function() {
       return this.getTableHeader(this.tableYear, this.tableMonth)
     }
-    // xxx: function(arg) {
+    // addAttendanceGroup: function(arg) {
     //   return 123
     // }
   },
@@ -90,10 +125,47 @@ export default {
   created() {
     this.fetchGroupData()
     this.useGetAttendanceGroups()
+    this.useGetSelectList()
   },
   methods: {
-    xxx() {
-      return 123
+    xxx(){
+      this.$refs["attendanceGroupForm"].validate((valid) => {
+        if (valid) {
+          let obj = {}
+          obj.access_token = this.access_token
+          obj.name = this.attendanceGroupForm.name
+          obj.rule_id = this.attendanceGroupForm.rule
+          // console.log(obj)
+          saveGroup(obj).then(res=>{
+            // console.log(res)
+            location.reload()
+          })
+        } else {
+          return false;
+        }
+      });
+    },
+    useGetSelectList(){
+      let obj = {}
+      obj.access_token = this.access_token
+      console.log('====---0000')
+      console.log(obj)
+      getSelectList(obj).then(res=>{
+        // console.log('-res-')
+        // console.log(res.data)
+        this.selectList = res.data
+      })
+    },
+    addAttendanceGroup() {
+      this.attendanceGroupForm.name = ''
+      this.addGroupDialogFlag = true
+    },
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done()
+        })
+        .catch(_ => {})
     },
     useGetAttendanceGroups() {
       const obj = {}
@@ -111,10 +183,10 @@ export default {
           }
           console.log(list)
           list.map(v => {
-            let str = ""
+            let str = ''
             // console.log(v.rule.items)
             if (v.rule.items) {
-              for(let i in v.rule.items){
+              for (const i in v.rule.items) {
                 // console.log(week_map[i.toString()])
                 // console.log(v.rule.items[i.toString()].start_time)
                 // console.log(v.rule.items[i.toString()].end_time)
