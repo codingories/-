@@ -2,17 +2,46 @@
   <div class="app-container">
     <h2>当前是考勤组管理页面</h2>
     <!-- <h2>{{RawGroupData}}</h2> -->
-    <h3>考勤组展示</h3>
-    <el-table :data="tableData" style="width: 100%">
-      <el-table-column prop="ID" label="序号" width="180"></el-table-column>
-      <el-table-column prop="ruleName" label="主规则名" width="180"></el-table-column>
-      <el-table-column prop="content" label="内容"></el-table-column>
+<!--    <h4>{{ attendanceGroupList }}</h4>-->
+    <h3>考勤组展示1</h3>
+    <div class="topButtonStyle">
+      <el-button type="primary">添加考勤组</el-button>
+      <el-button type="primary">选择考勤组</el-button>
+    </div>
+
+    <el-table :data="attendanceGroupList" style="width: 100%">
+      <el-table-column
+        type="selection"/>
+      <el-table-column prop="name" label="考勤组名" width="100"/>
+      <el-table-column prop="rule.name" label="主规则名" width="100"/>
+      <el-table-column prop="rule.items" label="规则内容"/>
+      <el-table-column
+        prop="assignUser"
+        label="分配用户"
+        width="180">
+        <template slot-scope="scope" >
+          <el-button type="warning">
+            分配
+          </el-button>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="deal"
+        label="操作"
+        width="180">
+        <template slot-scope="scope" >
+          <el-button type="primary">
+            编辑
+          </el-button>
+        </template>
+      </el-table-column>
+
     </el-table>
     <h3>选择考勤组</h3>
     <el-dropdown trigger="click">
       <el-button type="primary">
         选择考勤组
-        <i class="el-icon-arrow-down el-icon--right"></i>
+        <i class="el-icon-arrow-down el-icon--right"/>
       </el-button>
       <el-dropdown-menu slot="dropdown">
         <el-dropdown-item @click.native="chooseAttendance(2)">在编</el-dropdown-item>
@@ -22,193 +51,204 @@
     <!-- <h2>{{multipleSelection}}</h2> -->
     <!-- <h4>{{addAttendance}}</h4> -->
     <el-table :data="addAttendance" style="width: 100%" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" prop="id" label="序号" width="180"></el-table-column>
-      <el-table-column prop="id" label="序号" width="180"></el-table-column>
-      <el-table-column prop="name" label="姓名" width="180"></el-table-column>
-      <el-table-column prop="attendance_group_id" label="考勤组"></el-table-column>
+      <el-table-column type="selection" prop="id" label="序号" width="180"/>
+      <el-table-column prop="id" label="序号" width="180"/>
+      <el-table-column prop="name" label="姓名" width="180"/>
+      <el-table-column prop="attendance_group_id" label="考勤组"/>
     </el-table>
   </div>
 </template>
 
 <script>
-import { getGroups } from "@/api/AttendanceGroup";
-// import { getTotalAttendance } from "@/api/totalAttendance";
-import { chooseAttendanceGroup } from "@/api/chooseAttendance";
+import { getGroups } from '@/api/AttendanceGroup'
+import { chooseAttendanceGroup } from '@/api/chooseAttendance'
+import { getAttendanceGroups } from '@/api/attendance-manage'
 
-import store from "@/store";
+import store from '@/store'
 export default {
   data() {
     return {
       getGroupsLoading: false,
       RawGroupData: [],
-      tableData: [],
+      attendanceGroupList: [],
       addAttendance: [],
-      multipleSelection: []
-      // this.getRulesName() || "保底"
-    };
+      multipleSelection: [],
+      access_token: store.getters.access_token
+    }
   },
-  watch: {},
 
   computed: {
     tableHeader: function() {
-      return this.getTableHeader(this.tableYear, this.tableMonth);
+      return this.getTableHeader(this.tableYear, this.tableMonth)
     }
+    // xxx: function(arg) {
+    //   return 123
+    // }
   },
+  watch: {},
 
   created() {
-    this.fetchGroupData();
+    this.fetchGroupData()
+    this.useGetAttendanceGroups()
   },
-
   methods: {
-    fetchGroupData() {
-      let access_token = this.access_token;
-      let access_token_obj = { access_token: this.access_token };
-      this.getGroupsLoading = true;
-      getGroups(access_token_obj).then(success => {
-        // console.log(success);
-        this.RawGroupData = success.data;
-        console.log("this.RawGroupData,this.RawGroupData");
-        console.log(this.RawGroupData);
-        console.log(typeof this.RawGroupData);
-        // this.RawRuleData = success.data[0];
-        let tempKeys0 = Object.keys(this.RawGroupData);
-        console.log(tempKeys0);
-        let dateMap = {
-          6: "星期六",
-          7: "星期日",
-          1: "星期一",
-          2: "星期二",
-          3: "星期三",
-          4: "星期四",
-          5: "星期五"
-        };
-        let finalList = [];
-        let index = 1;
-        let AddAttendanceObjList = [];
-        for (let i of tempKeys0) {
-          let finalObj = { ID: "", ruleName: "", content: "" };
-          let str = "";
-          finalObj.ruleName = this.RawGroupData[i].rule.name;
-          console.log(this.RawGroupData[i].users);
-          // console.log(
-          //   Object.prototype.toString.call(this.RawGroupData[i].users)
-          // );
-
-          let nameMap = { "2": "在编", "3": "非编" };
-          if (this.RawGroupData[i].users !== null) {
-            for (let k of this.RawGroupData[i].users) {
-              let AddAttendanceObj = {};
-              AddAttendanceObj.id = k.workno; // id改成
-              AddAttendanceObj.name = k.name;
-              AddAttendanceObj.attendance_group_id =
-                nameMap[k.attendance_group_id];
-              console.log("AddAttendanceObjAddAttendanceObjAddAttendanceObj");
-              console.log(AddAttendanceObj);
-              AddAttendanceObjList.push(AddAttendanceObj);
+    xxx() {
+      return 123
+    },
+    useGetAttendanceGroups() {
+      const obj = {}
+      obj.access_token = this.access_token
+      console.log(obj)
+      const week_map = { '1': '星期二', '2': '星期二', '3': '星期三', '4': '星期四', '5': '星期五', '6': '星期六', '7': '星期天' }
+      getAttendanceGroups(obj).then(
+        res => {
+          const obj = res.data
+          const list = []
+          for (const i in obj) {
+            if (obj.hasOwnProperty(i)) {
+              list.push(obj[i.toString()])
             }
-            this.addAttendance = AddAttendanceObjList;
+          }
+          console.log(list)
+          list.map(v => {
+            let str = ""
+            // console.log(v.rule.items)
+            if (v.rule.items) {
+              for(let i in v.rule.items){
+                // console.log(week_map[i.toString()])
+                // console.log(v.rule.items[i.toString()].start_time)
+                // console.log(v.rule.items[i.toString()].end_time)
+                str += week_map[i.toString()] + ':' + v.rule.items[i.toString()].start_time + '-' + v.rule.items[i.toString()].end_time + '; '
+              }
+              // console.log(str)
+              v.rule.items = str
+            } else {
+              v.rule.items = '无'
+            }
+          })
+          console.log(list)
+          this.attendanceGroupList = list
+        }
+      )
+    },
+    fetchGroupData() {
+      const access_token = this.access_token
+      const access_token_obj = { access_token: this.access_token }
+      this.getGroupsLoading = true
+      getGroups(access_token_obj).then(success => {
+        this.RawGroupData = success.data
+        // this.RawRuleData = success.data[0];
+        const tempKeys0 = Object.keys(this.RawGroupData)
+        const dateMap = {
+          6: '星期六',
+          7: '星期日',
+          1: '星期一',
+          2: '星期二',
+          3: '星期三',
+          4: '星期四',
+          5: '星期五'
+        }
+        const finalList = []
+        let index = 1
+        const AddAttendanceObjList = []
+        for (const i of tempKeys0) {
+          const finalObj = { ID: '', ruleName: '', content: '' }
+          let str = ''
+          finalObj.ruleName = this.RawGroupData[i].rule.name
+
+          const nameMap = { '2': '在编', '3': '非编' }
+          if (this.RawGroupData[i].users !== null) {
+            for (const k of this.RawGroupData[i].users) {
+              const AddAttendanceObj = {}
+              AddAttendanceObj.id = k.workno // id改成
+              AddAttendanceObj.name = k.name
+              AddAttendanceObj.attendance_group_id =
+                nameMap[k.attendance_group_id]
+              AddAttendanceObjList.push(AddAttendanceObj)
+            }
+            this.addAttendance = AddAttendanceObjList
           }
 
-          let tempKeys1 = Object.keys(this.RawGroupData[i].rule.items);
-          let tempObj1 = {};
-          let tempObj2 = {};
-          for (let j of tempKeys1) {
-            console.log("-------");
-            // console.log(this.RawGroupData[i].rule.items[j].day);
-            // console.log(this.RawGroupData[i].rule.items[j].end_time);
-            // console.log(this.RawGroupData[i].rule.items[j].start_time);
-            let tempStrKey = "";
+          const tempKeys1 = Object.keys(this.RawGroupData[i].rule.items)
+          const tempObj1 = {}
+          const tempObj2 = {}
+          for (const j of tempKeys1) {
+            let tempStrKey = ''
             tempStrKey +=
               this.RawGroupData[i].rule.items[j].start_time +
-              "-" +
-              this.RawGroupData[i].rule.items[j].end_time;
+              '-' +
+              this.RawGroupData[i].rule.items[j].end_time
             tempObj1[
               dateMap[this.RawGroupData[i].rule.items[j].day]
-            ] = tempStrKey;
-            tempObj2[tempStrKey] = "";
-
-            // let tempKeys2 = Object.keys(this.RawGroupData[i].rule.items[j]);
-            // for (let k of tempKeys2) {
-            //   console.log(k);
-            // }
+            ] = tempStrKey
+            tempObj2[tempStrKey] = ''
           }
-          for (let i of Object.keys(tempObj2)) {
-            for (let j of Object.keys(tempObj1)) {
+          for (const i of Object.keys(tempObj2)) {
+            for (const j of Object.keys(tempObj1)) {
               if (tempObj1[j] === i) {
-                tempObj2[i] += j + ",";
+                tempObj2[i] += j + ','
               }
             }
           }
-          for (let k in tempObj2) {
-            let value = tempObj2[k];
-            tempObj2[value] = k;
-            delete tempObj2[k];
+          for (const k in tempObj2) {
+            const value = tempObj2[k]
+            tempObj2[value] = k
+            delete tempObj2[k]
           }
-          let tempObj3 = Object.keys(tempObj2);
-          for (let i of tempObj3) {
-            str += i + tempObj2[i] + ";";
+          const tempObj3 = Object.keys(tempObj2)
+          for (const i of tempObj3) {
+            str += i + tempObj2[i] + ';'
           }
-          finalObj.content = str;
-          finalObj.ID = index;
-          finalList.push(finalObj);
+          finalObj.content = str
+          finalObj.ID = index
+          finalList.push(finalObj)
 
-          index++;
-          console.log(finalObj);
+          index++
         }
-        this.tableData = finalList;
-      });
+        this.tableData = finalList
+      })
 
-      this.getGroupsLoading = false;
+      this.getGroupsLoading = false
     },
 
     chooseAttendance(arg) {
-      console.log(arg);
-      console.log("------");
-      let temp_obj = {
+      const temp_obj = {
         access_token: this.access_token,
-        attendance_group_id: "",
-        user_ids: ""
-      };
-      let user_id_list = [];
-      console.log(this.multipleSelection);
-      for (let i of this.multipleSelection) {
-        console.log(i.id);
-        user_id_list.push(i.id);
-        for (let k of this.addAttendance) {
-          // console.log(k);
+        attendance_group_id: '',
+        user_ids: ''
+      }
+      const user_id_list = []
+      for (const i of this.multipleSelection) {
+        user_id_list.push(i.id)
+        for (const k of this.addAttendance) {
           if (k.id === i.id) {
-            // user_id += k.id;
             if (arg === 3) {
-              temp_obj.attendance_group_id = arg;
-              k.attendance_group_id = "非编";
+              temp_obj.attendance_group_id = arg
+              k.attendance_group_id = '非编'
             } else {
-              temp_obj.attendance_group_id = arg;
-              k.attendance_group_id = "在编";
+              temp_obj.attendance_group_id = arg
+              k.attendance_group_id = '在编'
             }
           }
         }
-        console.log(user_id_list);
-        let user_id = user_id_list.join(",");
-        // console.log(user_id);
-        temp_obj.user_ids = user_id;
-
-        // if (arg === 3) {
-        //   this.addAttendance[i.id - 1].attendance_group_id = "非编";
-        // } else if (arg === 2) {
-        //   this.addAttendance[i.id - 1].attendance_group_id = "在编";
-        // }
+        const user_id = user_id_list.join(',')
+        temp_obj.user_ids = user_id
       }
-      console.log(temp_obj);
-      if (temp_obj.attendance_group_id === "" || temp_obj.user_ids === "") {
-        return;
+      if (temp_obj.attendance_group_id === '' || temp_obj.user_ids === '') {
+        return
       } else {
-        chooseAttendanceGroup(temp_obj);
+        chooseAttendanceGroup(temp_obj)
       }
     },
     handleSelectionChange(val) {
-      console.log(val);
-      this.multipleSelection = val;
+      this.multipleSelection = val
     }
   }
-};
+}
 </script>
+<style lang="scss" scoped>
+  .topButtonStyle {
+    display: flex;
+    justify-content: space-between;
+  }
+</style>
