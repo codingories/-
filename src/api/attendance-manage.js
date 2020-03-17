@@ -9,6 +9,22 @@ export function getAttendanceGroups(token) {
   })
 }
 
+export function deleteGroup(data) {
+  return request({
+    url: '/api/v1/attendance_group/delete-group',
+    method: 'post',
+    data: qs.stringify(data)
+  })
+}
+
+export function getGroupUsers(params) {
+  return request({
+    url: '/api/v1/admin-role/show',
+    method: 'get',
+    params
+  })
+}
+
 // export function deleteAttendanceRule(data) {
 //   return request({
 //     url: '/api/v1/attendance-rule/delete-rule',
