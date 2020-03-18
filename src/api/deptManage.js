@@ -9,6 +9,14 @@ export function getDepList(token) {
   })
 }
 
+export function delDepartment(data) {
+  return request({
+    url: '/api/v1/dept/del-dep',
+    method: 'get',
+    params: data
+  })
+}
+
 export function getUserList(token) {
   return request({
     url: '/api/v1/admin-role/user-list',

@@ -1,15 +1,17 @@
 <template>
   <div>
     <header class="header">部门管理</header>
-    {{ nameForm.leader }}
-
+    {{ higherOfficeList }}
     <!--    {{leaderList}}-->
-    <!--    <hr>-->
+    <hr>
+    {{ leaderList }}
     <!--    {{managerList}}-->
     <!--    <hr>-->
     <!--    {{memberList}}-->
     <!--    <hr>-->
     <!--    {{leaderList}}-->
+    <el-button type="primary" class="addDepartment" @click="addDepartment">添加部门</el-button>
+
     <el-table
       :data="departmentData"
       :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
@@ -32,10 +34,10 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="departmentManager"
-        label="部门管理">
+        prop="setDepartmentManagerFormForm"
+        label="部门管理人">
         <template slot-scope="scope">
-          <div @click="toggleManagerShowFlag(scope.$index, scope.row)">{{ scope.row.manager_id===0? '无': scope.row.manager_id }}</div>
+          <div @click="toggleManagerShowFlag(scope.$index, scope.row)">{{ dealManager(scope.row.manager) }}</div>
         </template>
       </el-table-column>
       <el-table-column
@@ -53,7 +55,8 @@
             size="mini">编辑</el-button>
           <el-button
             size="mini"
-            type="danger">删除</el-button>
+            type="danger"
+            @click="deleteDepartment(scope.$index, scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -62,8 +65,6 @@
       :visible.sync="chooseLeaderFlag"
       title="选择负责人"
       width="30%">
-      {{ nameForm.leader }}
-      {{ nameForm.leader }}
       <section class="leaderListWrapper">
         <el-form :model="nameForm" label-width="100px" >
           <el-form-item prop="type">
@@ -86,10 +87,10 @@
       title="选择部门管理人"
       width="30%">
       <section class="leaderListWrapper">
-        <el-form :model="ruleForm1" label-width="100px" >
+        <el-form :model="setDepartmentManagerForm" label-width="100px" >
           <el-form-item label="部门管理人" prop="type">
-            <el-checkbox-group v-model="ruleForm1.manager" class="managerList">
-              <el-checkbox v-for="(item,i) in managerList" :key="i" :label="item.name"/>
+            <el-checkbox-group v-model="setDepartmentManagerForm.manager" class="managerList">
+              <el-checkbox v-for="(item,i) in managerList" :key="i" :label="item.id">{{ item.name }}</el-checkbox>
             </el-checkbox-group>
           </el-form-item>
         </el-form>
@@ -105,9 +106,9 @@
       title="选择部门成员"
       width="30%">
       <section class="leaderListWrapper">
-        <el-form :model="ruleForm1" label-width="100px" >
+        <el-form :model="departmentMember" label-width="100px" >
           <el-form-item label="部门成员" prop="type">
-            <el-checkbox-group v-model="ruleForm2.member" class="managerList">
+            <el-checkbox-group v-model="chooseDepartmentMember.member" class="managerList">
               <el-checkbox v-for="(item,i) in memberList" :key="i" :label="item.name"/>
             </el-checkbox-group>
           </el-form-item>
@@ -118,16 +119,55 @@
         <el-button type="primary" @click="setDepartmentMember">确 定</el-button>
       </span>
     </el-dialog>
+    <el-dialog
+      :visible.sync="addDepartmentDialogFlag"
+      :before-close="handleClose"
+      title="添加部门"
+      width="30%">
+      <el-form ref="addDepartmentForm" :model="addDepartmentForm" :rules="rules" label-width="100px" class="demo-addDepartmentForm">
+        <el-form-item label="部门名称" prop="name">
+          <el-input v-model="addDepartmentForm.name"/>
+        </el-form-item>
+        <!--        <el-form-item label="上级部门" prop="higherOffice">-->
+        <!--          <el-select v-model="addDepartmentForm.higherOffice" placeholder="请选择上级部门">-->
+        <!--            <el-option v-for="(item, i) in higherOfficeList" :key="i" :label="item.dept_name" :value="item.id"/>-->
+        <!--          </el-select>-->
+        <!--        </el-form-item>-->
 
+        <!--        <el-form-item label="部门主管" prop="higherOffice">-->
+        <!--          <el-select v-model="addDepartmentForm.higherOffice" placeholder="请选择部门主管">-->
+        <!--            <el-option v-for="(item, i) in departmentData" :key="i" :label="item.dept_name" value="item.id"/>-->
+        <!--          </el-select>-->
+        <!--        </el-form-item>-->
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addDepartmentDialogFlag = false">取 消</el-button>
+        <el-button type="primary" @click="confirmAddDepartment">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
-import { getDepList, getUserList, saveDepartment } from '@/api/deptManage'
+import { getDepList, getUserList, saveDepartment, delDepartment } from '@/api/deptManage'
 import store from '@/store'
 
 export default {
   data() {
     return {
+      higherOfficeList: [],
+      addDepartmentForm: {
+        name: '',
+        higherOffice: ''
+      },
+      rules: {
+        name: [
+          { required: true, message: '请输入部门名称', trigger: 'blur' }
+        ],
+        higherOffice: [
+          { required: false, message: '请选择上级部门', trigger: 'change' }
+        ]
+      },
+      addDepartmentDialogFlag: false,
       access_token: store.getters.access_token,
       director_id: '',
       id: '',
@@ -135,10 +175,14 @@ export default {
       nameForm: {
         leader: 1
       },
-      ruleForm1: {
+
+      setDepartmentManagerForm: {
         manager: []
       },
-      ruleForm2: {
+      chooseDepartmentMember: {
+        member: []
+      },
+      departmentMember: {
         member: []
       },
       chooseLeaderFlag: false,
@@ -155,13 +199,13 @@ export default {
       //   id: 3,
       //   department: '教学部', dept_name
       //   departmentLeader: '小张', director
-      //   departmentManager: '东东',
+      //   setDepartmentManagerForm: '东东',
       //   departmentMember: '小王，小李',
       //   children: [{
       //     id: 31,
       //     department: '英语部',
       //     departmentLeader: '小王',
-      //     departmentManager: '西西',
+      //     setDepartmentManagerForm: '西西',
       //     departmentMember: '张三，李四'
       //   }]
       // }
@@ -173,6 +217,50 @@ export default {
     this.useGetUserList()
   },
   methods: {
+    confirmAddDepartment() {
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.dept_name = this.addDepartmentForm.name
+      // obj.pid = this.addDepartmentForm.higherOffice
+      // console.log(this.addDepartmentForm.higherOffice)
+      this.$refs['addDepartmentForm'].validate((valid) => {
+        if (valid) {
+          saveDepartment(obj).then(res => {
+            this.$alert('请求成功')
+            this.addDepartmentDialogFlag = false
+            location.reload()
+          }).catch(
+            err => {
+              this.$alert('请求失败')
+            }
+          )
+        } else {
+          console.log('error submit!!')
+          return false
+        }
+      })
+      console.log('obj')
+      console.log(obj)
+    },
+    addDepartment() {
+      console.log('xx')
+      this.addDepartmentDialogFlag = true
+    },
+    deleteDepartment(index, row) {
+      // console.log('删除')
+      // console.log(index, row.id)
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.dep_id = row.id
+      delDepartment(obj).then(
+        res => {
+          this.$alert('删除成功')
+          history.reload()
+        }
+      ).catch(err => {
+        this.$alert(err)
+      })
+    },
     useGetUserList() {
       console.log('==---===')
       const list = []
@@ -198,6 +286,13 @@ export default {
         },
       )
     },
+    dealManager(manager) {
+      if (manager) {
+        return manager.map(v => v.name).join(',')
+      } else {
+        return '无'
+      }
+    },
     dealUserList(userList) {
       let str = ''
       if (userList) {
@@ -212,9 +307,12 @@ export default {
       obj.access_token = this.access_token
       getDepList(obj).then(
         res => {
+          console.log('useGetDepList')
           console.log(res.data)
           this.departmentData = res.data
           // this.managerList = res.data
+          this.higherOfficeList.push({ id: 0, dept_name: '无' })
+          this.higherOfficeList.push(...this.departmentData)
         }
       )
     },
@@ -228,40 +326,66 @@ export default {
       if (row.director_id) {
         this.$set(this.nameForm, 'leader', row.director_id)
       } else {
-        console.log('kkkkk')
         this.$set(this.nameForm, 'leader', 0)
       }
       this.tempId = row.id
       this.chooseLeaderFlag = true
     },
     toggleManagerShowFlag(index, row) {
-      this.ruleForm1.manager = []
+      console.log(index, row)
+      // console.log()
+      this.setDepartmentManagerForm.manager = []
+      console.log(this.setDepartmentManagerForm.manager)
+      console.log('---')
+      console.log(row.manager)
+
+      let hasManagers
+      if (!row.manager) {
+        hasManagers = []
+      } else {
+        hasManagers = row.manager.map(v => {
+          return v.id
+        })
+      }
+      this.setDepartmentManagerForm.manager.push(...hasManagers)
       this.tempId = row.id
       this.chooseManagerFlag = true
+      console.log(this.chooseManagerFlag)
     },
     toggleMemberShowFlag(index, row) {
-      this.ruleForm2.member = []
+      this.chooseDepartmentMember.member = []
       this.tempId = row.id
       this.chooseMemberFlag = true
     },
     setDepartmentManager() {
       const index = this.findPosition()
-      console.log(this.ruleForm1.manager)
-      if (index.length === 1) {
-        this.departmentData[index[0]].departmentManager = this.ruleForm1.manager.join(',')
-      } else {
-        this.$set(this.departmentData[index[0]].children[index[1]], 'departmentManager', this.ruleForm1.manager.join(','))
-      }
+      console.log(this.setDepartmentManagerForm.manager)
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.manager_id = this.setDepartmentManagerForm.manager.toString()
+      obj.id = this.tempId
+      console.log(obj)
+      saveDepartment(obj).then(res => {
+        this.$alert('保存成功')
+        location.reload()
+      }).catch(err => {
+        this.$alert('保存失败')
+      })
+      // if (index.length === 1) {
+      //   this.departmentData[index[0]].setDepartmentManagerForm = this.setDepartmentManagerForm.manager.join(',')
+      // } else {
+      //   this.$set(this.departmentData[index[0]].children[index[1]], 'setDepartmentManagerForm', this.setDepartmentManagerFormForm.manager.join(','))
+      // }
       this.chooseManagerFlag = false
     },
     setDepartmentMember() {
       const index = this.findPosition()
-      console.log(this.ruleForm2.member)
+      console.log(this.chooseDepartmentMember.member)
 
       if (index.length === 1) {
-        this.departmentData[index[0]].departmentMember = this.ruleForm2.member.join(',')
+        this.departmentData[index[0]].departmentMember = this.chooseDepartmentMember.member.join(',')
       } else {
-        this.$set(this.departmentData[index[0]].children[index[1]], 'departmentMember', this.ruleForm2.member.join(','))
+        this.$set(this.departmentData[index[0]].children[index[1]], 'departmentMember', this.chooseDepartmentMember.member.join(','))
       }
       this.chooseManagerFlag = false
     },
@@ -274,21 +398,21 @@ export default {
         .catch(_ => {})
     },
     setDepartmentLeader() {
-      console.log('123xxxaa')
-      let obj = {}
+      console.log('123deleteDepartmentaa')
+      const obj = {}
       obj.access_token = this.access_token
       obj.id = this.id
       obj.director_id = this.nameForm.leader
       console.log(obj)
-      saveDepartment(obj).then(res=>{
+      saveDepartment(obj).then(res => {
         this.$alert('保存成功')
         location.reload()
       })
       // const index = this.findPosition()
       // if (index.length === 1) {
-      //   this.departmentData[index[0]].departmentLeader = this.ruleForm.leader
+      //   this.departmentData[index[0]].departmentLeader = this.addDepartmentForm.leader
       // } else {
-      //   this.$set(this.departmentData[index[0]].children[index[1]], 'departmentManager', this.ruleForm.leader)
+      //   this.$set(this.departmentData[index[0]].children[index[1]], 'setDepartmentManagerFormForm', this.addDepartmentForm.leader)
       // }
       // this.chooseLeaderFlag = false
     },
@@ -346,5 +470,8 @@ export default {
     max-height: 50vh;
     /*overflow:;*/
     overflow-y:scroll
+  }
+  .addDepartment {
+    margin-bottom: 1em;
   }
 </style>
