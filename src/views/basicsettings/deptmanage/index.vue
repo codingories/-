@@ -1,10 +1,11 @@
 <template>
   <div>
     <header class="header">部门管理</header>
-    {{ higherOfficeList }}
+    {{ departmentData }}
     <!--    {{leaderList}}-->
     <hr>
-    {{ leaderList }}
+    {{ chooseDepartmentMember.member }}
+    <!--    {{ leaderList }}-->
     <!--    {{managerList}}-->
     <!--    <hr>-->
     <!--    {{memberList}}-->
@@ -52,7 +53,8 @@
         label="操作">
         <template slot-scope="scope">
           <el-button
-            size="mini">编辑</el-button>
+            size="mini"
+            @click="editDepartmentRow(scope.$index, scope.row)">编辑</el-button>
           <el-button
             size="mini"
             type="danger"
@@ -109,7 +111,7 @@
         <el-form :model="departmentMember" label-width="100px" >
           <el-form-item label="部门成员" prop="type">
             <el-checkbox-group v-model="chooseDepartmentMember.member" class="managerList">
-              <el-checkbox v-for="(item,i) in memberList" :key="i" :label="item.name"/>
+              <el-checkbox v-for="(item,i) in memberList" :key="i" :label="item.id"> {{ item.name }} </el-checkbox>
             </el-checkbox-group>
           </el-form-item>
         </el-form>
@@ -124,7 +126,7 @@
       :before-close="handleClose"
       title="添加部门"
       width="30%">
-      <el-form ref="addDepartmentForm" :model="addDepartmentForm" :rules="rules" label-width="100px" class="demo-addDepartmentForm">
+      <el-form ref="addDepartmentForm" :model="addDepartmentForm" :rules="addDepartmentFormRules" label-width="100px">
         <el-form-item label="部门名称" prop="name">
           <el-input v-model="addDepartmentForm.name"/>
         </el-form-item>
@@ -145,6 +147,29 @@
         <el-button type="primary" @click="confirmAddDepartment">确 定</el-button>
       </span>
     </el-dialog>
+    <el-dialog
+      :visible.sync="editDialogVisible"
+      :before-close="handleClose"
+      width="30%">
+      {{ editDepartmentForm }}
+
+      <el-form ref="editDepartmentForm" :model="editDepartmentForm" :rules="editDepartmentFormRules" label-width="100px">
+        <el-form-item label="部门名称" prop="name">
+          <el-input v-model="editDepartmentForm.name"/>
+        </el-form-item>
+        <el-form-item label="上级部门" prop="higherOffice">
+          <el-select v-model="editDepartmentForm.higherOffice" placeholder="请选择上级部门">
+            <el-option v-for="(item, i) in higherOfficeList" :key="i" :label="item.dept_name" :value="item.id"/>
+          </el-select>
+        </el-form-item>
+      </el-form>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="xxx">确 定</el-button>
+      </span>
+    </el-dialog>
+
   </div>
 </template>
 <script>
@@ -154,12 +179,22 @@ import store from '@/store'
 export default {
   data() {
     return {
+      editDepartmentForm: {
+        name: '',
+        higherOffice: ''
+      },
+      editDialogVisible: false,
       higherOfficeList: [],
       addDepartmentForm: {
         name: '',
         higherOffice: ''
       },
-      rules: {
+      editDepartmentFormRules: {
+        name: [
+          { required: true, message: '请输入部门名称', trigger: 'blur' }
+        ]
+      },
+      addDepartmentFormRules: {
         name: [
           { required: true, message: '请输入部门名称', trigger: 'blur' }
         ],
@@ -195,20 +230,6 @@ export default {
       formLabelWidth: '120px',
       tempId: 0,
       departmentData: [
-      //   {
-      //   id: 3,
-      //   department: '教学部', dept_name
-      //   departmentLeader: '小张', director
-      //   setDepartmentManagerForm: '东东',
-      //   departmentMember: '小王，小李',
-      //   children: [{
-      //     id: 31,
-      //     department: '英语部',
-      //     departmentLeader: '小王',
-      //     setDepartmentManagerForm: '西西',
-      //     departmentMember: '张三，李四'
-      //   }]
-      // }
       ]
     }
   },
@@ -217,6 +238,34 @@ export default {
     this.useGetUserList()
   },
   methods: {
+    xxx() {
+      const obj = {}
+      obj.access_token = this.access_token
+      console.log(this.editDepartmentForm)
+      obj.pid = this.editDepartmentForm.higherOffice
+      console.log(obj)
+      saveDepartment(obj).then(res => {
+        this.$alert('保存成功')
+        location.reload()
+      }).catch(
+        err => {
+          this.$alert(err)
+        }
+      )
+    },
+    editDepartmentRow(index, row) {
+      console.log('editDepartmentRow')
+      console.log(index, row)
+      console.log(row.dept_name)
+
+      // if(!!row.children.length){
+      //   this.editDepartmentRow.higherOffice =
+      // }
+
+      this.editDepartmentForm.name = row.dept_name
+      // editDepartmentForm.higherOffice
+      this.editDialogVisible = true
+    },
     confirmAddDepartment() {
       const obj = {}
       obj.access_token = this.access_token
@@ -247,19 +296,24 @@ export default {
       this.addDepartmentDialogFlag = true
     },
     deleteDepartment(index, row) {
-      // console.log('删除')
+      console.log('删除')
       // console.log(index, row.id)
       const obj = {}
       obj.access_token = this.access_token
       obj.dep_id = row.id
       delDepartment(obj).then(
         res => {
+          console.log('delete success')
           this.$alert('删除成功')
-          history.reload()
+          location.reload()
         }
-      ).catch(err => {
-        this.$alert(err)
-      })
+      ).catch(
+        err => {
+          console.log('delete fail')
+          this.$alert(err)
+        }
+      )
+      //   .catch()
     },
     useGetUserList() {
       console.log('==---===')
@@ -300,7 +354,7 @@ export default {
           str += v.name + ','
         })
       }
-      return str
+      return str || '无'
     },
     useGetDepList() {
       const obj = {}
@@ -353,7 +407,11 @@ export default {
       console.log(this.chooseManagerFlag)
     },
     toggleMemberShowFlag(index, row) {
-      this.chooseDepartmentMember.member = []
+      console.log('toggleMemberShowFlag')
+      const ids = row.user_list.map(v => v.id)
+      console.log(ids)
+      this.chooseDepartmentMember.member = ids
+      console.log('部门成员')
       this.tempId = row.id
       this.chooseMemberFlag = true
     },
@@ -379,14 +437,25 @@ export default {
       this.chooseManagerFlag = false
     },
     setDepartmentMember() {
-      const index = this.findPosition()
+      // const index = this.findPosition()
       console.log(this.chooseDepartmentMember.member)
+      const obj = {}
+      obj.access_token = this.access_token
+      obj.uid = this.chooseDepartmentMember.member.join(',')
+      console.log(obj)
+      saveDepartment(obj).then(res => {
+        this.$alert('保存成功')
+        location.reload()
+      }).catch(
+        err => {
+          this.$alert('保存失败')
+        }
+      )
+      // if (index.length === 1) {
+      //   this.departmentData[index[0]].departmentMember = this.chooseDepartmentMember.member.join(',')
+      // } else {
+      //   this.$set(this.departmentData[index[0]].children[index[1]], 'departmentMember', this.chooseDepartmentMember.member.join(','))
 
-      if (index.length === 1) {
-        this.departmentData[index[0]].departmentMember = this.chooseDepartmentMember.member.join(',')
-      } else {
-        this.$set(this.departmentData[index[0]].children[index[1]], 'departmentMember', this.chooseDepartmentMember.member.join(','))
-      }
       this.chooseManagerFlag = false
     },
 
