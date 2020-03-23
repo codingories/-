@@ -1,10 +1,8 @@
 <template>
   <div>
     <header class="header">部门管理</header>
-    {{ departmentData }}
     <!--    {{leaderList}}-->
     <hr>
-    {{ chooseDepartmentMember.member }}
     <!--    {{ leaderList }}-->
     <!--    {{managerList}}-->
     <!--    <hr>-->
@@ -151,7 +149,6 @@
       :visible.sync="editDialogVisible"
       :before-close="handleClose"
       width="30%">
-      {{ editDepartmentForm }}
 
       <el-form ref="editDepartmentForm" :model="editDepartmentForm" :rules="editDepartmentFormRules" label-width="100px">
         <el-form-item label="部门名称" prop="name">
@@ -166,7 +163,7 @@
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="xxx">确 定</el-button>
+        <el-button type="primary" @click="confirmEditDepartmentForm">确 定</el-button>
       </span>
     </el-dialog>
 
@@ -238,11 +235,14 @@ export default {
     this.useGetUserList()
   },
   methods: {
-    xxx() {
+    confirmEditDepartmentForm() {
       const obj = {}
+      obj.id = this.id
       obj.access_token = this.access_token
-      console.log(this.editDepartmentForm)
       obj.pid = this.editDepartmentForm.higherOffice
+      obj.dept_name = this.editDepartmentForm.name
+
+      console.log('confirmEditDepartmentForm')
       console.log(obj)
       saveDepartment(obj).then(res => {
         this.$alert('保存成功')
@@ -257,7 +257,7 @@ export default {
       console.log('editDepartmentRow')
       console.log(index, row)
       console.log(row.dept_name)
-
+      this.id = row.id
       // if(!!row.children.length){
       //   this.editDepartmentRow.higherOffice =
       // }
@@ -442,6 +442,7 @@ export default {
       const obj = {}
       obj.access_token = this.access_token
       obj.uid = this.chooseDepartmentMember.member.join(',')
+      obj.id = this.tempId
       console.log(obj)
       saveDepartment(obj).then(res => {
         this.$alert('保存成功')
